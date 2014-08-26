@@ -1,0 +1,240 @@
+<?php
+
+class model_items {
+
+    private $db;
+
+    public function __construct () {
+        $this->db = new database();
+    }
+
+
+
+    public function createItem ($datas) {
+        $d = $datas;
+        $d['item-has-components'] = isset($d['item-has-components']) ? '1' : '0';
+
+        $res = $this->db->statement(array(
+            'q'=>"INSERT INTO imts_items(
+                    item_name
+                    ,item_serial_no
+                    ,item_model_no
+                    ,item_type
+                    ,item_state
+                    ,item_description
+                    ,item_quantity
+                    ,item_date_of_purchase
+                    ,item_package
+                    ,item_has_components
+                    ,item_component_of
+                ) VALUES(?,?,?,?,?,?,?,?,?,?,?)"
+            ,'v'=>array(
+                $d['item-name']
+                ,$d['item-serial-no']
+                ,$d['item-model-no']
+                ,intval($d['item-type'])
+                ,intval($d['item-state'])
+                ,$d['item-description']
+                ,$d['item-quantity']
+                ,$d['item-date-of-purchase']
+                ,intval($d['item-package'])
+                ,intval($d['item-has-components'])
+                ,intval($d['item-component-of']))));
+        if ($res) {
+            $d['item-id'] = $this->db->lastInsertId();
+            $this->logAction($d['item-id'], 'This item was created.');
+            return $d;
+        } else return null;
+    }
+
+
+
+    public function createItemOwnership ($datas) {
+        $d = $datas;
+        $ownership = $this->db->statement(array(
+            'q'=>"INSERT INTO imts_ownership(
+                    ownership_item
+                    ,ownership_owner
+                    ,ownership_owner_type
+                    ,ownership_date_owned
+                    ,ownership_date_released
+                ) VALUES(?,?,?,?,?)"
+            ,'v'=>array(
+                intval($d['item-id'])
+                ,intval($d['ownership-owner'])
+                ,$d['ownership-owner-type']
+                ,$d['ownership-date-owned']
+                ,$d['ownership-date-released'])));
+        
+        if ($ownership) $this->logAction($d['item-id'], 'Successfully created an ownership for this item.');
+        else $this->logAction($d['item-id'], 'Failed to create an ownership for this item.');
+    }
+
+
+
+    public function readItem ($itemId) {
+        $r = $this->db->statement(array(
+            'q'=>"SELECT * FROM imts_items WHERE item_id = ? LIMIT 1"
+            ,'v'=>array(
+                intval($itemId))));
+        return count($r) > 0 ? $r[0] : null;
+    }
+
+
+
+    public function readItemComponents ($itemId) {
+        $r = $this->db->statement(array(
+            'q'=>"SELECT * FROM imts_items WHERE item_component_of = ? 
+                ORDER BY
+                    item_archive_state ASC,
+                    item_type ASC,
+                    item_serial_no ASC,
+                    item_model_no ASC,
+                    item_name ASC"
+            ,'v'=>array(intval($itemId))));
+        return count($r) > 0 ? $r : null;
+    }
+
+
+
+    public function readItemOwner ($itemId) {
+        $currentDate = date('Y-m-d');
+        $r = $this->db->statement(array(
+            'q'=>"SELECT * FROM imts_ownership WHERE ownership_item = ? AND (ownership_date_released = '0000-00-00' OR ownership_date_released > '$currentDate') LIMIT 1"
+            ,'v'=>array(
+                intval($itemId))));
+        return count($r) > 0 ? $r[0] : null;
+    }
+
+
+
+    public function readItemOwners ($itemId) {
+        $r = $this->db->statement(array(
+            'q'=>"SELECT * FROM imts_ownership WHERE ownership_item = ? ORDER BY ownership_date_released DESC"
+            ,'v'=>array(
+                intval($itemId))));
+        return count($r) > 0 ? $r : null;
+    }
+
+
+
+    public function updateItem ($datas) {
+        $d = $datas;
+        $d['item-has-components'] = isset($d['item-has-components']) ? '1' : '0';
+        $r = $this->db->statement(array(
+            'q'=>"UPDATE imts_items
+                SET
+                    item_name = ?
+                    ,item_serial_no = ?
+                    ,item_model_no = ?
+                    ,item_type = ?
+                    ,item_state = ?
+                    ,item_description = ?
+                    ,item_quantity = ?
+                    ,item_date_of_purchase = ?
+                    ,item_package = ?
+                    ,item_has_components = ?
+                    ,item_component_of = ?
+                WHERE item_id = ?"
+            ,'v'=>array(
+                $d['item-name']
+                ,$d['item-serial-no']
+                ,$d['item-model-no']
+                ,intval($d['item-type'])
+                ,intval($d['item-state'])
+                ,$d['item-description']
+                ,$d['item-quantity']
+                ,$d['item-date-of-purchase']
+                ,intval($d['item-package'])
+                ,intval($d['item-has-components'])
+                ,intval($d['item-component-of'])
+                ,intval($d['item-id']))));
+
+        if ($r) $this->logAction($d['item-id'], 'This item has been updated.');
+        else $this->logAction($d['item-id'], 'This item had been attempted to be updated but failed.');
+        
+        return $d;
+    }
+
+
+
+    public function updateItemOwnership ($datas) {
+        $d = $datas;
+        $ownership = $this->db->statement(array(
+            'q'=>"UPDATE imts_ownership
+                SET
+                    ownership_date_owned = ?
+                    ,ownership_date_released = ?
+                WHERE ownership_id = ?"
+            ,'v'=>array(
+                $d['ownership-date-owned']
+                ,$d['ownership-date-released']
+                ,intval($d['ownership-id']))));
+
+        if ($ownership) $this->logAction($d['item-id'], 'The ownership of this item has been updated successfully.');
+        else $this->logAction($d['item-id'], 'The ownership of this item have failed to be updated.');
+    }
+
+
+
+    public function deleteItem ($itemId) {
+        $result = $this->db->statement(array(
+            'q'=>"UPDATE imts_items SET item_archive_state = 1 WHERE item_id = ?"
+            ,'v'=>array(
+                intval($itemId))));
+        return $result;
+    }
+
+
+
+    public function deleteItemOwnership ($ownershipId) {
+        $currentDate = date('Y-m-d');
+        $result = $this->db->statement(array(
+            'q'=>"UPDATE imts_ownership SET ownership_date_released = '$currentDate' WHERE ownership_id = ?"
+            ,'v'=>array(intval($ownershipId))));
+        return $result;
+    }
+
+
+
+    public function searchItems ($searchType='item', $keyword) {
+        switch ($searchType) {
+            case 'componentHosts':
+                $rows = $this->db->statement(array(
+                    'q'=>"SELECT * FROM imts_items WHERE item_has_components = 1 AND (
+                        item_name LIKE ?
+                        OR item_serial_no LIKE ?
+                        OR item_model_no LIKE ?)"
+                    ,'v'=>array(
+                        "%$keyword%"
+                        ,"%$keyword%"
+                        ,"%$keyword%")));
+                break;
+
+            default:
+                $rows = array();
+        }
+        return count($rows) > 0 ? $rows : null;
+    }
+
+
+
+    public function logAction ($itemId, $logContent) {
+        $item = $this->readItem($itemId);
+        $log = $item['item_log'];
+        $log = unserialize($log);
+        $log = is_array($log) ? $log : array();
+
+        array_push($log, array(
+            'date'=>date('Y-m-d')
+            ,'time'=>date('H:i:s')
+            ,'user'=>'Feature coming soon...'
+            ,'log'=>$logContent));
+
+        $log = serialize($log);
+
+        $this->db->statement(array(
+            'q'=>"UPDATE imts_items SET item_log = '$log' WHERE item_id = $itemId"));
+    }
+    
+}

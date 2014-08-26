@@ -1,0 +1,43 @@
+html,
+body {
+    display: block;
+    margin: 0px;
+    padding: 0px;
+    background: #fafafa;
+    font-family: sans-serif;
+    text-align: center;
+}
+
+#header {
+    display: block;
+    padding: 10px 0px;
+    text-align: left;
+    text-shadow: 3px 3px 3px rgba(0, 0, 0, 0.2);
+}
+#header #header-system-name-short {
+    display: block;
+    letter-spacing: 3em;
+    font-size: 1.2em;
+}
+#header #header-system-name {
+    display: block;
+    font-size: 0.75em;
+}
+
+#main-content {
+    display: inline-block;
+    margin: 10px 15px 30px 15px;
+    padding: 8px 25px 18px 25px;
+    border: 1px solid #ccc;
+    background: #fff;
+    box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+
+a {
+    text-decoration: none;
+    color: #0f6099;
+}
+a:hover {
+    text-decoration: underline;
+}

@@ -1,0 +1,25 @@
+#breadcrumb {
+    margin: 0px 0px 2px 0px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    text-align: left;
+    font-size: 0.75em;
+}
+#breadcrumb-clock {
+    display: inline-block;
+    padding: 0px 0px 0px 30px;
+    float: right;
+}
+#breadcrumb-clock-timer {
+    display: inline-block;
+    padding: 0px 0px 0px 8px;
+}
+#breadcrumb-clock-timer > span {
+    display: inline-block;
+    padding: 0px 3px;
+}
+#breadcrumb-breadcrumb {
+    display: inline-block;
+    text-transform: capitalize;
+}

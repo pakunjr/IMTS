@@ -1,0 +1,27 @@
+table {
+    border-collapse: collapse;
+}
+tr:nth-child(2n) {
+    background: #f7f7f7;
+}
+th,
+td {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    font-size: 0.85em;
+    text-shadow: 2px 2px 0px rgba(255, 255, 255, 0.7);
+}
+th {
+    background: #ebffeb;
+    font-weight: normal;
+    text-align: center;
+}
+td {
+    text-align: left;
+}
+
+tr.special-hover:hover {
+    background-color: #d9f5ff;
+    color: #295666;
+    cursor: pointer;
+}
