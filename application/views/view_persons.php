@@ -120,7 +120,7 @@ class view_persons {
             .'<div class="accordion-title">Employment History</div><div class="accordion-content"></div>'
 
             .'<hr /><a href="'.URL_BASE.'persons/update_person/'.$pd['person_id'].'/"><input class="btn-green" type="button" value="Update" /></a>'
-            .'<a href="#"><input class="btn-green" type="button" value="Add Employment" /></a>';
+            .'<a href="'.URL_BASE.'employees/create_employment/'.$pd['person_id'].'/"><input class="btn-green" type="button" value="Add Employment" /></a>';
         return $output;
     }
 

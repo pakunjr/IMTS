@@ -71,4 +71,28 @@ class view_departments {
         return $output;
     }
 
+
+
+    public function renderSearchResults ($datas) {
+        if ($datas == null) return 'Your keyword did not match any department name.';
+
+        $c_persons = new controller_persons();
+
+        $output = '<table><tr>'
+            .'<th>Name -- Short</th>'
+            .'<th>Description</th>'
+            .'<th>Head</th>'
+            .'</tr>';
+        foreach ($datas as $d) {
+            $output .= '<tr class="data" data-id="'.$d['department_id'].'" data-label="'.$d['department_name_short'].' -- '.$d['department_name'].'">'
+                .'<td>'.$d['department_name'].' -- '.$d['department_name_short'].'</td>'
+                .'<td>'.$d['department_description'].'</td>'
+                .'<td>'.$c_persons->displayPersonName($d['department_head'], false).'</td>'
+                .'</tr>';
+        }
+        $output .= '</table>'
+            .'<hr /><a href="'.URL_BASE.'departments/create_department/" target="_blank"><input class="btn-green" type="button" value="Add a Department" /></a>';
+        return $output;
+    }
+
 }

@@ -42,4 +42,26 @@ $(document).ready(function () {
         });
     }
 
+
+
+    //Department search
+    if ($('#employee-department-label, #employee-department').length > 0) {
+        embedSearchFx({
+            'url': $('#employee-department').attr('data-url')
+            ,'o_label': $('#employee-department-label')
+            ,'o_id': $('#employee-department')
+        });
+    }
+
+
+
+    //Job search
+    if ($('#employee-job-label, #employee-job').length > 0) {
+        embedSearchFx({
+            'url': $('#employee-job').attr('data-url')
+            ,'o_label': $('#employee-job-label')
+            ,'o_id': $('#employee-job')
+        });
+    }
+
 });

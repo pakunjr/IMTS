@@ -44,4 +44,16 @@ class controller_departments {
         echo $this->view->renderDepartmentInformations($department);
     }
 
+
+
+    public function displaySearchResults ($keyword) {
+        if (strlen(trim($keyword)) < 1) {
+            echo 'You can use the following to key-in your keyword:<br /><br />'
+                .'Department Name / Short';
+            return;
+        }
+        $departments = $this->model->searchDepartments($keyword);
+        echo $this->view->renderSearchResults($departments);
+    }
+
 }

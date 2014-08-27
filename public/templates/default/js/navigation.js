@@ -6,8 +6,12 @@ $(document).ready(function () {
                 ,$trig = $this.parent('li');
 
             $this.css({
-                'top': $trig.offset().top + $trig.height() - 1 + 'px'
+                'top': ($trig.offset().top + $trig.height() - 1) + 'px'
             }).stop(true, true).slideUp(0);
+
+            $(window).on('resize', function () {
+                $this.css('top', ($trig.offset().top + $trig.height() - 1) + 'px');
+            });
 
             $trig.hover(function () {
                 $this.stop(true, true).slideDown(250);

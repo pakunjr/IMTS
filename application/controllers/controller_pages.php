@@ -164,8 +164,36 @@ class controller_pages {
 
             case 'employees':
                 switch ($view) {
+                    case 'create_employment':
+                        switch ($action) {
+                            case 'save':
+                                break;
+
+                            default:
+                                $this->displayHeader();
+                                $c_employees->displayForm($controller);
+                                $this->displayFooter();
+                        }
+                        break;
+
+                    case 'update_employment':
+                        switch ($action) {
+                            case 'save':
+                                break;
+
+                            default:
+                                $this->displayHeader();
+                                $c_employees->displayForm($controller, $action);
+                                $this->displayFooter();
+                        }
+                        break;
+
                     case 'in_search':
                         $c_employees->displaySearchResults($controller);
+                        break;
+
+                    case 'in_search_job':
+                        $c_employees->displaySearchResultsJob($controller);
                         break;
 
                     default:
@@ -209,6 +237,10 @@ class controller_pages {
                         break;
 
                     case 'delete_department':
+                        break;
+
+                    case 'in_search':
+                        $c_departments->displaySearchResults($controller);
                         break;
 
                     default:
@@ -271,6 +303,14 @@ class controller_pages {
     public function displayNavigation ($type='default') {
         $model = $this->model->get('model');
         echo $this->view->renderNavigation($type, $model);
+    }
+
+
+
+    public function displayErrorPage ($type='unknown', $echo=true) {
+        $output = $this->view->renderErrorPage($type);
+        if (!$echo) return $output;
+        echo $output;
     }
 
 }
