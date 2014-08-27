@@ -12,6 +12,7 @@ foreach ($css_jquery as $filename) {
     else echo '<!-- CSS jQuery FILE MISSING: ',$filepath,' -->',PHP_EOL;
 }
 
+//Public css
 $css_public = array();
 foreach ($css_public as $filename) {
     $filepath = DIR_PUBLIC.DS.'css'.DS.$filename;
@@ -20,19 +21,28 @@ foreach ($css_public as $filename) {
     else echo '<!-- CSS PUBLIC FILE MISSING: ',$filepath,' -->',PHP_EOL;
 }
 
-$css_template = array(
-    'layout.css'
-    ,'layout_navigation.css'
-    ,'breadcrumb.css'
-    ,'datepicker.css'
-    ,'forms.css'
-    ,'tables.css');
-foreach ($css_template as $filename) {
-    $filepath = DIR_TEMPLATE.DS.'css'.DS.$filename;
+//Template css
+if (ENVIRONMENT == 'DEVELOPMENT') {
+    $css_template = array(
+        'layout.css'
+        ,'layout_navigation.css'
+        ,'typography.css'
+        ,'breadcrumb.css'
+        ,'datepicker.css'
+        ,'forms.css'
+        ,'tables.css');
+    foreach ($css_template as $filename) {
+        $filepath = DIR_TEMPLATE.DS.'css'.DS.$filename;
+        if (file_exists($filepath))
+            echo '<link rel="stylesheet" type="text/css" href="',URL_TEMPLATE,'css/',$filename,'" />',PHP_EOL;
+        else echo '<!-- CSS TEMPLATE FILE MISSING: ',$filepath,' -->',PHP_EOL;
+    }
+} else if (ENVIRONMENT == 'PRODUCTION') {
+    $filepath = DIR_TEMPLATE.DS.'css'.DS.'minified.css';
     if (file_exists($filepath))
-        echo '<link rel="stylesheet" type="text/css" href="',URL_TEMPLATE,'css/',$filename,'" />',PHP_EOL;
-    else echo '<!-- CSS TEMPLATE FILE MISSING: ',$filepath,' -->',PHP_EOL;
-}
+        echo '<link rel="stylesheet" type="text/css" href="',URL_TEMPLATE,'css/minified.css" />',PHP_EOL;
+    else echo '<!-- minified.css FROM TEMPLATE CSS IS MISSING -->',PHP_EOL;
+} else echo '<!-- UNRECOGNIZED SYSTEM ENVIRONMENT, CAN NOT DEPLOY TEMPLATE CSS FILES -->',PHP_EOL;
 
 echo PHP_EOL;
 
@@ -47,28 +57,46 @@ foreach ($js_jquery as $filename) {
     else echo '<!-- JS jQuery FILE MISSING: ',$filepath,' -->',PHP_EOL;
 }
 
-$js_public = array(
-    'script.js'
-    ,'accordion.js'
-    ,'forms.js');
-foreach ($js_public as $filename) {
-    $filepath = DIR_PUBLIC.DS.'js'.DS.$filename;
+//Public javascripts
+if (ENVIRONMENT == 'DEVELOPMENT') {
+    $js_public = array(
+        'script.js'
+        ,'accordion.js'
+        ,'forms.js');
+    foreach ($js_public as $filename) {
+        $filepath = DIR_PUBLIC.DS.'js'.DS.$filename;
+        if (file_exists($filepath))
+            echo '<script type="text/javascript" src="',URL_BASE,'public/js/',$filename,'"></script>',PHP_EOL;
+        else echo '<!-- JS PUBLIC FILE MISSING: ',$filepath,' -->',PHP_EOL;
+    }
+} else if (ENVIRONMENT == 'PRODUCTION') {
+    $filepath = DIR_PUBLIC.DS.'js'.DS.'minified.js';
     if (file_exists($filepath))
-        echo '<script type="text/javascript" src="',URL_BASE,'public/js/',$filename,'"></script>',PHP_EOL;
-    else echo '<!-- JS PUBLIC FILE MISSING: ',$filepath,' -->',PHP_EOL;
-}
+        echo '<script type="text/javascript" src="',URL_TEMPLATE,'js/minified.js"></script>',PHP_EOL;
+    else echo '<!-- minified.js FROM PUBLIC JAVASCRIPTS IS MISSING -->',PHP_EOL;
+} else echo '<!-- UNRECOGNIZED SYSTEM ENVIRONMENT, CAN NOT DEPLOY PUBLIC JAVASCRIPT FILES -->',PHP_EOL;
 
-$js_template = array(
-    'breadcrumb_timer.js'
-    ,'navigation.js'
-    ,'items.js'
-    ,'owners.js');
-foreach ($js_template as $filename) {
-    $filepath = DIR_TEMPLATE.DS.'js'.DS.$filename;
+//Template javascripts
+if (ENVIRONMENT == 'DEVELOPMENT') {
+    $js_template = array(
+        'layout.js'
+        ,'breadcrumb_timer.js'
+        ,'navigation.js'
+        ,'items.js'
+        ,'owners.js'
+        ,'in_searches.js');
+    foreach ($js_template as $filename) {
+        $filepath = DIR_TEMPLATE.DS.'js'.DS.$filename;
+        if (file_exists($filepath))
+            echo '<script type="text/javascript" src="',URL_TEMPLATE,'js/',$filename,'"></script>',PHP_EOL;
+        else echo '<!-- JS TEMPLATE FILE MISSING: ',$filepath,' -->',PHP_EOL;
+    }
+} else if (ENVIRONMENT == 'PRODUCTION') {
+    $filepath = DIR_TEMPLATE.DS.'js'.DS.'minified.js';
     if (file_exists($filepath))
-        echo '<script type="text/javascript" src="',URL_TEMPLATE,'js/',$filename,'"></script>',PHP_EOL;
-    else echo '<!-- JS TEMPLATE FILE MISSING: ',$filepath,' -->',PHP_EOL;
-}
+        echo '<script type="text/javascript" src="',URL_TEMPLATE,'js/minified.js"></script>',PHP_EOL;
+    else echo '<!-- minified.js FROM TEMPLATE JAVASCRIPTS IS MISSING -->',PHP_EOL;
+} else echo '<!-- UNRECOGNIZED SYSTEM ENVIRONMENT, CAN NOT DEPLOY TEMPLATE JAVASCRIPT FILES -->',PHP_EOL;
 ?>
 
 </head><body>

@@ -20,6 +20,12 @@ label {
     font-size: 0.85em;
     cursor: pointer;
 }
+label:hover {
+    color: #335e80;
+}
+label:active {
+    color: #3b8033;
+}
 
 input[type="text"],
 input[type="password"],

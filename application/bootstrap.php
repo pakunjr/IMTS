@@ -1,5 +1,6 @@
 <?php session_start(); date_default_timezone_set('Asia/Manila');
 
+define('ENVIRONMENT', 'DEVELOPMENT');
 define('DS', DIRECTORY_SEPARATOR);
 define('DIR_ROOT', dirname(dirname(__FILE__)));
 define('DIR_APPLICATION', DIR_ROOT.DS.'application');

@@ -2,6 +2,40 @@
 
 class view_departments {
 
+    public function renderForm ($datas) {
+        $d = $datas;
+
+        $f = new form(array('auto_line_break'=>true, 'auto_label'=>true));
+
+        $c_persons = new controller_persons();
+
+        $departmentName = $d != null
+            ? '<h3>'.$d['department_name_short'].' - '.$d['department_name'].'</h3>'
+            : '<h3>New Department</h3>';
+
+        $output = $departmentName.$f->openForm(array('id'=>'', 'action'=>'', 'method'=>'post', 'enctype'=>'multipart/form-data'))
+            .$f->hidden(array('id'=>'department-id', 'value'=>$d != null ? $d['department_id'] : '0'))
+
+            .$f->openFieldset(array('legend'=>'Department Information'))
+            .'<span class="column">'
+            .$f->hidden(array('id'=>'department-head', 'value'=>$d != null ? $d['department_head'] : '0', 'data-url'=>URL_BASE.'employees/in_search/'))
+            .$f->text(array('id'=>'department-head-label', 'label'=>'Head', 'value'=>$d != null ? $c_persons->displayPersonName($d['department_head'], false) : ''))
+            .$f->text(array('id'=>'department-name', 'label'=>'Name', 'value'=>$d != null ? $d['department_name'] : ''))
+            .$f->text(array('id'=>'department-name-short', 'label'=>'Short', 'value'=>$d != null ? $d['department_name_short'] : ''))
+            .'</span>'
+
+            .'<span class="column">'
+            .$f->textarea(array('id'=>'department-description', 'label'=>'Description', 'value'=>$d != null ? $d['department_description'] : ''))
+            .'</span>'
+            .$f->closeFieldset()
+
+            .$f->submit(array('value'=>$d != null ? 'Update' : 'Save'))
+            .$f->closeForm();
+        return $output;
+    }
+
+
+
     public function renderDepartmentInformations ($datas) {
         if ($datas == null) return 'Error: This department do not exists in our system.';
 

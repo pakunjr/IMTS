@@ -10,8 +10,38 @@ class model_persons {
     
 
 
-    public function createPerson () {
-
+    public function createPerson ($datas) {
+        $d = $datas;
+        $res = $this->db->statement(array(
+            'q'=>"INSERT INTO imts_persons(
+                    person_firstname
+                    ,person_middlename
+                    ,person_lastname
+                    ,person_suffix
+                    ,person_gender
+                    ,person_birthdate
+                    ,person_address_a
+                    ,person_address_b
+                    ,person_contact_a
+                    ,person_contact_b
+                    ,person_email
+                ) VALUES(?,?,?,?,?,?,?,?,?,?,?)"
+            ,'v'=>array(
+                $d['person-firstname']
+                ,$d['person-middlename']
+                ,$d['person-lastname']
+                ,$d['person-suffix']
+                ,$d['person-gender']
+                ,$d['person-birthdate']
+                ,$d['person-address-a']
+                ,$d['person-address-b']
+                ,$d['person-contact-a']
+                ,$d['person-contact-b']
+                ,$d['person-email'])));
+        if ($res) {
+            $d['person-id'] = $this->db->lastInsertId();
+            return $d;
+        } else return null;
     }
 
 
@@ -30,6 +60,41 @@ class model_persons {
             'q'=>"SELECT * FROM imts_departments WHERE department_head = ?"
             ,'v'=>array(intval($personId))));
         return count($rows) > 0 ? $rows : null;
+    }
+
+
+
+    public function updatePerson ($datas) {
+        $d = $datas;
+        $res = $this->db->statement(array(
+            'q'=>"UPDATE imts_persons
+                SET
+                    person_firstname = ?
+                    ,person_middlename = ?
+                    ,person_lastname = ?
+                    ,person_suffix = ?
+                    ,person_gender = ?
+                    ,person_birthdate = ?
+                    ,person_address_a = ?
+                    ,person_address_b = ?
+                    ,person_contact_a = ?
+                    ,person_contact_b = ?
+                    ,person_email = ?
+                WHERE person_id = ?"
+            ,'v'=>array(
+                    $d['person-firstname']
+                    ,$d['person-middlename']
+                    ,$d['person-lastname']
+                    ,$d['person-suffix']
+                    ,$d['person-gender']
+                    ,$d['person-birthdate']
+                    ,$d['person-address-a']
+                    ,$d['person-address-b']
+                    ,$d['person-contact-a']
+                    ,$d['person-contact-b']
+                    ,$d['person-email']
+                    ,intval($d['person-id']))));
+        return $res ? $d : null;
     }
 
 

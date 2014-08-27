@@ -28,6 +28,7 @@ class controller_pages {
         $c_itemPackages = new controller_itemPackages();
         $c_owners = new controller_owners();
         $c_persons = new controller_persons();
+        $c_employees = new controller_employees();
         $c_departments = new controller_departments();
 
         switch ($model) {
@@ -46,6 +47,8 @@ class controller_pages {
                         break;
 
                     default:
+                        $this->displayHeader();
+                        $this->displayFooter();
                 }
                 break;
 
@@ -111,15 +114,24 @@ class controller_pages {
                         break;
 
                     default:
+                        $this->displayHeader();
+                        $this->displayFooter();
                 }
                 break;
 
             case 'persons':
                 switch ($view) {
                     case 'create_person':
-                        $this->displayHeader();
-                        $c_persons->displayForm();
-                        $this->displayFooter();
+                        switch ($controller) {
+                            case 'save':
+                                $c_persons->createPerson();
+                                break;
+
+                            default:
+                                $this->displayHeader();
+                                $c_persons->displayForm();
+                                $this->displayFooter();
+                        }
                         break;
 
                     case 'read_person':
@@ -129,24 +141,52 @@ class controller_pages {
                         break;
 
                     case 'update_person':
-                        $this->displayHeader();
-                        $c_persons->displayForm($controller);
-                        $this->displayFooter();
+                        switch ($controller) {
+                            case 'save':
+                                $c_persons->updatePerson();
+                                break;
+
+                            default:
+                                $this->displayHeader();
+                                $c_persons->displayForm($controller);
+                                $this->displayFooter();
+                        }
                         break;
 
                     case 'delete_item':
                         break;
 
-                    case 'in_search_item':
+                    default:
+                        $this->displayHeader();
+                        $this->displayFooter();
+                }
+                break;
+
+            case 'employees':
+                switch ($view) {
+                    case 'in_search':
+                        $c_employees->displaySearchResults($controller);
                         break;
 
                     default:
+                        $this->displayHeader();
+                        $this->displayFooter();
                 }
                 break;
 
             case 'departments':
                 switch ($view) {
                     case 'create_department':
+                        switch ($controller) {
+                            case 'save':
+                                $c_departments->createDepartment();
+                                break;
+
+                            default:
+                                $this->displayHeader();
+                                $c_departments->displayForm();
+                                $this->displayFooter();
+                        }
                         break;
 
                     case 'read_department':
@@ -156,15 +196,24 @@ class controller_pages {
                         break;
 
                     case 'update_department':
+                        switch ($controller) {
+                            case 'save':
+                                $c_departments->updateDepartment();
+                                break;
+
+                            default:
+                                $this->displayHeader();
+                                $c_departments->displayForm($controller);
+                                $this->displayFooter();
+                        }
                         break;
 
                     case 'delete_department':
                         break;
 
-                    case 'in_search_department':
-                        break;
-
                     default:
+                        $this->displayHeader();
+                        $this->displayFooter();
                 }
                 break;
 
@@ -175,6 +224,8 @@ class controller_pages {
                         break;
 
                     default:
+                        $this->displayHeader();
+                        $this->displayFooter();
                 }
                 break;
 

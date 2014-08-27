@@ -7,20 +7,33 @@ class view_pages {
         $class = ' class="current-model"';
 
         $classHome = $cModel == 'home' ? $class : '';
-        $classInventory = $cModel == 'inventory' ? $class : '';
+        $classInventory = $cModel == 'inventory' || $cModel == 'inventory_packages' ? $class : '';
+        $classPerson = $cModel == 'persons' || $cModel == 'employees' || $cModel == 'owners' ? $class : '';
+        $classDepartment = $cModel == 'departments' || $cModel == 'owners' ? $class : '';
         $classAdmin = $cModel == 'admin' ? $class : '';
+        $classMyAccount = $cModel == 'my_account' ? $class : '';
 
         switch ($type) {
             case 'inventory':
                 $output = '<ul class="sub-menu">'
                     .'<li><a href="'.URL_BASE.'inventory/create_item/">New Item</a></li>'
-                    .'<li><a href="'.URL_BASE.'inventory/search_item/">Search Item</a></li>'
+                    .'</ul>';
+                break;
+
+            case 'person':
+                $output = '<ul class="sub-menu">'
+                    .'<li><a href="'.URL_BASE.'persons/create_person/">New Person</a></li>'
+                    .'</ul>';
+                break;
+
+            case 'department':
+                $output = '<ul class="sub-menu">'
+                    .'<li><a href="'.URL_BASE.'departments/create_department/">New Department</a></li>'
                     .'</ul>';
                 break;
 
             case 'admin':
                 $output = '<ul class="sub-menu">'
-                    .'<li><a href="'.URL_BASE.'admin/">Settings</a></li>'
                     .'<li><a href="'.URL_BASE.'admin/log/errors/">Error/s &amp; Exception/s Log</a></li>'
                     .'</ul>';
                 break;
@@ -34,10 +47,12 @@ class view_pages {
 
             default:
                 $output = '<ul id="main-navigation">'
-                    .'<li>'.$this->renderNavigation('admin').'<a'.$classAdmin.' href="#admin">Admin</a></li>'
+                    .'<li>'.$this->renderNavigation('admin').'<a'.$classAdmin.' href="'.URL_BASE.'admin/">Admin</a></li>'
                     .'<li><a'.$classHome.' href="'.URL_BASE.'">Home</a></li>'
                     .'<li>'.$this->renderNavigation('inventory').'<a'.$classInventory.' href="'.URL_BASE.'inventory/">Inventory</a></li>'
-                    .'<li>'.$this->renderNavigation('myAccount').'<a'.$classAdmin.' href="#myAccount">My Account</a></li>'
+                    .'<li>'.$this->renderNavigation('person').'<a'.$classPerson.' href="'.URL_BASE.'persons/">Person</a></li>'
+                    .'<li>'.$this->renderNavigation('department').'<a'.$classDepartment.' href="'.URL_BASE.'departments/">Department</a></li>'
+                    .'<li>'.$this->renderNavigation('myAccount').'<a'.$classMyAccount.' href="#myAccount">My Account</a></li>'
                     .'</ul>';
         }
         return $output;

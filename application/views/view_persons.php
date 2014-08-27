@@ -3,7 +3,53 @@
 class view_persons {
 
     public function renderForm ($datas) {
+        $d = $datas;
 
+        $f = new form(array('auto_line_break'=>true, 'auto_label'=>true));
+
+        $personName = $d != null
+            ? '<h3>'.$d['person_lastname'].', '.$d['person_firstname'].' '.$d['person_middlename'].' '.$d['person_suffix'].'</h3>'
+            : '<h3>New Person</h3>';
+
+        $actionLink = $d != null
+            ? URL_BASE.'persons/update_person/save/'
+            : URL_BASE.'persons/create_person/save/';
+
+        $output = $personName.$f->openForm(array('id'=>'', 'method'=>'post', 'action'=>$actionLink, 'enctype'=>'multipart/form-data'))
+            .$f->hidden(array('id'=>'person-id', 'value'=>$d != null ? $d['person_id'] : '0'))
+
+            .$f->openFieldset(array('class'=>'column', 'legend'=>'Biodata'))
+            .'<span class="column">'
+            .$f->text(array('id'=>'person-firstname', 'label'=>'Firstname', 'value'=>$d != null ? $d['person_firstname'] : ''))
+            .$f->text(array('id'=>'person-middlename', 'label'=>'Middlename', 'value'=>$d != null ? $d['person_middlename'] : ''))
+            .$f->text(array('id'=>'person-lastname', 'label'=>'Lastname', 'value'=>$d != null ? $d['person_lastname'] : ''))
+            .$f->text(array('id'=>'person-suffix', 'label'=>'Suffix', 'value'=>$d != null ? $d['person_suffix'] : ''))
+            .$f->text(array('id'=>'person-birthdate', 'class'=>'datepicker', 'label'=>'Birthdate', 'value'=>$d != null ? $d['person_birthdate'] : '0000-00-00'))
+            .'</span>'
+
+            .'<span class="column">'
+            .$f->select(array('id'=>'person-gender', 'label'=>'Gender', 'select_options'=>array(
+                'Female'=>'f', 'Male'=>'m'), 'default_option'=>$d != null ? $d['person_gender'] : 'm'))
+            .'</span>'
+            .$f->closeFieldset()
+
+            .$f->openFieldset(array('class'=>'column', 'legend'=>'Contact'))
+            .'<span class="column">'
+            .$f->text(array('id'=>'person-address-a', 'label'=>'Address A', 'value'=>$d != null ? $d['person_address_a'] : ''))
+            .$f->text(array('id'=>'person-address-b', 'label'=>'Address B', 'value'=>$d != null ? $d['person_address_b'] : ''))
+            .$f->text(array('id'=>'person-contact-a', 'label'=>'Contact #1', 'value'=>$d != null ? $d['person_contact_a'] : ''))
+            .$f->text(array('id'=>'person-contact-b', 'label'=>'Contact #2', 'value'=>$d != null ? $d['person_contact_b'] : ''))
+            .$f->text(array('id'=>'person-email', 'label'=>'Email', 'value'=>$d != null ? $d['person_email'] : ''))
+            .'</span>'
+            .$f->closeFieldset()
+
+            .$f->openFieldset(array('legend'=>'Employment'))
+            .'<span class="column">If this person is an employee, you can add the details of employment after you have saved the basic informations of the person.</span>'
+            .$f->closeFieldset()
+
+            .$f->submit(array('value'=>$d != null ? 'Update' : 'Save'))
+            .$f->closeForm();
+        return $output;
     }
 
 
@@ -71,7 +117,10 @@ class view_persons {
 
             .'<div class="accordion-title">Ownership History</div><div class="accordion-content">'.$ownedItems.'</div>'
 
-            .'<hr /><a href="'.URL_BASE.'persons/update_person/'.$pd['person_id'].'/"><input class="btn-green" type="button" value="Update" /></a>';
+            .'<div class="accordion-title">Employment History</div><div class="accordion-content"></div>'
+
+            .'<hr /><a href="'.URL_BASE.'persons/update_person/'.$pd['person_id'].'/"><input class="btn-green" type="button" value="Update" /></a>'
+            .'<a href="#"><input class="btn-green" type="button" value="Add Employment" /></a>';
         return $output;
     }
 

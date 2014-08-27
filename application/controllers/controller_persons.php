@@ -12,8 +12,34 @@ class controller_persons {
 
 
 
-    public function displayForm ($personId=null) {
+    public function createPerson () {
+        if (!isset($_POST)) {
+            header('location: '.URL_BASE.'persons/create_person/');
+            return;
+        }
+        $personDatas = $this->model->createPerson($_POST);
+        if ($personDatas == null)
+            header('location: '.URL_BASE.'persons/create_person/');
+        else
+            header('location: '.URL_BASE.'persons/read_person/'.$personDatas['person-id'].'/');
+    }
 
+
+
+    public function updatePerson () {
+        if (!isset($_POST)) {
+            header('location: '.URL_BASE.'persons/');
+            return;
+        }
+        $personDatas = $this->model->updatePerson($_POST);
+        header('location: '.URL_BASE.'persons/read_person/'.$personDatas['person-id'].'/');
+    }
+
+
+
+    public function displayForm ($personId=null) {
+        $personData = $this->model->readPerson($personId);
+        echo $this->view->renderForm($personData);
     }
 
 
