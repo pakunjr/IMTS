@@ -15,6 +15,15 @@ class view_persons {
             ? URL_BASE.'persons/update_person/save/'
             : URL_BASE.'persons/create_person/save/';
 
+        $employmentFieldset = $d != null
+            ? ''
+            : $f->openFieldset(array('legend'=>'Employment'))
+            .'<span class="column">If this person is an employee, you can add the details of employment after you have saved the basic informations of the person.</span>'
+            .$f->closeFieldset();
+        $addEmploymentButton = $d != null
+            ? '<a href="'.URL_BASE.'employees/create_employment/'.$d['person_id'].'/">'.$f->button(array('value'=>'Add Employment')).'</a>'
+            : '';
+
         $output = $personName.$f->openForm(array('id'=>'', 'method'=>'post', 'action'=>$actionLink, 'enctype'=>'multipart/form-data'))
             .$f->hidden(array('id'=>'person-id', 'value'=>$d != null ? $d['person_id'] : '0'))
 
@@ -43,12 +52,68 @@ class view_persons {
             .'</span>'
             .$f->closeFieldset()
 
-            .$f->openFieldset(array('legend'=>'Employment'))
-            .'<span class="column">If this person is an employee, you can add the details of employment after you have saved the basic informations of the person.</span>'
-            .$f->closeFieldset()
+            .$employmentFieldset
 
-            .$f->submit(array('value'=>$d != null ? 'Update' : 'Save'))
+            .'<div>'
+            .$f->submit(array('value'=>$d != null ? 'Update' : 'Save', 'auto_line_break'=>false))
+            .$addEmploymentButton
+            .'</div>'
             .$f->closeForm();
+        return $output;
+    }
+
+
+
+    public function renderSearchForm ($keyword) {
+        $f = new form(array('auto_line_break'=>false, 'auto_label'=>true));
+        $output = $f->openForm(array('id'=>'', 'method'=>'post', 'action'=>URL_BASE.'persons/search_person/', 'enctype'=>'multipart/form-data')).$f->text(array('id'=>'search-keyword', 'label'=>'Search', 'value'=>$keyword)).$f->submit(array('value'=>'Search')).$f->closeForm().'<hr />';
+        return $output;
+    }
+
+
+
+    public function renderSearchResults ($datas) {
+        if ($datas == null) return 'There are no person/s that matched your keyword.';
+
+        $fx = new myFunctions();
+
+        $output = '<table><tr>'
+            .'<th>Lastname</th>'
+            .'<th>Firstname</th>'
+            .'<th>Middlename</th>'
+            .'<th>Suffix</th>'
+            .'<th>Gender</th>'
+            .'<th>Birthdate</th>'
+            .'<th colspan="2">Address</th>'
+            .'<th colspan="3">Contact</th>';
+        if (isset($_POST['search-keyword'])) {
+            $output .= '<th>Actions</th>';
+        }
+        $output .= '</tr>';
+        foreach ($datas as $d) {
+            $personGender = $d['person_gender'] == 'm' ? 'Male' : 'Female';
+
+            $output .= '<tr class="data" '
+                .'data-id="'.$d['person_id'].'" '
+                .'data-label="'.$d['person_lastname'].', '.$d['person_firstname'].' '.$d['person_middlename'].' '.$d['person_suffix'].'" '
+                .'data-url="'.URL_BASE.'persons/read_person/'.$d['person_id'].'/">'
+                .'<td>'.$d['person_lastname'].'</td>'
+                .'<td>'.$d['person_firstname'].'</td>'
+                .'<td>'.$d['person_middlename'].'</td>'
+                .'<td>'.$d['person_suffix'].'</td>'
+                .'<td>'.$personGender.'</td>'
+                .'<td>'.$fx->dateToWords($d['person_birthdate']).'</td>'
+                .'<td>'.$d['person_address_a'].'</td>'
+                .'<td>'.$d['person_address_b'].'</td>'
+                .'<td>'.$d['person_contact_a'].'</td>'
+                .'<td>'.$d['person_contact_b'].'</td>'
+                .'<td>'.$d['person_email'].'</td>';
+            if (isset($_POST['search-keyword'])) {
+                $output .= '<td><a href="'.URL_BASE.'persons/update_person/'.$d['person_id'].'/"><input class="btn-green" type="button" value="Update" /></a></td>';
+            }
+            $output .= '</tr>';
+        }
+        $output .= '</table>';
         return $output;
     }
 
@@ -61,6 +126,7 @@ class view_persons {
 
         $fx = new myFunctions();
         $c_owners = new controller_owners();
+        $c_employees = new controller_employees();
 
         $personName = '<h3>'.$pd['person_lastname'].', '.$pd['person_firstname'].' '.$pd['person_middlename'].' '.$pd['person_suffix'].'</h3>';
         $ownedItems = $c_owners->displayOwnedItems('Person', $pd['person_id'], false);
@@ -117,9 +183,9 @@ class view_persons {
 
             .'<div class="accordion-title">Ownership History</div><div class="accordion-content">'.$ownedItems.'</div>'
 
-            .'<div class="accordion-title">Employment History</div><div class="accordion-content"></div>'
+            .'<div class="accordion-title">Employment History</div><div class="accordion-content">'.$c_employees->displayEmploymentHistory($pd['person_id'], false).'</div>'
 
-            .'<hr /><a href="'.URL_BASE.'persons/update_person/'.$pd['person_id'].'/"><input class="btn-green" type="button" value="Update" /></a>'
+            .'<hr /><a href="'.URL_BASE.'persons/update_person/'.$pd['person_id'].'/"><input class="btn-green" type="button" value="Update Person" /></a>'
             .'<a href="'.URL_BASE.'employees/create_employment/'.$pd['person_id'].'/"><input class="btn-green" type="button" value="Add Employment" /></a>';
         return $output;
     }

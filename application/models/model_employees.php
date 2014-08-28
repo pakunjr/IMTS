@@ -10,6 +10,52 @@ class model_employees {
 
 
 
+    public function createEmployment ($datas) {
+        $d = $datas;
+        $res = $this->db->statement(array(
+            'q'=>"INSERT INTO imts_persons_employment(
+                    employee_no
+                    ,employee_person
+                    ,employee_status
+                    ,employee_job
+                    ,employee_department
+                    ,employee_employment_date
+                    ,employee_resignation_date
+                ) VALUES(?,?,?,?,?,?,?)"
+            ,'v'=>array(
+                $d['employee-no']
+                ,intval($d['employee-person'])
+                ,intval($d['employee-status'])
+                ,intval($d['employee-job'])
+                ,intval($d['employee-department'])
+                ,$d['employee-employment-date']
+                ,$d['employee-resignation-date'])));
+        if ($res) {
+            $d['employee-id'] = $this->db->lastInsertId();
+            return $d;
+        } else return null;
+    }
+
+
+
+    public function readPersonEmployment ($personId) {
+        $rows = $this->db->statement(array(
+            'q'=>"SELECT * FROM imts_persons_employment AS emp
+                LEFT JOIN imts_persons_employment_jobs AS job
+                    ON emp.employee_job = job.employee_job_id
+                LEFT JOIN imts_persons_employment_status AS sta
+                    ON emp.employee_status = sta.employee_status_id
+                WHERE emp.employee_person = ?
+                ORDER BY
+                    FIELD(emp.employee_resignation_date, '0000-00-00') DESC
+                    ,emp.employee_resignation_date DESC"
+            ,'v'=>array(
+                intval($personId))));
+        return count($rows) > 0 ? $rows : null;
+    }
+
+
+
     public function readEmployee ($employeeId) {
         $rows = $this->db->statement(array(
             'q'=>"SELECT * FROM imts_persons_employment AS emp
@@ -30,6 +76,45 @@ class model_employees {
             'q'=>"SELECT * FROM imts_persons_employment_jobs WHERE employee_job_id = ? LIMIT 1"
             ,'v'=>array(intval($jobId))));
         return count($rows) > 0 ? $rows[0] : null;
+    }
+
+
+
+    public function updateEmployment ($datas) {
+        $d = $datas;
+        $res = $this->db->statement(array(
+            'q'=>"UPDATE imts_persons_employment
+                SET
+                    employee_no = ?
+                    ,employee_status = ?
+                    ,employee_job = ?
+                    ,employee_department = ?
+                    ,employee_employment_date = ?
+                    ,employee_resignation_date = ?
+                WHERE
+                    employee_id = ?
+                    AND employee_person = ?"
+            ,'v'=>array(
+                $d['employee-no']
+                ,intval($d['employee-status'])
+                ,intval($d['employee-job'])
+                ,intval($d['employee-department'])
+                ,$d['employee-employment-date']
+                ,$d['employee-resignation-date']
+                ,intval($d['employee-id'])
+                ,intval($d['employee-person']))));
+        return $res ? $d : null;
+    }
+
+
+
+    public function endEmployment ($employeeId) {
+        $currentDate = date('Y-m-d');
+        $this->db->statement(array(
+            'q'=>"UPDATE imts_persons_employment
+                SET employee_resignation_date = '$currentDate'
+                WHERE employee_id = ?"
+            ,'v'=>array(intval($employeeId))));
     }
 
 

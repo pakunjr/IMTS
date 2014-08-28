@@ -29,7 +29,7 @@ class view_departments {
             .'</span>'
             .$f->closeFieldset()
 
-            .$f->submit(array('value'=>$d != null ? 'Update' : 'Save'))
+            .$f->submit(array('value'=>$d != null ? 'Update Department' : 'Save Department'))
             .$f->closeForm();
         return $output;
     }
@@ -67,7 +67,23 @@ class view_departments {
 
             .'<div class="accordion-title">Ownership History</div><div class="accordion-content">'.$ownedItems.'</div>'
 
-            .'<hr /><a href="'.URL_BASE.'departments/update_department/'.$d['department_id'].'/"><input class="btn-green" type="button" value="Update" /></a>';
+            .'<hr /><a href="'.URL_BASE.'departments/update_department/'.$d['department_id'].'/"><input class="btn-green" type="button" value="Update Department" /></a>';
+        return $output;
+    }
+
+
+
+    public function renderDepartmentName ($datas) {
+        $d = $datas;
+        return $d != null ? $d['department_name_short'].' -- '.$d['department_name'] : 'None';
+    }
+
+
+
+    public function renderSearchForm ($keyword) {
+        $f = new form(array('auto_line_break'=>false, 'auto_label'=>true));
+
+        $output = $f->openForm(array('id'=>'', 'method'=>'post', 'action'=>URL_BASE.'departments/search_department/')).$f->text(array('id'=>'search-keyword', 'label'=>'Search', 'value'=>$keyword)).$f->submit(array('value'=>'Search')).$f->closeForm().'<hr />';
         return $output;
     }
 
@@ -81,14 +97,23 @@ class view_departments {
         $output = '<table><tr>'
             .'<th>Name -- Short</th>'
             .'<th>Description</th>'
-            .'<th>Head</th>'
-            .'</tr>';
+            .'<th>Head</th>';
+        if (isset($_POST['search-keyword'])) {
+            $output .= '<th>Actions</th>';
+        }
+        $output .= '</tr>';
         foreach ($datas as $d) {
-            $output .= '<tr class="data" data-id="'.$d['department_id'].'" data-label="'.$d['department_name_short'].' -- '.$d['department_name'].'">'
+            $output .= '<tr class="data" '
+                .'data-id="'.$d['department_id'].'" '
+                .'data-label="'.$d['department_name_short'].' -- '.$d['department_name'].'" '
+                .'data-url="'.URL_BASE.'departments/read_department/'.$d['department_id'].'/">'
                 .'<td>'.$d['department_name'].' -- '.$d['department_name_short'].'</td>'
                 .'<td>'.$d['department_description'].'</td>'
-                .'<td>'.$c_persons->displayPersonName($d['department_head'], false).'</td>'
-                .'</tr>';
+                .'<td>'.$c_persons->displayPersonName($d['department_head'], false).'</td>';
+            if (isset($_POST['search-keyword'])) {
+                $output .= '<td><a href="'.URL_BASE.'departments/update_department/'.$d['department_id'].'/"><input class="btn-green" type="button" value="Update Department" /></a></td>';
+            }
+            $output .= '</tr>';
         }
         $output .= '</table>'
             .'<hr /><a href="'.URL_BASE.'departments/create_department/" target="_blank"><input class="btn-green" type="button" value="Add a Department" /></a>';

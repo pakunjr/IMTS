@@ -18,14 +18,14 @@ class form {
 
     //Open a form tag
     public function openForm ($o=array()) {
-        return '<form autocomplete="off"'.$this->parseAttributes($o).'>'.PHP_EOL;
+        return '<form autocomplete="off"'.$this->parseAttributes($o).'>';
     }
 
 
 
     //Close a form tag
     public function closeForm () {
-        return '</form>'.PHP_EOL;
+        return '</form>';
     }
 
 
@@ -35,14 +35,14 @@ class form {
         $output = '<fieldset'.$this->parseAttributes($o).'>';
         $output .= isset($o['legend'])
             ? '<legend>'.$o['legend'].'</legend>' : '';
-        return $output.PHP_EOL;
+        return $output;
     }
 
 
 
     //Close a fieldset tag
     public function closeFieldset () {
-        return '</fieldset>'.PHP_EOL;
+        return '</fieldset>';
     }
 
 
@@ -53,7 +53,7 @@ class form {
 
     public function hidden ($o=array()) {
         $output = '<input type="hidden"'.$this->parseAttributes($o).' />';
-        return $output.PHP_EOL;
+        return $output;
     }
 
 
@@ -62,7 +62,7 @@ class form {
         $output = $this->renderLabel($o)
                 .'<input type="text"'.$this->parseAttributes($o).' />'
                 .$this->autoLineBreak($o);
-        return $output.PHP_EOL;
+        return $output;
     }
 
 
@@ -73,7 +73,7 @@ class form {
         $output = $this->renderLabel($o)
                 .'<textarea'.$this->parseAttributes($o, $e).'>'.$value.'</textarea>'
                 .$this->autoLineBreak($o);
-        return $output.PHP_EOL;
+        return $output;
     }
 
 
@@ -82,7 +82,7 @@ class form {
         $output = $this->renderLabel($o)
                 .'<input type="password"'.$this->parseAttributes($o).' />'
                 .$this->autoLineBreak($o);
-        return $output.PHP_EOL;
+        return $output;
     }
 
 
@@ -113,7 +113,7 @@ class form {
                 .$select_options
                 .'</select>'
                 .$this->autoLineBreak($o);
-        return $output.PHP_EOL;
+        return $output;
     }
 
 
@@ -128,7 +128,7 @@ class form {
         $output = $this->renderLabel($o)
                 .'<input type="radio"'.$checkAttr.$this->parseAttributes($o, $e).' />'
                 .$this->autoLineBreak($o);
-        return $output.PHP_EOL;
+        return $output;
     }
 
 
@@ -143,7 +143,7 @@ class form {
         $output = $this->renderLabel($o)
             .'<input type="checkbox"'.$checkAttr.$this->parseAttributes($o, $e).' />'
             .$this->autoLineBreak($o);
-        return $output.PHP_EOL;
+        return $output;
     }
 
 
@@ -152,7 +152,7 @@ class form {
         $output = $this->renderLabel($o)
             .'<input type="file"'.$this->parseAttributes($o).' />'
             .$this->autoLineBreak($o);
-        return $output.PHP_EOL;
+        return $output;
     }
 
 
@@ -161,7 +161,7 @@ class form {
         $e = array('placeholder');
         $output = '<input type="button"'.$this->parseAttributes($o, $e).' />'
             .$this->autoLineBreak($o);
-        return $output.PHP_EOL;
+        return $output;
     }
 
 
@@ -170,7 +170,7 @@ class form {
         $e = array('placeholder');
         $output = '<input type="reset"'.$this->parseAttributes($o, $e).' />'
             .$this->autoLineBreak($o);
-        return $output.PHP_EOL;
+        return $output;
     }
 
 
@@ -179,7 +179,7 @@ class form {
         $e = array('placeholder');
         $output = '<input type="submit"'.$this->parseAttributes($o, $e).' />'
             .$this->autoLineBreak($o);
-        return $output.PHP_EOL;
+        return $output;
     }
 
 
@@ -259,9 +259,9 @@ class form {
     //form functions
     private function autoLineBreak ($o=array()) {
         if ( isset($o['auto_line_break']) ) {
-            if ( $o['auto_line_break'] ) return '<br />';
+            if ( $o['auto_line_break'] ) return '<br />'.PHP_EOL;
             else return '';
-        } else if ( $this->auto_line_break ) return '<br />';
+        } else if ( $this->auto_line_break ) return '<br />'.PHP_EOL;
         else return '';
     }
 

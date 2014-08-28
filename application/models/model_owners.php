@@ -73,11 +73,12 @@ class model_owners {
                 LEFT JOIN imts_items AS items
                     ON ownshp.ownership_item = items.item_id
                 WHERE
-                    ownership_owner = ?
-                    AND ownership_owner_type = ?
+                    ownshp.ownership_owner = ?
+                    AND ownshp.ownership_owner_type = ?
                 ORDER BY
-                    FIELD(ownership_date_released, '0000-00-00') DESC
-                    ,ownership_date_released DESC"
+                    items.item_archive_state ASC
+                    ,FIELD(ownshp.ownership_date_released, '0000-00-00') DESC
+                    ,ownshp.ownership_date_released DESC"
             ,'v'=>array(intval($ownerId), $ownerType)));
         return count($ownerships) > 0 ? $ownerships : null;
     }

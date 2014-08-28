@@ -7,17 +7,23 @@ class view_items {
         $f = new form(array('auto_line_break'=>true,'auto_label'=>true));
 
         if ($i['item'] != null) {
+            $itemName = '<h3>'
+                .$i['item']['item_name'].'<br />'
+                .'<small><span style="color: #03f;">Serial No</span>: '.$i['item']['item_serial_no'].'</small><br />'
+                .'<small><span style="color: #f00;">Model No</span>: '.$i['item']['item_model_no'].'</small>'
+                .'</h3>';
             $actionLink = URL_BASE.'inventory/update_item/save/';
             $submitBtn = $f->submit(array('value'=>'Save Changes','auto_line_break'=>false));
             $cancelBtn = $f->button(array('value'=>'Cancel'));
             $cancelBtn = '<a href="'.URL_BASE.'inventory/read_item/'.$i['item']['item_id'].'/">'.$cancelBtn.'</a>';
         } else {
+            $itemName = '<h3>New Item</h3>';
             $actionLink = URL_BASE.'inventory/create_item/save/';
             $submitBtn = $f->submit(array('value'=>'Save Item','auto_line_break'=>false));
             $cancelBtn = '';
         }
 
-        $output = $f->openForm(array('id'=>'form-item','method'=>'post','action'=>$actionLink,'enctype'=>'multipart/form-data'))
+        $output = $itemName.$f->openForm(array('id'=>'form-item','method'=>'post','action'=>$actionLink,'enctype'=>'multipart/form-data'))
             .$this->renderFormItem($infos['item'])
             .$this->renderFormOwner($infos['owner'])
             .$submitBtn.$cancelBtn
@@ -119,8 +125,13 @@ class view_items {
 
         $packageName = $c_itemPackages->displayPackageName($it['item_package'], false);
         $packageLink = $packageName != 'None'
-            ? '<a href="'.URL_BASE.'packages/read_package/'.$it['item_package'].'/"><input type="button" value="'.$packageName.'" /></a>'
+            ? '<a href="'.URL_BASE.'inventory_packages/read_package/'.$it['item_package'].'/"><input type="button" value="'.$packageName.'" /></a>'
             : $packageName;
+
+        $actionButtons = $i['item']['item_archive_state'] == '0'
+            ? '<hr /><a href="'.URL_BASE.'inventory/update_item/'.$i['item']['item_id'].'/"><input class="btn-green" type="button" value="Update Informations" /></a>'
+                .'<a href="'.URL_BASE.'inventory/archive_item/'.$i['item']['item_id'].'/"><input class="btn-red" type="button" value="Archive Item" /></a>'
+            : '<hr />This item has been archived.';
 
         $output = '<h3>'.$it['item_name'].'<br />'
             .'<small><span style="color: #03f;">Serial</span>: '.$it['item_serial_no'].'</small><br />'
@@ -162,8 +173,7 @@ class view_items {
 
             .'<div class="accordion-title">Log</div><div class="accordion-content">'.$this->renderItemLog($i['item']['item_log']).'</div>'
 
-            .'<hr /><a href="'.URL_BASE.'inventory/update_item/'.$i['item']['item_id'].'/"><input class="btn-green" type="button" value="Update Informations" /></a>'
-            .'<a href="'.URL_BASE.'inventory/delete_item/'.$i['item']['item_id'].'/"><input class="btn-red" type="button" value="Archive Item" /></a>';
+            .$actionButtons;
         return $output;
     }
 
@@ -197,6 +207,11 @@ class view_items {
                     $coLink = $coName;
                 }
 
+                $actionButtons = $component['item_archive_state'] == '0'
+                    ? '<a href="'.URL_BASE.'inventory/update_item/'.$component['item_id'].'/"><input class="btn-green" type="button" value="Update Item" /></a>'
+                        .'<a href="'.URL_BASE.'inventory/archive_item/'.$component['item_id'].'/"><input class="btn-red" type="button" value="Archive Item" /></a>'
+                    : 'This item has been archived.';
+
                 $output .= '<tr class="special-hover item-component-data" data-url="'.URL_BASE.'inventory/read_item/'.$component['item_id'].'/">'
                     .'<td>'
                         .$component['item_name'].'<br />'
@@ -208,10 +223,7 @@ class view_items {
                     .'<td>'.$component['item_description'].'</td>'
                     .'<td>'.$component['item_quantity'].'</td>'
                     .'<td>'.$coLink.'</td>'
-                    .'<td>'
-                        .'<a href="'.URL_BASE.'inventory/update_item/'.$component['item_id'].'/"><input class="btn-green" type="button" value="Update" /></a>'
-                        .'<a href="'.URL_BASE.'inventory/delete_item/'.$component['item_id'].'/"><input class="btn-red" type="button" value="Archive" /></a>'
-                    .'</td>'
+                    .'<td>'.$actionButtons.'</td>'
                     .'</tr>';
             }
             $output .= '</table>';
@@ -248,7 +260,7 @@ class view_items {
                     .'<td>'.$owner['ownership_owner_type'].'</td>'
                     .'<td>'.$fx->dateToWords($owner['ownership_date_owned']).'</td>'
                     .'<td>'.$fx->dateToWords($owner['ownership_date_released']).'</td>'
-                    .'<td><a href="'.$ownerUpdateLink.'"><input class="btn-green" type="button" value="Update" /></a></td>'
+                    .'<td><a href="'.$ownerUpdateLink.'"><input class="btn-green" type="button" value="Update Person" /></a></td>'
                     .'</tr>';
             }
             $output .= '</table>';
@@ -306,26 +318,71 @@ class view_items {
 
 
 
+    public function renderSearchForm ($keyword) {
+        $f = new form(array('auto_line_break'=>false, 'auto_label'=>true));
+
+        $output = $f->openForm(array('method'=>'post', 'action'=>URL_BASE.'inventory/search_item/', 'enctype'=>'multipart/form-data')).$f->text(array('id'=>'search-keyword', 'label'=>'Search', 'value'=>$keyword)).$f->submit(array('value'=>'Search')).$f->closeForm().'<hr />';
+        return $output;
+    }
+
+
+
     public function renderSearchResults ($results) {
         if ($results != null) {
+            $c_items = new controller_items();
             $c_itemTypes = new controller_itemTypes();
             $c_itemStates = new controller_itemStates();
+            $c_itemPackages = new controller_itemPackages();
 
             $output = '<table><tr>'
                 .'<th>Name</th>'
                 .'<th>Type</th>'
                 .'<th>State</th>'
-                .'<th>Description</th>'
-                .'</tr>';
+                .'<th>Description</th>';
+            if (isset($_POST['search-keyword'])) {
+                $output .= '<th>Current Owner</th>'
+                    .'<th>Package</th>'
+                    .'<th>Component Of</th>'
+                    .'<th>Actions</th>';
+            }
+            $output .= '</tr>';
             foreach ($results as $result) {
-                $output .= '<tr class="data" data-id="'.$result['item_id'].'" data-label="'.$result['item_name'].' ('.$result['item_serial_no'].', '.$result['item_model_no'].')">'
-                    .'<td>'.$result['item_name'].' ('.$result['item_serial_no'].', '.$result['item_model_no'].')'.'</td>'
+                $packageName = $c_itemPackages->displayPackageName($result['item_package'], false);
+                $packageLink = $packageName != 'None'
+                    ? '<a href="'.URL_BASE.'inventory_packages/read_package/'.$result['item_package'].'/"><input type="button" value="'.$packageName.'" /></a>'
+                    : $packageName;
+
+                $componentHostName = $c_items->displayItemName($result['item_component_of'], false);
+                $componentHostLink = $componentHostName != 'None'
+                    ? '<a href="'.URL_BASE.'inventory/read_item/'.$result['item_component_of'].'/"><input type="button" value="'.$componentHostName.'" /></a>'
+                    : $componentHostName;
+
+                $output .= '<tr class="data" '
+                    .'data-id="'.$result['item_id'].'" '
+                    .'data-label="'.$result['item_name'].' ('.$result['item_serial_no'].', '.$result['item_model_no'].')" '
+                    .'data-url="'.URL_BASE.'inventory/read_item/'.$result['item_id'].'/">'
+                    .'<td>'.$result['item_name'].'<br />'
+                        .'<span style="color: #03f;">Serial</span>: '.$result['item_serial_no'].'<br />'
+                        .'<span style="color: #f00;">Model</span>: '.$result['item_model_no']
+                    .'</td>'
                     .'<td>'.$c_itemTypes->displayItemTypeName($result['item_type'], false).'</td>'
                     .'<td>'.$c_itemStates->displayItemStateName($result['item_state'], false).'</td>'
-                    .'<td>'.$result['item_description'].'</td>'
-                    .'</tr>';
+                    .'<td>'.$result['item_description'].'</td>';
+                if (isset($_POST['search-keyword'])) {
+                    $actionButtons = $result['item_archive_state'] == '0'
+                        ? '<a href="'.URL_BASE.'inventory/update_item/'.$result['item_id'].'/"><input class="btn-green" type="button" value="Update Item" /></a>'
+                            .'<a href="'.URL_BASE.'inventory/archive_item/'.$result['item_id'].'/"><input class="btn-red" type="button" value="Archive Item" /></a>'
+                        : 'This item has been archived.';
+
+                    $output .= '<td>'.$c_items->displayItemCurrentOwner($result['item_id'], false).'</td>'
+                        .'<td>'.$packageLink.'</td>'
+                        .'<td>'.$componentHostLink.'</td>'
+                        .'<td>'.$actionButtons.'</td>';
+                }
+                $output .= '</tr>';
             }
-            $output .= '</table>';
+            $output .= '</table>'
+                .'<hr /><a href="'.URL_BASE.'inventory/create_item/" target="_blank"><input class="btn-green" type="button" value="Add an Item" /></a>';
         } else $output = 'There are no items matching your keywords.';
         return $output;
     }

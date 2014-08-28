@@ -1,6 +1,9 @@
 table {
     border-collapse: collapse;
 }
+tr {
+    background: #fff;
+}
 tr:nth-child(2n) {
     background: #f7f7f7;
 }

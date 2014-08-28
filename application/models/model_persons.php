@@ -99,6 +99,24 @@ class model_persons {
 
 
 
+    public function searchPersons ($keyword) {
+        $rows = $this->db->statement(array(
+            'q'=>"SELECT * FROM imts_persons
+                WHERE
+                    person_firstname LIKE ?
+                    OR person_middlename LIKE ?
+                    OR person_lastname LIKE ?
+                    OR person_email LIKE ?"
+            ,'v'=>array(
+                "%$keyword%"
+                ,"%$keyword%"
+                ,"%$keyword%"
+                ,"%$keyword%")));
+        return count($rows) > 0 ? $rows : null;
+    }
+
+
+
     public function isEmployee ($personId) {
         $currentDate = date('Y-m-d');
         $rows = $this->db->statement(array(

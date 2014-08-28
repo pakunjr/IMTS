@@ -8,8 +8,10 @@ class view_pages {
 
         $classHome = $cModel == 'home' ? $class : '';
         $classInventory = $cModel == 'inventory' || $cModel == 'inventory_packages' ? $class : '';
-        $classPerson = $cModel == 'persons' || $cModel == 'employees' || $cModel == 'owners' ? $class : '';
-        $classDepartment = $cModel == 'departments' || $cModel == 'owners' ? $class : '';
+        $classOwners = $cModel == 'persons'
+            || $cModel == 'employees'
+            || $cModel == 'owners'
+            || $cModel == 'departments' ? $class : '';
         $classAdmin = $cModel == 'admin' ? $class : '';
         $classMyAccount = $cModel == 'my_account' ? $class : '';
 
@@ -17,18 +19,18 @@ class view_pages {
             case 'inventory':
                 $output = '<ul class="sub-menu">'
                     .'<li><a href="'.URL_BASE.'inventory/create_item/">New Item</a></li>'
+                    .'<li><a href="'.URL_BASE.'inventory/search_item/">Search Item</a></li>'
+                    .'<li><a href="'.URL_BASE.'inventory_packages/create_package/">New Packages</a></li>'
+                    .'<li><a href="'.URL_BASE.'inventory_packages/search_package/">Search Packages</a></li>'
                     .'</ul>';
                 break;
 
-            case 'person':
+            case 'owners':
                 $output = '<ul class="sub-menu">'
                     .'<li><a href="'.URL_BASE.'persons/create_person/">New Person</a></li>'
-                    .'</ul>';
-                break;
-
-            case 'department':
-                $output = '<ul class="sub-menu">'
+                    .'<li><a href="'.URL_BASE.'persons/search_person/">Search Person</a></li>'
                     .'<li><a href="'.URL_BASE.'departments/create_department/">New Department</a></li>'
+                    .'<li><a href="'.URL_BASE.'departments/search_department/">Search Department</a></li>'
                     .'</ul>';
                 break;
 
@@ -50,8 +52,7 @@ class view_pages {
                     .'<li>'.$this->renderNavigation('admin').'<a'.$classAdmin.' href="'.URL_BASE.'admin/">Admin</a></li>'
                     .'<li><a'.$classHome.' href="'.URL_BASE.'">Home</a></li>'
                     .'<li>'.$this->renderNavigation('inventory').'<a'.$classInventory.' href="'.URL_BASE.'inventory/">Inventory</a></li>'
-                    .'<li>'.$this->renderNavigation('person').'<a'.$classPerson.' href="'.URL_BASE.'persons/">Person</a></li>'
-                    .'<li>'.$this->renderNavigation('department').'<a'.$classDepartment.' href="'.URL_BASE.'departments/">Department</a></li>'
+                    .'<li>'.$this->renderNavigation('owners').'<a'.$classOwners.' href="#">Owners</a></li>'
                     .'<li>'.$this->renderNavigation('myAccount').'<a'.$classMyAccount.' href="#myAccount">My Account</a></li>'
                     .'</ul>';
         }

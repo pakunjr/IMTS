@@ -12,6 +12,36 @@ class controller_employees {
 
 
 
+    public function createEmployment () {
+        if (!isset($_POST)) {
+            header('location: '.URL_BASE.'persons/');
+            return;
+        }
+        $employment = $this->model->createEmployment($_POST);
+        header('location: '.URL_BASE.'persons/read_person/'.$employment['employee-person'].'/');
+    }
+
+
+
+    public function updateEmployment () {
+        if (!isset($_POST)) {
+            header('location: '.URL_BASE.'persons/');
+            return;
+        }
+        $employment = $this->model->updateEmployment($_POST);
+        header('location: '.URL_BASE.'persons/read_person/'.$employment['employee-person'].'/');
+    }
+
+
+
+    public function endEmployment ($employeeId) {
+        $this->model->endEmployment($employeeId);
+        $employment = $this->model->readEmployee($employeeId);
+        header('location: '.URL_BASE.'persons/read_person/'.$employment['person_id'].'/');
+    }
+
+
+
     public function displayForm ($personId=null, $employeeId=null) {
         if ($personId == null) {
             header('location: '.URL_BASE.'employees/');
@@ -19,6 +49,15 @@ class controller_employees {
         }
         $employee = $this->model->readEmployee($employeeId);
         echo $this->view->renderForm($personId, $employee);
+    }
+
+
+
+    public function displayEmploymentHistory ($personId, $echo=true) {
+        $employment = $this->model->readPersonEmployment($personId);
+        $output = $this->view->renderEmploymentHistory($employment);
+        if (!$echo) return $output;
+        echo $output;
     }
 
 
@@ -32,7 +71,7 @@ class controller_employees {
                 .'Job Position';
             return;
         }
-
+        $keyword = trim($keyword);
         $searchResults = $this->model->searchEmployees($keyword);
         echo $this->view->renderSearchResults($searchResults);
     }
@@ -46,7 +85,7 @@ class controller_employees {
                 .'<hr /><a href="#"><input type="button" value="Add a Job" /></a>';
             return;
         }
-
+        $keyword = trim($keyword);
         $searchResults = $this->model->searchJobs($keyword);
         echo $this->view->renderSearchResultsJob($searchResults);
     }

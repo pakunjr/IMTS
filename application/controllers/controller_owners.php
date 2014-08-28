@@ -25,6 +25,7 @@ class controller_owners {
                 ,'Acronym';
             return;
         }
+        $keyword = trim($keyword);
 
         switch ($searchFor) {
             case 'Person':

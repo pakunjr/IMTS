@@ -78,17 +78,34 @@ class controller_items {
 
 
 
-    public function displaySearchResults ($searchType='item', $keyword) {
+    public function displaySearchForm () {
+        $keyword = isset($_POST['search-keyword']) ? $_POST['search-keyword'] : '';
+        echo $this->view->renderSearchForm($keyword);
+        $this->displaySearchResults('items', $keyword);
+    }
+
+
+
+    public function displaySearchResults ($searchType='items', $keyword) {
         if (strlen(trim($keyword)) < 1) {
-            echo 'Keywords can match the ff:<br />'
+            echo 'Keywords can match the ff:<br /><br />'
                 ,'Item Name<br />'
                 ,'Item Serial No<br />'
                 ,'Item Model No';
             return;
         }
-
+        $keyword = trim($keyword);
         $results = $this->model->searchItems($searchType, $keyword);
         echo $this->view->renderSearchResults($results);
+    }
+
+
+
+    public function displayIsItemComponentHost ($itemId, $echo=true) {
+        $isHost = $this->model->isItemComponentHost($itemId);
+        $output = $isHost ? 'Yes' : 'No';
+        if (!$echo) return $output;
+        echo $output;
     }
 
 
@@ -147,10 +164,9 @@ class controller_items {
 
 
 
-    public function deleteItem ($itemId) {
-        $result = $this->model->deleteItem($itemId);
-        if (!$result) header('location: '.URL_BASE.'inventory/read_item/'.$itemId.'/');
-        else header('location: '.URL_BASE.'inventory/');
+    public function archiveItem ($itemId) {
+        $result = $this->model->archiveItem($itemId);
+        header('location: '.URL_BASE.'inventory/read_item/'.$itemId.'/');
     }
 
 }

@@ -6,6 +6,7 @@ class view_employees {
         $d = $datas;
         $f = new form(array('auto_line_break'=>true, 'auto_label'=>true));
         $c_persons = new controller_persons();
+        $c_departments = new controller_departments();
         $c_employees = new controller_employees();
         $c_employeeStatus = new controller_employeeStatus();
 
@@ -13,11 +14,12 @@ class view_employees {
             ? '<h3>'.$d['person_lastname'].', '.$d['person_firstname'].' '.$d['person_middlename'].' '.$d['person_suffix'].' as <br />'.$d['employee_job_label'].'</h3>'
             : '<h3>New Employment for <br />'.$c_persons->displayPersonName($personId, false).'</h3>';
         $actionLink = $d != null
-            ? URL_BASE.'employees/update_employment/'
-            : URL_BASE.'employees/create_employment/';
+            ? URL_BASE.'employees/update_employment/'.$personId.'/save/'
+            : URL_BASE.'employees/create_employment/'.$personId.'/save/';
 
         $output = $employmentName.$f->openForm(array('id'=>'', 'action'=>$actionLink, 'method'=>'post', 'enctype'=>'multipart/form-data'))
 
+            .$f->hidden(array('id'=>'employee-id', 'value'=>$d != null ? $d['employee_id'] : '0'))
             .$f->hidden(array('id'=>'employee-person', 'value'=>$personId))
 
             .$f->openFieldset(array('legend'=>'Employment Details'))
@@ -25,7 +27,7 @@ class view_employees {
             .$f->text(array('id'=>'employee-no', 'label'=>'Employee No.', 'value'=>$d != null ? $d['employee_no'] : ''))
             .$c_employeeStatus->displaySelectForm(array(), false)
             .$f->hidden(array('id'=>'employee-department', 'value'=>$d != null ? $d['employee_department'] : '0', 'data-url'=>URL_BASE.'departments/in_search/'))
-            .$f->text(array('id'=>'employee-department-label', 'label'=>'Department', 'value'=>$d != null ? $d['employee_department'] : ''))
+            .$f->text(array('id'=>'employee-department-label', 'label'=>'Department', 'value'=>$d != null ? $c_departments->displayDepartmentName($d['employee_department'], false) : ''))
             .'</span>'
 
             .'<span class="column">'
@@ -38,6 +40,53 @@ class view_employees {
 
             .$f->submit(array('value'=>$d != null ? 'Update' : 'Save'))
             .$f->closeForm();
+        return $output;
+    }
+
+
+
+    public function renderEmploymentHistory ($datas) {
+        if ($datas == null) return 'This person has no employment history.';
+
+        $d = $datas;
+        $fx = new myFunctions();
+        $c_departments = new controller_departments();
+
+        $currentDate = date('Y-m-d');
+
+        $output = '<table><tr>'
+            .'<th>Employee No</th>'
+            .'<th>Status</th>'
+            .'<th>Job Label -- Definition</th>'
+            .'<th>Department Short -- Name</th>'
+            .'<th>Employment Date</th>'
+            .'<th>Resignation / End of Contract Date</th>'
+            .'<th>Actions</th>'
+            .'</tr>';
+        foreach ($datas as $d) {
+            $deptName = $c_departments->displayDepartmentName($d['employee_department'], false);
+            $deptLink = $deptName != 'Unknown Department'
+                ? '<a href="'.URL_BASE.'departments/read_department/'.$d['employee_department'].'/"><input type="button" value="'.$deptName.'" /></a>'
+                : $deptName;
+
+            $actionButtons = $d['employee_resignation_date'] > $currentDate || $d['employee_resignation_date'] == '0000-00-00'
+                ? '<a href="'.URL_BASE.'employees/update_employment/'.$d['employee_person'].'/'.$d['employee_id'].'/"><input class="btn-green" type="button" value="Update Employment" /></a>'
+                    .'<a href="'.URL_BASE.'employees/end_employment/'.$d['employee_id'].'/"><input class="btn-red" type="button" value="End Employment" /></a>'
+                : 'N/A';
+
+            $output .= '<tr>'
+                .'<td>'.$d['employee_no'].'</td>'
+                .'<td>'.$d['employee_status_label'].'</td>'
+                .'<td>'.$d['employee_job_label'].' -- '.$d['employee_job_description'].'</td>'
+                .'<td>'.$deptLink.'</td>'
+                .'<td>'.$fx->dateToWords($d['employee_employment_date']).'</td>'
+                .'<td>'.$fx->dateToWords($d['employee_resignation_date']).'</td>'
+                .'<td>'
+                    .$actionButtons
+                .'</td>'
+                .'</tr>';
+        }
+        $output .= '</table>';
         return $output;
     }
 

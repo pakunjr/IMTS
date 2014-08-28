@@ -110,7 +110,9 @@ class model_items {
 
     public function readItemOwners ($itemId) {
         $r = $this->db->statement(array(
-            'q'=>"SELECT * FROM imts_ownership WHERE ownership_item = ? ORDER BY ownership_date_released DESC"
+            'q'=>"SELECT * FROM imts_ownership WHERE ownership_item = ? ORDER BY
+                    FIELD(ownership_date_released, '0000-00-00') DESC
+                    ,ownership_date_released DESC"
             ,'v'=>array(
                 intval($itemId))));
         return count($r) > 0 ? $r : null;
@@ -177,7 +179,7 @@ class model_items {
 
 
 
-    public function deleteItem ($itemId) {
+    public function archiveItem ($itemId) {
         $result = $this->db->statement(array(
             'q'=>"UPDATE imts_items SET item_archive_state = 1 WHERE item_id = ?"
             ,'v'=>array(
@@ -197,14 +199,33 @@ class model_items {
 
 
 
-    public function searchItems ($searchType='item', $keyword) {
+    public function searchItems ($searchType='items', $keyword) {
         switch ($searchType) {
+            case 'items':
+                $rows = $this->db->statement(array(
+                    'q'=>"SELECT * FROM imts_items
+                        WHERE
+                            item_name LIKE ?
+                            OR item_serial_no LIKE ?
+                            OR item_model_no LIKE ?
+                        ORDER BY
+                            item_archive_state ASC"
+                    ,'v'=>array(
+                        "%$keyword%"
+                        ,"%$keyword%"
+                        ,"%$keyword%")));
+                break;
+
             case 'componentHosts':
                 $rows = $this->db->statement(array(
-                    'q'=>"SELECT * FROM imts_items WHERE item_has_components = 1 AND (
-                        item_name LIKE ?
-                        OR item_serial_no LIKE ?
-                        OR item_model_no LIKE ?)"
+                    'q'=>"SELECT * FROM imts_items
+                        WHERE
+                            item_has_components = 1
+                            AND item_archive_state = 0
+                            AND (
+                                item_name LIKE ?
+                                OR item_serial_no LIKE ?
+                                OR item_model_no LIKE ?)"
                     ,'v'=>array(
                         "%$keyword%"
                         ,"%$keyword%"
@@ -235,6 +256,19 @@ class model_items {
 
         $this->db->statement(array(
             'q'=>"UPDATE imts_items SET item_log = '$log' WHERE item_id = $itemId"));
+    }
+
+
+
+    public function isItemComponentHost ($itemId) {
+        $rows = $this->db->statement(array(
+            'q'=>"SELECT item_has_components FROM imts_items WHERE item_id = ?"
+            ,'v'=>array(
+                intval($itemId))));
+        if (count($rows) > 0) {
+            if ($rows[0]['item_has_components'] == 1) return true;
+            else return false;
+        } else return null;
     }
     
 }

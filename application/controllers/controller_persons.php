@@ -44,6 +44,30 @@ class controller_persons {
 
 
 
+    public function displaySearchForm () {
+        $keyword = isset($_POST['search-keyword']) ? $_POST['search-keyword'] : '';
+        echo $this->view->renderSearchForm($keyword);
+        $this->displaySearchResults($keyword);
+    }
+
+
+
+    public function displaySearchResults ($keyword) {
+        if (strlen(trim($keyword)) < 1) {
+            echo 'You can search using the following:<br /><br />'
+                .'Firstname<br />'
+                .'Middlename<br />'
+                .'Lastname<br /><br />'
+                .'Email Address';
+            return;
+        }
+        $keyword = trim($keyword);
+        $searchResults = $this->model->searchPersons($keyword);
+        echo $this->view->renderSearchResults($searchResults);
+    }
+
+
+
     public function displayPersonInformations ($personId) {
         $personDatas = $this->model->readPerson($personId);
         $personDatas['person_is_employee'] = $this->model->isEmployee($personId);

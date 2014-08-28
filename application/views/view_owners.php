@@ -27,25 +27,27 @@ class view_owners {
                             .'<td>'.$fx->dateToWords($result['person_birthdate']).'</td>'
                             .'</tr>';
                     }
-                    $output .= '</table>';
+                    $output .= '</table>'
+                        .'<hr /><a href="'.URL_BASE.'persons/create_person/" target="_blank"><input class="btn-green" type="button" value="Add a Person" /></a>';
                 } else $output = 'There are no Person/s matching your keyword.';
                 break;
 
             case 'Department':
                 if ($results != null) {
                     $output = '<table><tr>'
-                        .'<th>Name</th>'
+                        .'<th>Short -- Name</th>'
                         .'<th>Head</th>'
                         .'<th>Description</th>'
                         .'</tr>';
                     foreach ($results as $result) {
                         $output .= '<tr class="data" data-id="'.$result['department_id'].'" data-label="'.$result['department_name_short'].' ('.$result['department_name'].')">'
-                            .'<td>'.$result['department_name_short'].' ('.$result['department_name'].')</td>'
+                            .'<td>'.$result['department_name_short'].' -- '.$result['department_name'].'</td>'
                             .'<td>'.$c_persons->displayPersonName($result['department_head'], false).'</td>'
                             .'<td>'.nl2br($result['department_description']).'</td>'
                             .'</tr>';
                     }
-                    $output .= '</table>';
+                    $output .= '</table>'
+                        .'<hr /><a href="'.URL_BASE.'departments/create_department/" target="_blank"><input type="button" value="Add a Department" /></a>';
                 } else $output = 'There are no Department/s matching your keyword.';
                 break;
 
@@ -84,10 +86,15 @@ class view_owners {
             $componentNameLink = $componentName == 'None'
                 ? $componentName : '<a href="'.URL_BASE.'inventory/read_item/'.$d['item_component_of'].'/"><input type="button" value="'.$componentName.'" /></a>';
 
+            $actionButtons = $d['item_archive_state'] == '0'
+                ? '<a href="'.URL_BASE.'inventory/update_item/'.$d['item_id'].'/"><input class="btn-green" type="button" value="Update Item" /></a>'
+                    .'<a href="'.URL_BASE.'inventory/archive_item/'.$d['item_id'].'/"><input class="btn-red" type="button" value="Archive Item" /></a>'
+                : 'This item has been archived.';
+
             $output .= '<tr class="special-hover item-component-data" data-url="'.URL_BASE.'inventory/read_item/'.$d['item_id'].'/">'
                 .'<td>'.$d['item_name'].'<br />'
-                    .'<span style="color: #03f;">Serial No: '.$d['item_serial_no'].'</span><br />'
-                    .'<span style="color: #f00;">Model No: '.$d['item_model_no'].'</span></td>'
+                    .'<span style="color: #03f;">Serial No</span>: '.$d['item_serial_no'].'<br />'
+                    .'<span style="color: #f00;">Model No</span>: '.$d['item_model_no'].'</td>'
                 .'<td>'.$c_itemTypes->displayItemTypeName($d['item_type'], false).'</td>'
                 .'<td>'.$c_itemStates->displayItemStateName($d['item_state'], false).'</td>'
                 .'<td>'.$d['item_description'].'</td>'
@@ -96,10 +103,7 @@ class view_owners {
                 .'<td>'.$c_itemPackages->displayPackageName($d['item_package'], false).'</td>'
                 .'<td>'.$fx->dateToWords($d['ownership_date_owned']).'</td>'
                 .'<td>'.$fx->dateToWords($d['ownership_date_released']).'</td>'
-                .'<td>'
-                    .'<a href="'.URL_BASE.'inventory/update_item/'.$d['item_id'].'/"><input class="btn-green" type="button" value="Update" /></a>'
-                    .'<a href="'.URL_BASE.'inventory/delete_item/'.$d['item_id'].'/"><input class="btn-red" type="button" value="Archive" /></a>'
-                .'</td>'
+                .'<td>'.$actionButtons.'</td>'
                 .'</tr>';
         }
         $output .= '</table>';

@@ -86,15 +86,14 @@ class controller_pages {
                         }
                         break;
 
-                    case 'delete_item':
-                        $c_items->deleteItem($controller);
+                    case 'archive_item':
+                        $c_items->archiveItem($controller);
                         break;
 
                     case 'search_item':
-                        break;
-
-                    case 'in_search_item':
-                        echo 'Hello';
+                        $this->displayHeader();
+                        $c_items->displaySearchForm();
+                        $this->displayFooter();
                         break;
 
                     case 'in_search_componentHost':
@@ -109,6 +108,44 @@ class controller_pages {
 
             case 'inventory_packages':
                 switch ($view) {
+                    case 'create_package':
+                        switch ($controller) {
+                            case 'save':
+                                $c_itemPackages->createPackage();
+                                break;
+
+                            default:
+                                $this->displayHeader();
+                                $c_itemPackages->displayForm();
+                                $this->displayFooter();
+                        }
+                        break;
+
+                    case 'read_package':
+                        $this->displayHeader();
+                        $c_itemPackages->displayPackageInformations($controller);
+                        $this->displayFooter();
+                        break;
+
+                    case 'update_package':
+                        switch ($controller) {
+                            case 'save':
+                                $c_itemPackages->updatePackage();
+                                break;
+
+                            default:
+                                $this->displayHeader();
+                                $c_itemPackages->displayForm($controller);
+                                $this->displayFooter();
+                        }
+                        break;
+
+                    case 'search_package':
+                        $this->displayHeader();
+                        $c_itemPackages->displaySearchForm();
+                        $this->displayFooter();
+                        break;
+
                     case 'in_search':
                         $c_itemPackages->displaySearchResults($controller);
                         break;
@@ -153,7 +190,10 @@ class controller_pages {
                         }
                         break;
 
-                    case 'delete_item':
+                    case 'search_person':
+                        $this->displayHeader();
+                        $c_persons->displaySearchForm();
+                        $this->displayFooter();
                         break;
 
                     default:
@@ -167,6 +207,7 @@ class controller_pages {
                     case 'create_employment':
                         switch ($action) {
                             case 'save':
+                                $c_employees->createEmployment();
                                 break;
 
                             default:
@@ -176,9 +217,13 @@ class controller_pages {
                         }
                         break;
 
+                    case 'create_job':
+                        break;
+
                     case 'update_employment':
                         switch ($action) {
                             case 'save':
+                                $c_employees->updateEmployment();
                                 break;
 
                             default:
@@ -186,6 +231,10 @@ class controller_pages {
                                 $c_employees->displayForm($controller, $action);
                                 $this->displayFooter();
                         }
+                        break;
+
+                    case 'end_employment':
+                        $c_employees->endEmployment($controller);
                         break;
 
                     case 'in_search':
@@ -236,7 +285,10 @@ class controller_pages {
                         }
                         break;
 
-                    case 'delete_department':
+                    case 'search_department':
+                        $this->displayHeader();
+                        $c_departments->displaySearchForm();
+                        $this->displayFooter();
                         break;
 
                     case 'in_search':
