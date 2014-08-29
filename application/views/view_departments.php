@@ -91,6 +91,8 @@ class view_departments {
 
 
     public function renderDepartmentMembers ($datas) {
+        if ($datas == null) return 'There are no members for this department.';
+
         $fx = new myFunctions();
 
         $output = '<table><tr>'
