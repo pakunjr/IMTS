@@ -70,8 +70,10 @@ class controller_persons {
 
     public function displayPersonInformations ($personId) {
         $personDatas = $this->model->readPerson($personId);
-        $personDatas['person_is_employee'] = $this->model->isEmployee($personId);
-        $personDatas['person_head_departments'] = $this->model->readPersonHeadDepartments($personId);
+        if ($personDatas != null) {
+            $personDatas['person_is_employee'] = $this->model->isEmployee($personId);
+            $personDatas['person_head_departments'] = $this->model->readPersonHeadDepartments($personId);
+        }
         echo $this->view->renderPersonInformations($personDatas);
     }
 

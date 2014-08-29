@@ -13,7 +13,15 @@ class view_departments {
             ? '<h3>'.$d['department_name_short'].' - '.$d['department_name'].'</h3>'
             : '<h3>New Department</h3>';
 
-        $output = $departmentName.$f->openForm(array('id'=>'', 'action'=>'', 'method'=>'post', 'enctype'=>'multipart/form-data'))
+        $actionLink = $d != null
+            ? URL_BASE.'departments/update_department/save/'
+            : URL_BASE.'departments/create_department/save/';
+
+        $cancelButton = $d != null
+            ? '<a href="'.URL_BASE.'departments/read_department/'.$d['department_id'].'/'.'"><input type="button" value="Cancel" /></a>'
+            : '';
+
+        $output = $departmentName.$f->openForm(array('id'=>'', 'action'=>$actionLink, 'method'=>'post', 'enctype'=>'multipart/form-data'))
             .$f->hidden(array('id'=>'department-id', 'value'=>$d != null ? $d['department_id'] : '0'))
 
             .$f->openFieldset(array('legend'=>'Department Information'))
@@ -29,7 +37,8 @@ class view_departments {
             .'</span>'
             .$f->closeFieldset()
 
-            .$f->submit(array('value'=>$d != null ? 'Update Department' : 'Save Department'))
+            .$f->submit(array('value'=>$d != null ? 'Update Department' : 'Save Department', 'auto_line_break'=>false))
+            .$cancelButton
             .$f->closeForm();
         return $output;
     }
@@ -41,11 +50,17 @@ class view_departments {
 
         $d = $datas;
 
+        $c_departments = new controller_departments();
         $c_owners = new controller_owners();
         $c_persons = new controller_persons();
 
         $ownerName = '<h3>'.$d['department_name'].' - '.$d['department_name_short'].'</h3>';
         $ownedItems = $c_owners->displayOwnedItems('Department', $d['department_id'], false);
+
+        $headName = $c_persons->displayPersonName($d['department_head'], false);
+        $headLink = $headName != 'Unknown Person' && $headName != 'None'
+            ? '<a href="'.URL_BASE.'persons/read_person/'.$d['department_head'].'/"><input type="button" value="'.$headName.'" /></a>'
+            : $headName;
 
         $output = $ownerName.'<hr />'
             .'<div class="accordion-title">Department Information</div><div class="accordion-content accordion-content-default">'
@@ -54,20 +69,47 @@ class view_departments {
                 .'<th>Name</th>'
                 .'<td>'.$d['department_name'].'</td>'
                 .'<th rowspan="3">Description</th>'
-                .'<td rowspan="3">'.$d['department_description'].'</td>'
+                .'<td rowspan="3">'.nl2br($d['department_description']).'</td>'
             .'</tr><tr>'
                 .'<th>Short</th>'
                 .'<td>'.$d['department_name_short'].'</td>'
             .'</tr><tr>'
                 .'<th>Head</th>'
-                .'<td><a href="'.URL_BASE.'persons/read_person/'.$d['department_head'].'/"><input type="button" value="'.$c_persons->displayPersonName($d['department_head'], false).'" /></a></td>'
+                .'<td>'.$headLink.'</td>'
             .'</tr>'
             .'</table>'
             .'</div>'
 
             .'<div class="accordion-title">Ownership History</div><div class="accordion-content">'.$ownedItems.'</div>'
 
+            .'<div class="accordion-title">Members</div><div class="accordion-content">'.$c_departments->displayDepartmentMembers($d['department_id'], false).'</div>'
+
             .'<hr /><a href="'.URL_BASE.'departments/update_department/'.$d['department_id'].'/"><input class="btn-green" type="button" value="Update Department" /></a>';
+        return $output;
+    }
+
+
+
+    public function renderDepartmentMembers ($datas) {
+        $fx = new myFunctions();
+
+        $output = '<table><tr>'
+            .'<th>Name</th>'
+            .'<th>Position</th>'
+            .'<th>Status</th>'
+            .'<th>Employment Date</th>'
+            .'<th>End of Contract Date</th>'
+            .'</tr>';
+        foreach ($datas as $d) {
+            $output .= '<tr>'
+                .'<td>'.$d['person_lastname'].', '.$d['person_firstname'].' '.$d['person_middlename'].' '.$d['person_suffix'].'</td>'
+                .'<td>'.$d['employee_job_label'].'</td>'
+                .'<td>'.$d['employee_status_label'].'</td>'
+                .'<td>'.$fx->dateToWords($d['employee_employment_date']).'</td>'
+                .'<td>'.$fx->dateToWords($d['employee_resignation_date']).'</td>'
+                .'</tr>';
+        }
+        $output .= '</table>';
         return $output;
     }
 
@@ -90,7 +132,7 @@ class view_departments {
 
 
     public function renderSearchResults ($datas) {
-        if ($datas == null) return 'Your keyword did not match any department name.';
+        if ($datas == null) return 'Your keyword did not match any department name.<hr /><a href="'.URL_BASE.'departments/create_department/" target="_blank"><input class="btn-green" type="button" value="Add a Department" /></a>';
 
         $c_persons = new controller_persons();
 
@@ -103,13 +145,18 @@ class view_departments {
         }
         $output .= '</tr>';
         foreach ($datas as $d) {
+            $headName = $c_persons->displayPersonName($d['department_head'], false);
+            $headLink = isset($_POST['search-keyword']) && $headName != 'None'
+                ? '<a href="'.URL_BASE.'persons/read_person/'.$d['department_head'].'/"><input type="button" value="'.$headName.'" /></a>'
+                : $headName;
+
             $output .= '<tr class="data" '
                 .'data-id="'.$d['department_id'].'" '
                 .'data-label="'.$d['department_name_short'].' -- '.$d['department_name'].'" '
                 .'data-url="'.URL_BASE.'departments/read_department/'.$d['department_id'].'/">'
                 .'<td>'.$d['department_name'].' -- '.$d['department_name_short'].'</td>'
-                .'<td>'.$d['department_description'].'</td>'
-                .'<td>'.$c_persons->displayPersonName($d['department_head'], false).'</td>';
+                .'<td>'.nl2br($d['department_description']).'</td>'
+                .'<td>'.$headLink.'</td>';
             if (isset($_POST['search-keyword'])) {
                 $output .= '<td><a href="'.URL_BASE.'departments/update_department/'.$d['department_id'].'/"><input class="btn-green" type="button" value="Update Department" /></a></td>';
             }

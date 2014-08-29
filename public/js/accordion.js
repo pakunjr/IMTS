@@ -20,8 +20,7 @@ $(document).ready(function () {
                     ,$symbol = $title.find('.accordion-symbol');
 
                 $content.css({
-                    'max-height': '350px'
-                    ,'padding': '8px 13px'
+                    'padding': '8px 13px'
                     ,'overflow': 'auto'
                     ,'border': '1px solid #ccc'
                 });

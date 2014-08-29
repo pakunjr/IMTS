@@ -81,8 +81,8 @@ input.btn-red {
     padding: 5px 8px;
     border-radius: 3px;
     border: 1px solid #0b4873;
-    background: #1270b3;
-    text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+    background: #6b95b3;
+    text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7);
     font-size: 0.85em;
     color: #fff;
     cursor: pointer;
@@ -90,25 +90,25 @@ input.btn-red {
 }
 input[type="button"]:hover,
 input.btn-blue:hover {
-    background-color: #1480cc;
+    background-color: #66a1cc;
 }
 input[type="submit"],
 input.btn-green {
     border-color: #09590d;
-    background-color: #0d8012;
+    background-color: #59805b;
 }
 input[type="submit"]:hover,
 input.btn-green:hover {
-    background-color: #0f9916;
+    background-color: #5c995f;
 }
 input[type="reset"],
 input.btn-red {
     border-color: #660f0f;
-    background-color: #991717;
+    background-color: #805959;
 }
 input[type="reset"]:hover,
 input.btn-red:hover {
-    background-color: #b31b1b;
+    background-color: #995c5c;
 }
 input[type="button"]:active,
 input[type="submit"]:active,

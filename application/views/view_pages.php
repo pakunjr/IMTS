@@ -18,19 +18,21 @@ class view_pages {
         switch ($type) {
             case 'inventory':
                 $output = '<ul class="sub-menu">'
-                    .'<li><a href="'.URL_BASE.'inventory/create_item/">New Item</a></li>'
-                    .'<li><a href="'.URL_BASE.'inventory/search_item/">Search Item</a></li>'
-                    .'<li><a href="'.URL_BASE.'inventory_packages/create_package/">New Packages</a></li>'
-                    .'<li><a href="'.URL_BASE.'inventory_packages/search_package/">Search Packages</a></li>'
+                    .'<li><a href="'.URL_BASE.'inventory/create_item/">Item > New</a></li>'
+                    .'<li><a href="'.URL_BASE.'inventory/search_item/">Item > Search</a></li>'
+                    .'<li><a href="'.URL_BASE.'inventory_packages/create_package/">Packages > New</a></li>'
+                    .'<li><a href="'.URL_BASE.'inventory_packages/search_package/">Packages > Search</a></li>'
                     .'</ul>';
                 break;
 
             case 'owners':
                 $output = '<ul class="sub-menu">'
-                    .'<li><a href="'.URL_BASE.'persons/create_person/">New Person</a></li>'
-                    .'<li><a href="'.URL_BASE.'persons/search_person/">Search Person</a></li>'
-                    .'<li><a href="'.URL_BASE.'departments/create_department/">New Department</a></li>'
-                    .'<li><a href="'.URL_BASE.'departments/search_department/">Search Department</a></li>'
+                    .'<li><a href="'.URL_BASE.'persons/create_person/">Person > New</a></li>'
+                    .'<li><a href="'.URL_BASE.'persons/search_person/">Person > Search</a></li>'
+                    .'<li><a href="'.URL_BASE.'departments/create_department/">Department > New</a></li>'
+                    .'<li><a href="'.URL_BASE.'departments/search_department/">Department > Search</a></li>'
+                    .'<li><a href="'.URL_BASE.'employees/create_job/">Employment > Job > Create</a></li>'
+                    .'<li><a href="'.URL_BASE.'employees/search_job/">Employment > Job > Search</a></li>'
                     .'</ul>';
                 break;
 

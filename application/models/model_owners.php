@@ -59,7 +59,12 @@ class model_owners {
             $ownerId = $ownerships[0]['ownership_owner'];
 
             $owner = $this->db->statement(array(
-                'q'=>"SELECT * FROM imts_ownership WHERE ownership_owner = ? AND ownership_owner_type = ? ORDER BY ownership_date_released DESC"
+                'q'=>"SELECT * FROM imts_ownership
+                    WHERE
+                        ownership_owner = ?
+                        AND ownership_owner_type = ?
+                    ORDER BY
+                        ownership_date_released DESC"
                 ,'v'=>array(intval($ownerId), $ownerType)));
             return count($owner) > 0 ? $owner : null;
         } else return null;
@@ -78,7 +83,13 @@ class model_owners {
                 ORDER BY
                     items.item_archive_state ASC
                     ,FIELD(ownshp.ownership_date_released, '0000-00-00') DESC
-                    ,ownshp.ownership_date_released DESC"
+                    ,ownshp.ownership_date_released DESC
+                    ,items.item_type ASC
+                    ,items.item_state ASC
+                    ,items.item_component_of ASC
+                    ,items.item_name ASC
+                    ,items.item_serial_no ASC
+                    ,items.item_model_no ASC"
             ,'v'=>array(intval($ownerId), $ownerType)));
         return count($ownerships) > 0 ? $ownerships : null;
     }

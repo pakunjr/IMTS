@@ -38,6 +38,24 @@ class model_employees {
 
 
 
+    public function createJob ($datas) {
+        $d = $datas;
+        $res = $this->db->statement(array(
+            'q'=>"INSERT INTO imts_persons_employment_jobs(
+                    employee_job_label
+                    ,employee_job_description
+                ) VALUES(?,?)"
+            ,'v'=>array(
+                $d['employee-job-label']
+                ,$d['employee-job-description'])));
+        if ($res) {
+            $d['employee-job-id'] = $this->db->lastInsertId();
+            return $d;
+        } else return null;
+    }
+
+
+
     public function readPersonEmployment ($personId) {
         $rows = $this->db->statement(array(
             'q'=>"SELECT * FROM imts_persons_employment AS emp
@@ -108,13 +126,40 @@ class model_employees {
 
 
 
+    public function updateJob ($datas) {
+        $d = $datas;
+        $res = $this->db->statement(array(
+            'q'=>"UPDATE imts_persons_employment_jobs
+                SET
+                    employee_job_label = ?
+                    ,employee_job_description = ?
+                WHERE employee_job_id = ?"
+            ,'v'=>array(
+                $d['employee-job-label']
+                ,$d['employee-job-description']
+                ,intval($d['employee-job-id']))));
+        return $res ? $d : null;
+    }
+
+
+
+    public function deleteJob ($jobId) {
+        $res = $this->db->statement(array(
+            'q'=>"DELETE FROM imts_persons_employment_jobs WHERE job_id = ?"
+            ,'v'=>array(intval($jobId))));
+        return $res;
+    }
+
+
+
     public function endEmployment ($employeeId) {
         $currentDate = date('Y-m-d');
-        $this->db->statement(array(
+        $res = $this->db->statement(array(
             'q'=>"UPDATE imts_persons_employment
                 SET employee_resignation_date = '$currentDate'
                 WHERE employee_id = ?"
             ,'v'=>array(intval($employeeId))));
+        return $res;
     }
 
 

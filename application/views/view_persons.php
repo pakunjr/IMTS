@@ -20,8 +20,11 @@ class view_persons {
             : $f->openFieldset(array('legend'=>'Employment'))
             .'<span class="column">If this person is an employee, you can add the details of employment after you have saved the basic informations of the person.</span>'
             .$f->closeFieldset();
+        $cancelButton = $d != null
+            ? '<a href="'.URL_BASE.'persons/read_person/'.$d['person_id'].'/">'.$f->button(array('value'=>'Cancel', 'auto_line_break'=>false)).'</a>'
+            : '';
         $addEmploymentButton = $d != null
-            ? '<a href="'.URL_BASE.'employees/create_employment/'.$d['person_id'].'/">'.$f->button(array('value'=>'Add Employment')).'</a>'
+            ? '<a href="'.URL_BASE.'employees/create_employment/'.$d['person_id'].'/">'.$f->button(array('class'=>'btn-green', 'value'=>'Add Employment')).'</a>'
             : '';
 
         $output = $personName.$f->openForm(array('id'=>'', 'method'=>'post', 'action'=>$actionLink, 'enctype'=>'multipart/form-data'))
@@ -56,6 +59,7 @@ class view_persons {
 
             .'<div>'
             .$f->submit(array('value'=>$d != null ? 'Update' : 'Save', 'auto_line_break'=>false))
+            .$cancelButton
             .$addEmploymentButton
             .'</div>'
             .$f->closeForm();
@@ -73,7 +77,7 @@ class view_persons {
 
 
     public function renderSearchResults ($datas) {
-        if ($datas == null) return 'There are no person/s that matched your keyword.';
+        if ($datas == null) return 'There are no person/s that matched your keyword.<hr /><a href="'.URL_BASE.'persons/create_person/" target="_blank"><input class="btn-green" type="button" value="Add a Person" /></a>';
 
         $fx = new myFunctions();
 
@@ -109,11 +113,12 @@ class view_persons {
                 .'<td>'.$d['person_contact_b'].'</td>'
                 .'<td>'.$d['person_email'].'</td>';
             if (isset($_POST['search-keyword'])) {
-                $output .= '<td><a href="'.URL_BASE.'persons/update_person/'.$d['person_id'].'/"><input class="btn-green" type="button" value="Update" /></a></td>';
+                $output .= '<td><a href="'.URL_BASE.'persons/update_person/'.$d['person_id'].'/"><input class="btn-green" type="button" value="Update Person" /></a></td>';
             }
             $output .= '</tr>';
         }
-        $output .= '</table>';
+        $output .= '</table>'
+            .'<hr /><a href="'.URL_BASE.'persons/create_person/" target="_blank"><input class="btn-green" type="button" value="Add a Person" /></a>';
         return $output;
     }
 
@@ -195,7 +200,7 @@ class view_persons {
     public function renderPersonName ($person) {
         $p = $person;
         if ($p != null) return $p['person_lastname'].', '.$p['person_firstname'].' '.$p['person_middlename'].' '.$p['person_suffix'];
-        else return 'Unknown Person';
+        else return 'None';
     }
 
 }

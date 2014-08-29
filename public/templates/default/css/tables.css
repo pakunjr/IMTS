@@ -28,3 +28,18 @@ tr.special-hover:hover {
     color: #295666;
     cursor: pointer;
 }
+
+tr.red,
+tr.red:hover {
+    background-color: #f2e4e4;
+    color: #860808;
+}
+tr.red:hover {
+    text-decoration: underline;
+}
+tr.disabled,
+tr.disabled:hover {
+    text-decoration: line-through;
+    cursor: not-allowed;
+    color: #b3b3b3;
+}

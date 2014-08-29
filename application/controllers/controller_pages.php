@@ -218,6 +218,22 @@ class controller_pages {
                         break;
 
                     case 'create_job':
+                        switch ($controller) {
+                            case 'save':
+                                $c_employees->createJob();
+                                break;
+
+                            default:
+                                $this->displayHeader();
+                                $c_employees->displayFormJob();
+                                $this->displayFooter();
+                        }
+                        break;
+
+                    case 'read_job':
+                        $this->displayHeader();
+                        $c_employees->displayJobInformations($controller);
+                        $this->displayFooter();
                         break;
 
                     case 'update_employment':
@@ -233,8 +249,31 @@ class controller_pages {
                         }
                         break;
 
+                    case 'update_job':
+                        switch ($controller) {
+                            case 'save':
+                                $c_employees->updateJob();
+                                break;
+
+                            default:
+                                $this->displayHeader();
+                                $c_employees->displayFormJob($controller);
+                                $this->displayFooter();
+                        }
+                        break;
+
+                    case 'delete_job':
+                        $c_employees->deleteJob($controller);
+                        break;
+
                     case 'end_employment':
                         $c_employees->endEmployment($controller);
+                        break;
+
+                    case 'search_job':
+                        $this->displayHeader();
+                        $c_employees->displaySearchFormJob();
+                        $this->displayFooter();
                         break;
 
                     case 'in_search':

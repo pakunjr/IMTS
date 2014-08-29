@@ -16,7 +16,9 @@ class view_owners {
                         .'</tr>';
                     foreach ($results as $result) {
                         $gender = $result['person_gender'] == 'f' ? 'Female' : 'Male';
-                        $output .= '<tr class="data" data-id="'.$result['person_id'].'" data-label="'.$result['person_lastname'].', '.$result['person_firstname'].' '.$result['person_middlename'].' '.$result['person_suffix'].'">'
+                        $output .= '<tr class="data" '
+                            .'data-id="'.$result['person_id'].'" '
+                            .'data-label="'.$result['person_lastname'].', '.$result['person_firstname'].' '.$result['person_middlename'].' '.$result['person_suffix'].'">'
                             .'<td>'
                                 .$result['person_lastname'].', '
                                 .$result['person_firstname'].' '
@@ -40,7 +42,9 @@ class view_owners {
                         .'<th>Description</th>'
                         .'</tr>';
                     foreach ($results as $result) {
-                        $output .= '<tr class="data" data-id="'.$result['department_id'].'" data-label="'.$result['department_name_short'].' ('.$result['department_name'].')">'
+                        $output .= '<tr class="data" '
+                            .'data-id="'.$result['department_id'].'" '
+                            .'data-label="'.$result['department_name_short'].' ('.$result['department_name'].')">'
                             .'<td>'.$result['department_name_short'].' -- '.$result['department_name'].'</td>'
                             .'<td>'.$c_persons->displayPersonName($result['department_head'], false).'</td>'
                             .'<td>'.nl2br($result['department_description']).'</td>'
@@ -91,13 +95,23 @@ class view_owners {
                     .'<a href="'.URL_BASE.'inventory/archive_item/'.$d['item_id'].'/"><input class="btn-red" type="button" value="Archive Item" /></a>'
                 : 'This item has been archived.';
 
-            $output .= '<tr class="special-hover item-component-data" data-url="'.URL_BASE.'inventory/read_item/'.$d['item_id'].'/">'
+            $currentDate = date('Y-m-d');
+            $redClass = $d['ownership_date_released'] < $currentDate
+                && $d['ownership_date_released'] != '0000-00-00'
+                ? 'red '
+                : '';
+            $disableClass = $d['item_archive_state'] == '1'
+                ? 'disabled '
+                : '';
+
+            $output .= '<tr class="'.$redClass.$disableClass.'data" '
+                .'data-url="'.URL_BASE.'inventory/read_item/'.$d['item_id'].'/">'
                 .'<td>'.$d['item_name'].'<br />'
                     .'<span style="color: #03f;">Serial No</span>: '.$d['item_serial_no'].'<br />'
                     .'<span style="color: #f00;">Model No</span>: '.$d['item_model_no'].'</td>'
                 .'<td>'.$c_itemTypes->displayItemTypeName($d['item_type'], false).'</td>'
                 .'<td>'.$c_itemStates->displayItemStateName($d['item_state'], false).'</td>'
-                .'<td>'.$d['item_description'].'</td>'
+                .'<td>'.nl2br($d['item_description']).'</td>'
                 .'<td>'.$d['item_quantity'].'</td>'
                 .'<td>'.$componentNameLink.'</td>'
                 .'<td>'.$c_itemPackages->displayPackageName($d['item_package'], false).'</td>'
@@ -118,15 +132,15 @@ class view_owners {
                 return $owner != null ? $owner['person_lastname'].', '
                     .$owner['person_firstname'].' '
                     .$owner['person_middlename'].' '
-                    .$owner['person_suffix'] : 'Unknown Owner';
+                    .$owner['person_suffix'] : 'None';
                 break;
 
             case 'Department':
-                return $owner != null ? $owner['department_name_short'].' ('.$owner['department_name'].')' : 'Unknown Owner';
+                return $owner != null ? $owner['department_name_short'].' ('.$owner['department_name'].')' : 'None';
                 break;
 
             default:
-                return 'Unknown Owner';
+                return 'None';
         }
     }
 

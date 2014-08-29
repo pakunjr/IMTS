@@ -128,6 +128,8 @@ class view_items {
             ? '<a href="'.URL_BASE.'inventory_packages/read_package/'.$it['item_package'].'/"><input type="button" value="'.$packageName.'" /></a>'
             : $packageName;
 
+        $hasComponents = $it['item_has_components'] == '1' ? 'Yes' : 'No';
+
         $actionButtons = $i['item']['item_archive_state'] == '0'
             ? '<hr /><a href="'.URL_BASE.'inventory/update_item/'.$i['item']['item_id'].'/"><input class="btn-green" type="button" value="Update Informations" /></a>'
                 .'<a href="'.URL_BASE.'inventory/archive_item/'.$i['item']['item_id'].'/"><input class="btn-red" type="button" value="Archive Item" /></a>'
@@ -151,8 +153,8 @@ class view_items {
                 .'<td>'.$itComponentHostLink.'</td>'
             .'</tr>'
             .'<tr>'
-                .'<th rowspan="3">Description</th>'
-                .'<td rowspan="3">'.$it['item_description'].'</td>'
+                .'<th rowspan="4">Description</th>'
+                .'<td rowspan="4">'.nl2br($it['item_description']).'</td>'
                 .'<th>Date of Purchase</th>'
                 .'<td>'.$fx->dateToWords($it['item_date_of_purchase']).'</td>'
             .'</tr>'
@@ -163,6 +165,10 @@ class view_items {
             .'<tr>'
                 .'<th>Current Owner</th>'
                 .'<td>'.$c_items->displayItemCurrentOwner($it['item_id'], false).'</td>'
+            .'</tr>'
+            .'<tr>'
+                .'<th>Has Component/s</th>'
+                .'<td>'.$hasComponents.'</td>'
             .'</tr>'
             .'</table>'
             .'</div>'
@@ -220,7 +226,7 @@ class view_items {
                     .'</td>'
                     .'<td>'.$c_itemTypes->displayItemTypeName($component['item_type'], false).'</td>'
                     .'<td>'.$c_itemStates->displayItemStateName($component['item_state'], false).'</td>'
-                    .'<td>'.$component['item_description'].'</td>'
+                    .'<td>'.nl2br($component['item_description']).'</td>'
                     .'<td>'.$component['item_quantity'].'</td>'
                     .'<td>'.$coLink.'</td>'
                     .'<td>'.$actionButtons.'</td>'
@@ -367,7 +373,7 @@ class view_items {
                     .'</td>'
                     .'<td>'.$c_itemTypes->displayItemTypeName($result['item_type'], false).'</td>'
                     .'<td>'.$c_itemStates->displayItemStateName($result['item_state'], false).'</td>'
-                    .'<td>'.$result['item_description'].'</td>';
+                    .'<td>'.nl2br($result['item_description']).'</td>';
                 if (isset($_POST['search-keyword'])) {
                     $actionButtons = $result['item_archive_state'] == '0'
                         ? '<a href="'.URL_BASE.'inventory/update_item/'.$result['item_id'].'/"><input class="btn-green" type="button" value="Update Item" /></a>'
@@ -383,7 +389,7 @@ class view_items {
             }
             $output .= '</table>'
                 .'<hr /><a href="'.URL_BASE.'inventory/create_item/" target="_blank"><input class="btn-green" type="button" value="Add an Item" /></a>';
-        } else $output = 'There are no items matching your keywords.';
+        } else $output = 'There are no items matching your keywords.<hr /><a href="'.URL_BASE.'inventory/create_item/" target="_blank"><input class="btn-green" type="button" value="Add an Item" /></a>';
         return $output;
     }
 

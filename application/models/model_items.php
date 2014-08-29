@@ -86,11 +86,12 @@ class model_items {
         $r = $this->db->statement(array(
             'q'=>"SELECT * FROM imts_items WHERE item_component_of = ? 
                 ORDER BY
-                    item_archive_state ASC,
-                    item_type ASC,
-                    item_serial_no ASC,
-                    item_model_no ASC,
-                    item_name ASC"
+                    item_archive_state ASC
+                    ,item_type ASC
+                    ,item_state ASC
+                    ,item_name ASC
+                    ,item_serial_no ASC
+                    ,item_model_no ASC"
             ,'v'=>array(intval($itemId))));
         return count($r) > 0 ? $r : null;
     }

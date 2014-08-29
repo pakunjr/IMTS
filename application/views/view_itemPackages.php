@@ -11,11 +11,15 @@ class view_itemPackages {
             ? URL_BASE.'inventory_packages/update_package/save/'
             : URL_BASE.'inventory_packages/create_package/save/';
 
+        $packageName = $d != null
+            ? '<h3>'.$d['package_name'].'<br /><small><span style="color: #03f;">Serial</span>: '.$d['package_serial_no'].'</small></h3>'
+            : '<h3>New Package</h3>';
+
         $cancelButton = $d != null
             ? '<a href="'.URL_BASE.'inventory_packages/read_package/'.$d['package_id'].'/">'.$f->button(array('value'=>'Cancel')).'</a>'
             : '';
 
-        $output = $f->openForm(array('id'=>'', 'method'=>'post', 'action'=>$actionLink, 'enctype'=>'multipart/form-data'))
+        $output = $packageName.$f->openForm(array('id'=>'', 'method'=>'post', 'action'=>$actionLink, 'enctype'=>'multipart/form-data'))
 
             .$f->hidden(array('id'=>'package-id', 'value'=>$d != null ? $d['package_id'] : '0'))
 
@@ -76,8 +80,8 @@ class view_itemPackages {
                 $output .= '</tr>';
             }
             $output .= '</table>'
-                .'<hr /><a href="'.URL_BASE.'inventory_packages/create_package/" target="_blank"><input type="button" value="Add a Package" /></a>';
-        } else $output = 'There are no packages matching your keywords.';
+                .'<hr /><a href="'.URL_BASE.'inventory_packages/create_package/" target="_blank"><input class="btn-green" type="button" value="Add a Package" /></a>';
+        } else $output = 'There are no packages matching your keywords.<hr /><a href="'.URL_BASE.'inventory_packages/create_package/" target="_blank"><input class="btn-green" type="button" value="Add a Package" /></a>';
 
         return $output;
     }
@@ -98,7 +102,7 @@ class view_itemPackages {
                 .'<th>Name</th>'
                 .'<td>'.$d['package_name'].'</td>'
                 .'<th>Description</th>'
-                .'<td>'.$d['package_description'].'</td>'
+                .'<td>'.nl2br($d['package_description']).'</td>'
             .'</tr>'
             .'<tr>'
                 .'<th>Serial</th>'
@@ -156,7 +160,7 @@ class view_itemPackages {
                 .'</td>'
                 .'<td>'.$c_itemTypes->displayItemTypeName($d['item_type'], false).'</td>'
                 .'<td>'.$c_itemStates->displayItemStateName($d['item_state'], false).'</td>'
-                .'<td>'.$d['item_description'].'</td>'
+                .'<td>'.nl2br($d['item_description']).'</td>'
                 .'<td>'.$d['item_quantity'].'</td>'
                 .'<td>'.$fx->dateToWords($d['item_date_of_purchase']).'</td>'
                 .'<td>'.$c_items->displayItemCurrentOwner($d['item_id'], false).'</td>'

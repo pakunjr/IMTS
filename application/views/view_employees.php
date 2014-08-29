@@ -17,6 +17,10 @@ class view_employees {
             ? URL_BASE.'employees/update_employment/'.$personId.'/save/'
             : URL_BASE.'employees/create_employment/'.$personId.'/save/';
 
+        $endEmploymentButton = $d != null
+            ? '<a href="'.URL_BASE.'employees/end_employment/'.$d['employee_id'].'/">'.$f->button(array('class'=>'btn-red', 'value'=>'End Employment')).'</a>'
+            : '';
+
         $output = $employmentName.$f->openForm(array('id'=>'', 'action'=>$actionLink, 'method'=>'post', 'enctype'=>'multipart/form-data'))
 
             .$f->hidden(array('id'=>'employee-id', 'value'=>$d != null ? $d['employee_id'] : '0'))
@@ -38,7 +42,38 @@ class view_employees {
             .'</span>'
             .$f->closeFieldset()
 
-            .$f->submit(array('value'=>$d != null ? 'Update' : 'Save'))
+            .$f->submit(array('value'=>$d != null ? 'Update Employment' : 'Save Employment', 'auto_line_break'=>false))
+            .'<a href="'.URL_BASE.'persons/read_person/'.$personId.'/">'.$f->button(array('auto_line_break'=>false, 'value'=>'Cancel')).'</a>'
+            .$endEmploymentButton
+            .$f->closeForm();
+        return $output;
+    }
+
+
+
+    public function renderFormJob ($datas) {
+        $d = $datas;
+        $f = new form(array('auto_line_break'=>true, 'auto_label'=>true));
+
+        $actionLink = $d != null
+            ? URL_BASE.'employees/update_job/save/'
+            : URL_BASE.'employees/create_job/save/';
+
+        $jobName = $d != null
+            ? '<h3>'.$d['employee_job_label'].'</h3>'
+            : '<h3>New Job</h3>';
+
+        $output = $jobName.$f->openForm(array('id'=>'', 'method'=>'post', 'action'=>$actionLink, 'enctype'=>'multipart/form-data'))
+            .$f->hidden(array('id'=>'employee-job-id', 'value'=>$d != null ? $d['employee_job_id'] : '0'))
+            .$f->openFieldset(array('legend'=>'Job Information'))
+            .'<span class="column">'
+            .$f->text(array('id'=>'employee-job-label', 'label'=>'Job Label', 'value'=>$d != null ? $d['employee_job_label'] : ''))
+            .'</span>'
+            .'<span class="column">'
+            .$f->textarea(array('id'=>'employee-job-description', 'label'=>'Description', 'value'=>$d != null ? $d['employee_job_description'] : ''))
+            .'</span>'
+            .$f->closeFieldset()
+            .$f->submit(array('value'=>$d != null ? 'Update Job' : 'Save Job'))
             .$f->closeForm();
         return $output;
     }
@@ -65,7 +100,7 @@ class view_employees {
             .'</tr>';
         foreach ($datas as $d) {
             $deptName = $c_departments->displayDepartmentName($d['employee_department'], false);
-            $deptLink = $deptName != 'Unknown Department'
+            $deptLink = $deptName != 'None'
                 ? '<a href="'.URL_BASE.'departments/read_department/'.$d['employee_department'].'/"><input type="button" value="'.$deptName.'" /></a>'
                 : $deptName;
 
@@ -77,7 +112,7 @@ class view_employees {
             $output .= '<tr>'
                 .'<td>'.$d['employee_no'].'</td>'
                 .'<td>'.$d['employee_status_label'].'</td>'
-                .'<td>'.$d['employee_job_label'].' -- '.$d['employee_job_description'].'</td>'
+                .'<td>'.$d['employee_job_label'].' -- '.nl2br($d['employee_job_description']).'</td>'
                 .'<td>'.$deptLink.'</td>'
                 .'<td>'.$fx->dateToWords($d['employee_employment_date']).'</td>'
                 .'<td>'.$fx->dateToWords($d['employee_resignation_date']).'</td>'
@@ -93,7 +128,7 @@ class view_employees {
 
 
     public function renderSearchResults ($datas) {
-        if ($datas == null) return 'There are no employee matching your keyword.';
+        if ($datas == null) return 'There are no employee matching your keyword.<hr /><a href="'.URL_BASE.'persons/search_person/" target="_blank"><input class="btn-green" type="button" value="Search a Person" /></a>';
 
         $fx = new myFunctions();
 
@@ -104,38 +139,83 @@ class view_employees {
             .'<th>Resignation / End of Contract Date</th>'
             .'</tr>';
         foreach ($datas as $d) {
-            $output .= '<tr class="data" data-id="'.$d['person_id'].'" data-label="'.$d['person_lastname'].', '.$d['person_firstname'].' '.$d['person_middlename'].' '.$d['person_suffix'].'">'
+            $output .= '<tr class="data" '
+                .'data-id="'.$d['person_id'].'" '
+                .'data-label="'.$d['person_lastname'].', '.$d['person_firstname'].' '.$d['person_middlename'].' '.$d['person_suffix'].'">'
                 .'<td>'
                     .$d['person_lastname'].', '
                     .$d['person_firstname'].' '
                     .$d['person_middlename'].' '
                     .$d['person_suffix']
                 .'</td>'
-                .'<td>'.$d['employee_job_label'].' -- '.$d['employee_job_description'].'</td>'
+                .'<td>'.$d['employee_job_label'].' -- '.nl2br($d['employee_job_description']).'</td>'
                 .'<td>'.$fx->dateToWords($d['employee_employment_date']).'</td>'
                 .'<td>'.$fx->dateToWords($d['employee_resignation_date']).'</td>'
                 .'</tr>';
         }
-        $output .= '</table>';
+        $output .= '</table>'
+            .'<hr /><a href="'.URL_BASE.'persons/search_person/" target="_blank"><input class="btn-green" type="button" value="Search a Person" /></a>';
+        return $output;
+    }
+
+
+
+    public function renderSearchFormJob ($keyword) {
+        $f = new form(array('auto_line_break'=>false, 'auto_label'=>true));
+        $output = $f->openForm(array('id'=>'', 'method'=>'post', 'action'=>URL_BASE.'employees/search_job/', 'enctype'=>'mutlipart/form-data'))
+            .$f->text(array('id'=>'search-keyword', 'label'=>'Search', 'value'=>$keyword))
+            .$f->submit(array('value'=>'Search'))
+            .$f->closeForm().'<hr />';
         return $output;
     }
 
 
 
     public function renderSearchResultsJob ($datas) {
-        if ($datas == null) return 'Your keyword did not match any Job name.';
+        if ($datas == null) return 'Your keyword did not match any Job name.<hr /><a href="'.URL_BASE.'employees/create_job/" target="_blank"><input class="btn-green" type="button" value="Add a Job" /></a>';
 
         $output = '<table><tr>'
             .'<th>Label</th>'
-            .'<th>Description</th>'
-            .'</tr>';
-        foreach ($datas as $d) {
-            $output .= '<tr class="data" data-id="'.$d['employee_job_id'].'" data-label="'.$d['employee_job_label'].'">'
-                .'<td>'.$d['employee_job_label'].'</td>'
-                .'<td>'.$d['employee_job_description'].'</td>'
-                .'</tr>';
+            .'<th>Description</th>';
+        if (isset($_POST['search-keyword'])) {
+            $output .= '<th>Actions</th>';
         }
-        $output .= '</table>';
+        $output .= '</tr>';
+        foreach ($datas as $d) {
+            $output .= '<tr class="data" '
+                .'data-id="'.$d['employee_job_id'].'" '
+                .'data-label="'.$d['employee_job_label'].'" '
+                .'data-url="'.URL_BASE.'employees/read_job/'.$d['employee_job_id'].'/">'
+                .'<td>'.$d['employee_job_label'].'</td>'
+                .'<td>'.nl2br($d['employee_job_description']).'</td>';
+            if (isset($_POST['search-keyword'])) {
+                $output .= '<td><a href="'.URL_BASE.'employees/update_job/'.$d['employee_job_id'].'/"><input class="btn-green" type="button" value="Update Job" /></a></td>';
+            }
+            $output .= '</tr>';
+        }
+        $output .= '</table>'
+            .'<hr /><a href="'.URL_BASE.'employees/create_job/" target="_blank"><input class="btn-green" type="button" value="Add a Job" /></a>';
+        return $output;
+    }
+
+
+
+    public function renderJobInformations ($datas) {
+        if ($datas == null) {
+            header('location: '.URL_BASE.'employees/search_job/');
+            return;
+        }
+        $d = $datas;
+        $output = '<table><tr>'
+            .'<th>Label</th>'
+            .'<th>Description</th>'
+            .'</tr>'
+            .'<tr>'
+            .'<td>'.$d['employee_job_label'].'</td>'
+            .'<td>'.nl2br($d['employee_job_description']).'</td>'
+            .'</tr>'
+            .'</table>'
+            .'<hr /><a href="'.URL_BASE.'employees/update_job/'.$d['employee_job_id'].'/"><input class="btn-green" type="button" value="Update Job" /></a>';
         return $output;
     }
 

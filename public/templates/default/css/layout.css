@@ -3,7 +3,7 @@ body {
     display: block;
     margin: 0px;
     padding: 0px;
-    background: #fafafa;
+    background: #596f80;
     font-family: sans-serif;
     text-align: center;
 }
@@ -30,7 +30,7 @@ body {
     padding: 8px 25px 18px 25px;
     border: 1px solid #ccc;
     background: #fff;
-    box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.35);
     text-align: left;
 }
 

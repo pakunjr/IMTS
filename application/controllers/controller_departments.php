@@ -14,10 +14,13 @@ class controller_departments {
 
     public function createDepartment () {
         if (!isset($_POST)) {
-            header('location: '.URL_BASE.'departments/');
+            header('location: '.URL_BASE.'departments/create_department/');
             return;
         }
         $departmentDatas = $this->model->createDepartment($_POST);
+        if ($departmentDatas != null) {
+            header('location: '.URL_BASE.'departments/read_department/'.$departmentDatas['department-id'].'/');
+        } else header('location: '.URL_BASE.'departments/create_department/');
     }
 
 
@@ -28,6 +31,7 @@ class controller_departments {
             return;
         }
         $departmentDatas = $this->model->updateDepartment($_POST);
+        header('location: '.URL_BASE.'departments/read_department/'.$departmentDatas['department-id'].'/');
     }
 
 
@@ -42,6 +46,15 @@ class controller_departments {
     public function displayDepartmentInformations ($departmentId) {
         $department = $this->model->readDepartment($departmentId);
         echo $this->view->renderDepartmentInformations($department);
+    }
+
+
+
+    public function displayDepartmentMembers ($departmentId, $echo=true) {
+        $datas = $this->model->readDepartmentMembers($departmentId);
+        $output = $this->view->renderDepartmentMembers($datas);
+        if (!$echo) return $output;
+        echo $output;
     }
 
 
