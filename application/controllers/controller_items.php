@@ -12,12 +12,33 @@ class controller_items {
 
 
 
-    public function displayForm ($itemId=null, $niboti=null) {
+    public function displayForm ($itemId=null, $niboti=null, $hostId=null) {
         if ($itemId != null) {
             $infos = array(
                 'item'=>$this->model->readItem($itemId)
                 ,'owner'=>$this->model->readItemOwner($itemId)
-                ,'niboti'=>false);
+                ,'niboti'=>false
+                ,'thruComponent'=>false);
+        } else if ($hostId != null) {
+            $infos = array(
+                'item'=>array(
+                    'item_id'=>''
+                    ,'item_name'=>''
+                    ,'item_serial_no'=>''
+                    ,'item_model_no'=>''
+                    ,'item_type'=>''
+                    ,'item_state'=>''
+                    ,'item_description'=>''
+                    ,'item_quantity'=>'1 pc.'
+                    ,'item_date_of_purchase'=>'0000-00-00'
+                    ,'item_package'=>''
+                    ,'item_archive_state'=>'0'
+                    ,'item_has_components'=>'0'
+                    ,'item_component_of'=>$hostId
+                    ,'item_log'=>'')
+                ,'owner'=>$this->model->readItemOwner($itemId)
+                ,'niboti'=>false
+                ,'thruComponent'=>true);
         } else {
             $infos = array(
                 'item'=>$niboti != null
@@ -26,7 +47,8 @@ class controller_items {
                 ,'owner'=>$niboti != null
                     ? $this->model->readItemOwner($niboti)
                     : null
-                ,'niboti'=>$niboti != null ? true : false);
+                ,'niboti'=>$niboti != null ? true : false
+                ,'thruComponent'=>false);
         }
 
         echo $this->view->renderForm($infos);

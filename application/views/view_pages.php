@@ -117,16 +117,16 @@ class view_pages {
         $output = '<div id="error-page">';
         switch ($type) {
             case '404':
-                $output .= '<span style="color: #f00;">Note</span>: You are accessing a missing page or a missing file.<br />The page or file you are accessing might have been moved or have been deleted.';
+                $output .= '<div class="error-404"></div>';
                 break;
 
             case '403':
-                $output .= '<span style="color: #f00;">Note</span>: You are unauthorized to access this page.<br />Either you must login or you need an account with higher access level.';
+                $output .= '<div class="error-403"></div>';
                 break;
 
             case 'underconstruction':
             case 'maintenance':
-                $output .= 'Sorry, this page is underconstruction or maintenance.';
+                $output .= '<div class="error-maintenance"></div>';
                 break;
 
             default:

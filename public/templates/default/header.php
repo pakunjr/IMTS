@@ -13,7 +13,8 @@ foreach ($css_jquery as $filename) {
 }
 
 //Public css
-$css_public = array();
+$css_public = array(
+    'errors.css');
 foreach ($css_public as $filename) {
     $filepath = DIR_PUBLIC.DS.'css'.DS.$filename;
     if (file_exists($filepath))

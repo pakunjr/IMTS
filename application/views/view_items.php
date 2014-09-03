@@ -28,6 +28,10 @@ class view_items {
         if ($i['niboti']) {
             $actionLink = URL_BASE.'inventory/create_item_niboti/save/';
             $submitBtn = $f->submit(array('value'=>'Save Item', 'auto_line_break'=>false));
+        } else if ($i['thruComponent']) {
+            $actionLink = URL_BASE.'inventory/create_item_addComponent/save/';
+            $submitBtn = $f->submit(array('value'=>'Save Item', 'auto_line_break'=>false));
+            $cancelBtn = '<a href="'.URL_BASE.'inventory/read_item/'.$i['item']['item_component_of'].'/"><input class="btn-red" type="button" value="Cancel" /></a>';
         }
 
         $output = $itemName.$f->openForm(array('id'=>'form-item','method'=>'post','action'=>$actionLink,'enctype'=>'multipart/form-data'))
@@ -137,8 +141,12 @@ class view_items {
 
         $hasComponents = $it['item_has_components'] == '1' ? 'Yes' : 'No';
 
+        $addComponentButton = $it['item_has_components'] == '1'
+            ? '<a href="'.URL_BASE.'inventory/create_item_addComponent/'.$it['item_id'].'/"><input class="btn-green" type="button" value="Add Component" /></a>'
+            : '';
         $actionButtons = $i['item']['item_archive_state'] == '0'
             ? '<hr /><a href="'.URL_BASE.'inventory/update_item/'.$i['item']['item_id'].'/"><input class="btn-green" type="button" value="Update Informations" /></a>'
+                .$addComponentButton
                 .'<a href="'.URL_BASE.'inventory/create_item_niboti/'.$i['item']['item_id'].'/"><input type="button" value="NIBOTI" /></a>'
                 .'<a href="'.URL_BASE.'inventory/archive_item/'.$i['item']['item_id'].'/"><input class="btn-red" type="button" value="Archive Item" /></a>'
             : '<hr />This item has been archived.';
@@ -226,7 +234,8 @@ class view_items {
                         .'<a href="'.URL_BASE.'inventory/archive_item/'.$component['item_id'].'/"><input class="btn-red" type="button" value="Archive Item" /></a>'
                     : 'This item has been archived.';
 
-                $output .= '<tr class="special-hover item-component-data" data-url="'.URL_BASE.'inventory/read_item/'.$component['item_id'].'/">'
+                $output .= '<tr class="data" '
+                    .'data-url="'.URL_BASE.'inventory/read_item/'.$component['item_id'].'/">'
                     .'<td>'
                         .$component['item_name'].'<br />'
                         .'<span style="color: #03f;">Serial</span>: '.$component['item_serial_no'].'<br />'

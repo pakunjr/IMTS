@@ -107,13 +107,17 @@ class view_owners {
             .'<th>Component Of</th>'
             .'<th>Package</th>'
             .'<th>Date Owned</th>'
-            .'<th>Date Released</th>'
-            .'<th>Actions</th>'
-            .'</tr>';
+            .'<th>Date Released</th>';
+        $output .= isset($_SESSION['user']) ? '<th>Actions</th>' : '';
+        $output .= '</tr>';
         foreach ($datas as $d) {
             $componentName = $c_items->displayItemName($d['item_component_of'], false);
-            $componentNameLink = $componentName == 'None'
-                ? $componentName : '<a href="'.URL_BASE.'inventory/read_item/'.$d['item_component_of'].'/"><input type="button" value="'.$componentName.'" /></a>';
+            if (isset($_SESSION['user']))
+                $componentNameLink = $componentName == 'None'
+                    ? $componentName
+                    : '<a href="'.URL_BASE.'inventory/read_item/'.$d['item_component_of'].'/"><input type="button" value="'.$componentName.'" /></a>';
+            else
+                $componentNameLink = $componentName;
 
             $actionButtons = $d['item_archive_state'] == '0'
                 ? '<a href="'.URL_BASE.'inventory/update_item/'.$d['item_id'].'/"><input class="btn-green" type="button" value="Update Item" /></a>'
@@ -128,8 +132,11 @@ class view_owners {
             $disableClass = $d['item_archive_state'] == '1'
                 ? 'disabled '
                 : '';
+            $dataClass = isset($_SESSION['user'])
+                ? 'data'
+                : '';
 
-            $output .= '<tr class="'.$redClass.$disableClass.'data" '
+            $output .= '<tr class="'.$redClass.$disableClass.$dataClass.'" '
                 .'data-url="'.URL_BASE.'inventory/read_item/'.$d['item_id'].'/">'
                 .'<td>'.$d['item_name'].'<br />'
                     .'<span style="color: #03f;">Serial No</span>: '.$d['item_serial_no'].'<br />'
@@ -141,9 +148,9 @@ class view_owners {
                 .'<td>'.$componentNameLink.'</td>'
                 .'<td>'.$c_itemPackages->displayPackageName($d['item_package'], false).'</td>'
                 .'<td>'.$fx->dateToWords($d['ownership_date_owned']).'</td>'
-                .'<td>'.$fx->dateToWords($d['ownership_date_released']).'</td>'
-                .'<td>'.$actionButtons.'</td>'
-                .'</tr>';
+                .'<td>'.$fx->dateToWords($d['ownership_date_released']).'</td>';
+            $output .= isset($_SESSION['user']) ? '<td>'.$actionButtons.'</td>' : '';
+            $output .= '</tr>';
         }
         $output .= '</table>';
         return $output;

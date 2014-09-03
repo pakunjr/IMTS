@@ -35,7 +35,6 @@ class controller_pages {
 
         $models_authenticated = array('accounts', 'admin', 'inventory', 'inventory_packages', 'persons', 'employees', 'departments', 'owners');
         $models_public = array('home', 'track');
-
         $models_admin = array('admin');
 
         //Check authentication
@@ -48,13 +47,13 @@ class controller_pages {
                             switch ($controller) {
                                 case 'person':
                                     $this->displayHeader();
-                                    $c_owners->displayTrackedItems();
+                                    $c_owners->displayTrackedItems('Person', $action);
                                     $this->displayFooter();
                                     break;
 
                                 case 'department':
                                     $this->displayHeader();
-                                    $c_owners->displayTrackedItems();
+                                    $c_owners->displayTrackedItems('Department', $action);
                                     $this->displayFooter();
                                     break;
 
@@ -76,6 +75,12 @@ class controller_pages {
                             $this->displayErrorPage('404');
                             $this->displayFooter();
                     }
+                    break;
+
+                case 'home':
+                    $this->displayHeader();
+                    $this->displayHomepage();
+                    $this->displayFooter();
                     break;
 
                 default:
@@ -267,6 +272,19 @@ class controller_pages {
                             default:
                                 $this->displayHeader();
                                 $c_items->displayForm(null, $controller);
+                                $this->displayFooter();
+                        }
+                        break;
+
+                    case 'create_item_addComponent':
+                        switch ($controller) {
+                            case 'save':
+                                $c_items->saveItem();
+                                break;
+
+                            default:
+                                $this->displayHeader();
+                                $c_items->displayForm(null, null, $controller);
                                 $this->displayFooter();
                         }
                         break;

@@ -49,6 +49,21 @@ class controller_owners {
 
 
 
+    public function displayTrackedItems ($ownerType, $ownerId) {
+        if ($ownerType == 'Person') {
+            $c_persons = new controller_persons();
+            $ownerName = $c_persons->displayPersonName($ownerId, false);
+        } else if ($ownerType == 'Department') {
+            $c_departments = new controller_departments();
+            $ownerName = $c_departments->displayDepartmentName($ownerId, false);
+        } else $ownerName = 'None';
+
+        echo '<h3>',$ownerName,'</h3><hr />';
+        $this->displayOwnedItems($ownerType, $ownerId);
+    }
+
+
+
     public function displayOwnedItems ($ownerType, $ownerId, $echo=true) {
         $ownerships = $this->model->readOwnedItems($ownerType, $ownerId);
         $output = $this->view->renderOwnedItems($ownerships);
