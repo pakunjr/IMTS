@@ -13,7 +13,12 @@ class view_pages {
             || $cModel == 'owners'
             || $cModel == 'departments' ? $class : '';
         $classAdmin = $cModel == 'admin' ? $class : '';
-        $classMyAccount = $cModel == 'my_account' ? $class : '';
+        $classMyAccount = $cModel == 'my_account'
+            || $cModel == 'accounts' ? $class : '';
+
+        $user_personId = isset($_SESSION['user']) ? $_SESSION['user']['personId'] : '';
+        $user_accountId = isset($_SESSION['user']) ? $_SESSION['user']['accountId'] : '';
+        $user_accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : '';
 
         switch ($type) {
             case 'inventory':
@@ -44,19 +49,36 @@ class view_pages {
 
             case 'myAccount':
                 $output = '<ul class="sub-menu">'
-                    .'<li><a href="#updateProfile">Update Profile</a></li>'
-                    .'<li><a href="#changePassword">Change Password</a></li>'
+                    .'<li><a href="'.URL_BASE.'persons/update_person/'.$user_personId.'/">Update Profile</a></li>'
+                    .'<li><a href="'.URL_BASE.'accounts/update_password/'.$user_accountId.'/">Change Password</a></li>'
+                    .'<li><a href="'.URL_BASE.'accounts/logout/">Logout</a></li>'
                     .'</ul>';
                 break;
 
             default:
-                $output = '<ul id="main-navigation">'
-                    .'<li>'.$this->renderNavigation('admin').'<a'.$classAdmin.' href="'.URL_BASE.'admin/">Admin</a></li>'
-                    .'<li><a'.$classHome.' href="'.URL_BASE.'">Home</a></li>'
-                    .'<li>'.$this->renderNavigation('inventory').'<a'.$classInventory.' href="'.URL_BASE.'inventory/">Inventory</a></li>'
-                    .'<li>'.$this->renderNavigation('owners').'<a'.$classOwners.' href="#">Owners</a></li>'
-                    .'<li>'.$this->renderNavigation('myAccount').'<a'.$classMyAccount.' href="#myAccount">My Account</a></li>'
-                    .'</ul>';
+                $output = '<ul id="main-navigation">';
+                $output .= isset($_SESSION['user'])
+                        && ($user_accessLevel == 'Administrator'
+                            || $user_accessLevel == 'Admin')
+                    ? '<li>'.$this->renderNavigation('admin').'<a'.$classAdmin.' href="'.URL_BASE.'admin/">Admin</a></li>'
+                    : '';
+                $output .= '<li><a'.$classHome.' href="'.URL_BASE.'">Home</a></li>';
+                $output .= !isset($_SESSION['user'])
+                    ? '<li><a href="'.URL_BASE.'track/item/">Track Item</a></li>'
+                    : '';
+                $output .= !isset($_SESSION['user'])
+                    ? '<li><a href="'.URL_BASE.'track/owner/">Track Owner</a></li>'
+                    : '';
+                $output .= isset($_SESSION['user'])
+                    ? '<li>'.$this->renderNavigation('inventory').'<a'.$classInventory.' href="'.URL_BASE.'inventory/">Inventory</a></li>'
+                    : '';
+                $output .= isset($_SESSION['user'])
+                    ? '<li>'.$this->renderNavigation('owners').'<a'.$classOwners.' href="#">Owners</a></li>'
+                    : '';
+                $output .= isset($_SESSION['user'])
+                    ? '<li>'.$this->renderNavigation('myAccount').'<a'.$classMyAccount.' href="'.URL_BASE.'accounts/read_account/'.$user_accountId.'/">My Account</a></li>'
+                    : '';
+                $output .= '</ul>';
         }
         return $output;
     }
@@ -95,11 +117,16 @@ class view_pages {
         $output = '<div id="error-page">';
         switch ($type) {
             case '404':
-                $output .= 'User Error: You are accessing a missing page or a missing file.<br />The page or file you are accessing might have been moved or have been deleted.';
+                $output .= '<span style="color: #f00;">Note</span>: You are accessing a missing page or a missing file.<br />The page or file you are accessing might have been moved or have been deleted.';
                 break;
 
             case '403':
-                $output .= 'User Error: You are unauthorized to access this page.<br />Please login.';
+                $output .= '<span style="color: #f00;">Note</span>: You are unauthorized to access this page.<br />Either you must login or you need an account with higher access level.';
+                break;
+
+            case 'underconstruction':
+            case 'maintenance':
+                $output .= 'Sorry, this page is underconstruction or maintenance.';
                 break;
 
             default:

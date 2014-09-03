@@ -80,35 +80,50 @@ input.btn-red {
     margin: 0px 1px 1px 0px;
     padding: 5px 8px;
     border-radius: 3px;
-    border: 1px solid #0b4873;
-    background: #6b95b3;
-    text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7);
+    border: 1px solid #999999;
+    background: #fff;
+    box-shadow: -2px -2px 3px rgba(0, 0, 0, 0.15) inset;
     font-size: 0.85em;
-    color: #fff;
+    color: #4d4d4d;
     cursor: pointer;
     white-space: normal;
 }
 input[type="button"]:hover,
 input.btn-blue:hover {
-    background-color: #66a1cc;
+    border-color: #134d80;
+    background-color: #1b6cb3;
+    box-shadow:
+        1px 1px 2px rgba(255, 255, 255, 0.25) inset
+        ,-2px -2px 3px rgba(0, 0, 0, 0.3) inset;
+    color: #fff;
 }
 input[type="submit"],
 input.btn-green {
-    border-color: #09590d;
-    background-color: #59805b;
+    /*border-color: #09590d;*/
+    /*background-color: #59805b;*/
 }
 input[type="submit"]:hover,
 input.btn-green:hover {
-    background-color: #5c995f;
+    border-color: #14660f;
+    background-color: #198013;
+    box-shadow:
+        1px 1px 2px rgba(255, 255, 255, 0.25) inset
+        ,-2px -2px 3px rgba(0, 0, 0, 0.3) inset;
+    color: #fff;
 }
 input[type="reset"],
 input.btn-red {
-    border-color: #660f0f;
-    background-color: #805959;
+    /*border-color: #660f0f;*/
+    /*background-color: #805959;*/
 }
 input[type="reset"]:hover,
 input.btn-red:hover {
-    background-color: #995c5c;
+    border-color: #661e0f;
+    background-color: #992d17;
+    box-shadow:
+        1px 1px 2px rgba(255, 255, 255, 0.25) inset
+        ,-2px -2px 3px rgba(0, 0, 0, 0.3) inset;
+    color: #fff;
 }
 input[type="button"]:active,
 input[type="submit"]:active,
@@ -116,7 +131,7 @@ input[type="reset"]:active,
 input.btn-blue:active,
 input.btn-green:active,
 input.btn-red:active {
-    box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.2) inset;
+    box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3) inset;
 }
 
 

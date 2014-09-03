@@ -43,6 +43,8 @@ class database {
 
 
     public function statement ($options=array()) {
+        $c_errors = new controller_errors();
+
         $this->connect();
         $connection = $this->connection;
 
@@ -73,12 +75,9 @@ class database {
                     ? true : false;
 
                 if ( !$status ) {
-                    /*
-                    $this->c_err->logError(
-                        'Failed to bind parameter.'.PHP_EOL
+                    $c_errors->logError('Failed to bind parameter.'.PHP_EOL
                         .'Placeholder: '.$ph.PHP_EOL
                         .'Value: '.$value);
-                    */
                 }
             }
         }
@@ -99,15 +98,12 @@ class database {
                     || strpos($q, 'DELETE') !== false ) {
                 return $stmt->execute();
             } else {
-                //$this->c_err->logError('Unknown type of SQL statement.');
+                $c_errors->logError('Unknown type of SQL statement.');
             }
         } catch ( PDOException $e ) {
-            /*
-            $this->c_err->logError(
-                'Failed in executing the statement.'.PHP_EOL.PHP_EOL
+            $c_errors->logError('Failed in executing the statement.'.PHP_EOL.PHP_EOL
                 .'SQL Query: '.$q.PHP_EOL.PHP_EOL
-                .'Reason: '.$e->getMessage());
-            */
+                .'Reason'. $e->getMessage);
         }
     }
 

@@ -104,8 +104,13 @@ if (ENVIRONMENT == 'DEVELOPMENT') {
 <div id="main-content">
 
 <div id="header">
-    <?php echo '<div id="header-system-name-short">',SYSTEM_NAME_SHORT,'</div>'
-        ,'<div id="header-system-name">',SYSTEM_NAME,'</div>'; ?>
+    <?php
+    $c_accounts = new controller_accounts();
+    $c_accounts->displayLoginForm();
+
+    echo '<div id="header-system-name-short">',SYSTEM_NAME_SHORT,'</div>'
+        ,'<div id="header-system-name">',SYSTEM_NAME,'</div>';
+    ?>
 </div>
 
 <?php

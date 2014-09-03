@@ -154,7 +154,7 @@ class model_items {
                 ,intval($d['item-id']))));
 
         if ($r) $this->logAction($d['item-id'], 'This item has been updated.');
-        else $this->logAction($d['item-id'], 'This item had been attempted to be updated but failed.');
+        else $this->logAction($d['item-id'], 'Something went wrong when updating this item.');
         
         return $d;
     }
@@ -250,7 +250,7 @@ class model_items {
         array_push($log, array(
             'date'=>date('Y-m-d')
             ,'time'=>date('H:i:s')
-            ,'user'=>'Feature coming soon...'
+            ,'user'=>$_SESSION['user']['username'].' -- '.$_SESSION['user']['name']
             ,'log'=>$logContent));
 
         $log = serialize($log);

@@ -152,4 +152,13 @@ class controller_employees {
         echo $output;
     }
 
+
+
+    public function isEmployee ($personId, $echo=true) {
+        $result = $this->model->isEmployee($personId);
+        $output = $this->view->renderIsEmployee($result);
+        if (!$echo) return $output;
+        echo $output;
+    }
+
 }

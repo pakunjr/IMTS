@@ -225,4 +225,10 @@ class view_employees {
         return $datas != null ? $datas['employee_job_label'] : '';
     }
 
+
+
+    public function renderIsEmployee ($result) {
+        return $result ? 'Yes' : 'No';
+    }
+
 }

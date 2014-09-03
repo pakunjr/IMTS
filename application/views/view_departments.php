@@ -84,6 +84,8 @@ class view_departments {
 
             .'<div class="accordion-title">Members</div><div class="accordion-content">'.$c_departments->displayDepartmentMembers($d['department_id'], false).'</div>'
 
+            .'<div class="accordion-title">Ex-Members</div><div class="accordion-content">'.$c_departments->displayDepartmentExMembers($d['department_id'], false).'</div>'
+
             .'<hr /><a href="'.URL_BASE.'departments/update_department/'.$d['department_id'].'/"><input class="btn-green" type="button" value="Update Department" /></a>';
         return $output;
     }
@@ -100,15 +102,50 @@ class view_departments {
             .'<th>Position</th>'
             .'<th>Status</th>'
             .'<th>Employment Date</th>'
-            .'<th>End of Contract Date</th>'
+            .'<th>Resignation / End of Contract Date</th>'
+            .'<th>Actions</th>'
             .'</tr>';
         foreach ($datas as $d) {
-            $output .= '<tr>'
+            $output .= '<tr class="data" data-url="'.URL_BASE.'persons/read_person/'.$d['person_id'].'/">'
                 .'<td>'.$d['person_lastname'].', '.$d['person_firstname'].' '.$d['person_middlename'].' '.$d['person_suffix'].'</td>'
                 .'<td>'.$d['employee_job_label'].'</td>'
                 .'<td>'.$d['employee_status_label'].'</td>'
                 .'<td>'.$fx->dateToWords($d['employee_employment_date']).'</td>'
                 .'<td>'.$fx->dateToWords($d['employee_resignation_date']).'</td>'
+                .'<td>'
+                    .'<a href="'.URL_BASE.'persons/update_person/'.$d['person_id'].'/"><input class="btn-green" type="button" value="Update Person" /></a>'
+                .'</td>'
+                .'</tr>';
+        }
+        $output .= '</table>';
+        return $output;
+    }
+
+
+
+    public function renderDepartmentExMembers ($datas) {
+        if ($datas == null) return 'There are no ex-members for this department.';
+
+        $fx = new myFunctions();
+
+        $output = '<table><tr>'
+            .'<th>Name</th>'
+            .'<th>Position</th>'
+            .'<th>Status</th>'
+            .'<th>Employment Date</th>'
+            .'<th>Resignation / End of Contract Date</th>'
+            .'<th>Actions</th>'
+            .'</tr>';
+        foreach ($datas as $d) {
+            $output .= '<tr class="data" data-url="'.URL_BASE.'persons/read_person/'.$d['person_id'].'/">'
+                .'<td>'.$d['person_lastname'].', '.$d['person_firstname'].' '.$d['person_middlename'].' '.$d['person_suffix'].'</td>'
+                .'<td>'.$d['employee_job_label'].'</td>'
+                .'<td>'.$d['employee_status_label'].'</td>'
+                .'<td>'.$fx->dateToWords($d['employee_employment_date']).'</td>'
+                .'<td>'.$fx->dateToWords($d['employee_resignation_date']).'</td>'
+                .'<td>'
+                    .'<a href="'.URL_BASE.'persons/update_person/'.$d['person_id'].'/"><input class="btn-green" type="button" value="Update Person" /></a>'
+                .'</td>'
                 .'</tr>';
         }
         $output .= '</table>';

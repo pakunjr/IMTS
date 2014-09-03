@@ -59,6 +59,15 @@ class controller_departments {
 
 
 
+    public function displayDepartmentExMembers ($departmentId, $echo=true) {
+        $a = $this->model->readDepartmentExMembers($departmentId);
+        $output = $this->view->renderDepartmentExMembers($a);
+        if (!$echo) return $output;
+        echo $output;
+    }
+
+
+
     public function displaySearchForm () {
         $keyword = isset($_POST['search-keyword']) ? $_POST['search-keyword'] : '';
         echo $this->view->renderSearchForm($keyword);

@@ -58,7 +58,7 @@ class view_persons {
             .$employmentFieldset
 
             .'<div>'
-            .$f->submit(array('value'=>$d != null ? 'Update' : 'Save', 'auto_line_break'=>false))
+            .$f->submit(array('value'=>$d != null ? 'Update Person' : 'Save Person', 'auto_line_break'=>false))
             .$cancelButton
             .$addEmploymentButton
             .'</div>'
@@ -132,6 +132,7 @@ class view_persons {
         $fx = new myFunctions();
         $c_owners = new controller_owners();
         $c_employees = new controller_employees();
+        $c_accounts = new controller_accounts();
 
         $personName = '<h3>'.$pd['person_lastname'].', '.$pd['person_firstname'].' '.$pd['person_middlename'].' '.$pd['person_suffix'].'</h3>';
         $ownedItems = $c_owners->displayOwnedItems('Person', $pd['person_id'], false);
@@ -143,6 +144,12 @@ class view_persons {
             }
         } else $departmentHeadOf = 'None';
 
+        $accAccessLevel = $c_accounts->getAccessLevel($_SESSION['user']['accountId']);
+        $createAccountButton = $accAccessLevel == 'Administrator'
+                || $accAccessLevel == 'Admin'
+            ? '<a href="'.URL_BASE.'accounts/create_account/'.$pd['person_id'].'/"><input class="btn-green" type="button" value="Create an Account for this Person" /></a>'
+            : '';
+
         $personGender = $pd['person_gender'] == 'm' ? 'Male' : 'Female';
         $personIsEmployee = $pd['person_is_employee'] ? 'Yes' : 'No';
         $output = $personName.'<hr />'
@@ -153,28 +160,28 @@ class view_persons {
                 .'<td>'.$pd['person_firstname'].'</td>'
                 .'<th>Birthdate</th>'
                 .'<td>'.$fx->dateToWords($pd['person_birthdate']).'</td>'
-                .'<th rowspan="2">Address</th>'
-                .'<td>'.$pd['person_address_a'].'</td>'
+                .'<th>Head Of</th>'
+                .'<td>'.$departmentHeadOf.'</td>'
             .'</tr>'
             .'<tr>'
                 .'<th>Middlename</th>'
                 .'<td>'.$pd['person_middlename'].'</td>'
                 .'<th>Is Employee?</th>'
                 .'<td>'.$personIsEmployee.'</td>'
-                .'<td>'.$pd['person_address_b'].'</td>'
+                .'<th rowspan="4">Address</th>'
+                .'<td rowspan="2">'.$pd['person_address_a'].'</td>'
             .'</tr>'
             .'<tr>'
                 .'<th>Lastname</th>'
                 .'<td>'.$pd['person_lastname'].'</td>'
                 .'<th rowspan="3">Contact</th>'
                 .'<td>'.$pd['person_contact_a'].'</td>'
-                .'<th rowspan="3">Head Of</th>'
-                .'<td rowspan="3">'.$departmentHeadOf.'</td>'
             .'</tr>'
             .'<tr>'
                 .'<th>Suffix</th>'
                 .'<td>'.$pd['person_suffix'].'</td>'
                 .'<td>'.$pd['person_contact_b'].'</td>'
+                .'<td rowspan="2">'.$pd['person_address_b'].'</td>'
             .'</tr>'
             .'<tr>'
                 .'<th>Gender</th>'
@@ -190,8 +197,11 @@ class view_persons {
 
             .'<div class="accordion-title">Employment History</div><div class="accordion-content">'.$c_employees->displayEmploymentHistory($pd['person_id'], false).'</div>'
 
+            .'<div class="accordion-title">Accounts on the System</div><div class="accordion-content">'.$c_accounts->displayPersonAccounts($pd['person_id'], false).'</div>'
+
             .'<hr /><a href="'.URL_BASE.'persons/update_person/'.$pd['person_id'].'/"><input class="btn-green" type="button" value="Update Person" /></a>'
-            .'<a href="'.URL_BASE.'employees/create_employment/'.$pd['person_id'].'/"><input class="btn-green" type="button" value="Add Employment" /></a>';
+            .'<a href="'.URL_BASE.'employees/create_employment/'.$pd['person_id'].'/"><input class="btn-green" type="button" value="Add Employment" /></a>'
+            .$createAccountButton;
         return $output;
     }
 

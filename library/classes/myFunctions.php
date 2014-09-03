@@ -40,4 +40,11 @@ class myFunctions {
         return $months[intval($month) - 1].' '.$day.', '.$year;
     }
 
+
+
+    public function isEmail ($emailAddress) {
+        if (filter_var($emailAddress, FILTER_VALIDATE_EMAIL)) return true;
+        else return false;
+    }
+
 }

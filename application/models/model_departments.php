@@ -61,6 +61,25 @@ class model_departments {
 
 
 
+    public function readDepartmentExMembers ($departmentId) {
+        $currentDate = date('Y-m-d');
+        $r = $this->db->statement(array(
+            'q'=>"SELECT * FROM imts_persons_employment AS emp
+                LEFT JOIN imts_persons AS per
+                    ON emp.employee_person = per.person_id
+                LEFT JOIN imts_persons_employment_jobs AS job
+                    ON emp.employee_job = job.employee_job_id
+                LEFT JOIN imts_persons_employment_status AS sta
+                    ON emp.employee_status = sta.employee_status_id
+                WHERE emp.employee_department = ?
+                    AND (emp.employee_resignation_date != '0000-00-00'
+                        AND emp.employee_resignation_date <= '$currentDate')"
+            ,'v'=>array(intval($departmentId))));
+        return count($r) > 0 ? $r : null;
+    }
+
+
+
     public function updateDepartment ($datas) {
         $d = $datas;
         $res = $this->db->statement(array(

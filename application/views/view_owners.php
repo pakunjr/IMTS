@@ -1,7 +1,20 @@
 <?php
 
 class view_owners {
+
+    public function renderTrackForm ($searchFor, $keyword) {
+        $f = new form(array('auto_line_break'=>false, 'auto_label'=>true));
+        $output = $f->openForm(array('id'=>'', 'method'=>'post', 'action'=>URL_BASE.'track/owner/', 'enctype'=>'multipart/form-data'))
+            .$f->select(array('id'=>'search-for', 'label'=>'Owner Type', 'select_options'=>array('Person'=>'Person', 'Department'=>'Department'), 'default_option'=>$searchFor))
+            .$f->text(array('id'=>'search-keyword', 'label'=>'Search', 'value'=>$keyword))
+            .$f->submit(array('value'=>'Search'))
+            .$f->closeForm()
+            .'<hr />';
+        return $output;
+    }
     
+
+
     public function renderSearchResults ($searchFor='Person', $results) {
         $fx = new myFunctions();
         $c_persons = new controller_persons();
@@ -14,23 +27,29 @@ class view_owners {
                         .'<th>Gender</th>'
                         .'<th>Birthdate</th>'
                         .'</tr>';
-                    foreach ($results as $result) {
-                        $gender = $result['person_gender'] == 'f' ? 'Female' : 'Male';
+                    foreach ($results as $r) {
+                        $gender = $r['person_gender'] == 'f' ? 'Female' : 'Male';
                         $output .= '<tr class="data" '
-                            .'data-id="'.$result['person_id'].'" '
-                            .'data-label="'.$result['person_lastname'].', '.$result['person_firstname'].' '.$result['person_middlename'].' '.$result['person_suffix'].'">'
+                            .'data-id="'.$r['person_id'].'" '
+                            .'data-label="'.$r['person_lastname'].', '.$r['person_firstname'].' '.$r['person_middlename'].' '.$r['person_suffix'].'" ';
+                        $output .= !isset($_SESSION['user'])
+                            ? 'data-url="'.URL_BASE.'track/owner/person/'.$r['person_id'].'/"'
+                            : 'data-url="'.URL_BASE.'persons/read_person/'.$r['person_id'].'/"';
+                        $output .= '>'
                             .'<td>'
-                                .$result['person_lastname'].', '
-                                .$result['person_firstname'].' '
-                                .$result['person_middlename'].' '
-                                .$result['person_suffix']
+                                .$r['person_lastname'].', '
+                                .$r['person_firstname'].' '
+                                .$r['person_middlename'].' '
+                                .$r['person_suffix']
                             .'</td>'
                             .'<td>'.$gender.'</td>'
-                            .'<td>'.$fx->dateToWords($result['person_birthdate']).'</td>'
+                            .'<td>'.$fx->dateToWords($r['person_birthdate']).'</td>'
                             .'</tr>';
                     }
-                    $output .= '</table>'
-                        .'<hr /><a href="'.URL_BASE.'persons/create_person/" target="_blank"><input class="btn-green" type="button" value="Add a Person" /></a>';
+                    $output .= '</table>';
+                    $output .= isset($_SESSION['user'])
+                        ? '<hr /><a href="'.URL_BASE.'persons/create_person/" target="_blank"><input class="btn-green" type="button" value="Add a Person" /></a>'
+                        : '';
                 } else $output = 'There are no Person/s matching your keyword.';
                 break;
 
@@ -41,17 +60,23 @@ class view_owners {
                         .'<th>Head</th>'
                         .'<th>Description</th>'
                         .'</tr>';
-                    foreach ($results as $result) {
+                    foreach ($results as $r) {
                         $output .= '<tr class="data" '
-                            .'data-id="'.$result['department_id'].'" '
-                            .'data-label="'.$result['department_name_short'].' ('.$result['department_name'].')">'
-                            .'<td>'.$result['department_name_short'].' -- '.$result['department_name'].'</td>'
-                            .'<td>'.$c_persons->displayPersonName($result['department_head'], false).'</td>'
-                            .'<td>'.nl2br($result['department_description']).'</td>'
+                            .'data-id="'.$r['department_id'].'" '
+                            .'data-label="'.$r['department_name_short'].' ('.$r['department_name'].')" ';
+                        $output .= !isset($_SESSION['user'])
+                            ? 'data-url="'.URL_BASE.'track/owner/department/'.$r['department_id'].'/"'
+                            : 'data-url="'.URL_BASE.'departments/read_department/'.$r['department_id'].'/"';
+                        $output .= '>'
+                            .'<td>'.$r['department_name_short'].' -- '.$r['department_name'].'</td>'
+                            .'<td>'.$c_persons->displayPersonName($r['department_head'], false).'</td>'
+                            .'<td>'.nl2br($r['department_description']).'</td>'
                             .'</tr>';
                     }
-                    $output .= '</table>'
-                        .'<hr /><a href="'.URL_BASE.'departments/create_department/" target="_blank"><input type="button" value="Add a Department" /></a>';
+                    $output .= '</table>';
+                    $output .= isset($_SESSION['user'])
+                        ? '<hr /><a href="'.URL_BASE.'departments/create_department/" target="_blank"><input type="button" value="Add a Department" /></a>'
+                        : '';
                 } else $output = 'There are no Department/s matching your keyword.';
                 break;
 

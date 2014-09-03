@@ -7,8 +7,10 @@ class view_items {
         $f = new form(array('auto_line_break'=>true,'auto_label'=>true));
 
         if ($i['item'] != null) {
-            $itemName = '<h3>'
-                .$i['item']['item_name'].'<br />'
+            $itemName = '<h3>';
+            $itemName .= $i['niboti']
+                ? 'New Item Based On This Item<br />' : '';
+            $itemName .= $i['item']['item_name'].'<br />'
                 .'<small><span style="color: #03f;">Serial No</span>: '.$i['item']['item_serial_no'].'</small><br />'
                 .'<small><span style="color: #f00;">Model No</span>: '.$i['item']['item_model_no'].'</small>'
                 .'</h3>';
@@ -21,6 +23,11 @@ class view_items {
             $actionLink = URL_BASE.'inventory/create_item/save/';
             $submitBtn = $f->submit(array('value'=>'Save Item','auto_line_break'=>false));
             $cancelBtn = '';
+        }
+
+        if ($i['niboti']) {
+            $actionLink = URL_BASE.'inventory/create_item_niboti/save/';
+            $submitBtn = $f->submit(array('value'=>'Save Item', 'auto_line_break'=>false));
         }
 
         $output = $itemName.$f->openForm(array('id'=>'form-item','method'=>'post','action'=>$actionLink,'enctype'=>'multipart/form-data'))
@@ -87,7 +94,7 @@ class view_items {
         $f = new form(array('auto_line_break'=>true,'auto_label'=>true));
         $c_owners = new controller_owners();
 
-        $output = $f->openFieldset(array('legend'=>'Owner Information'))
+        $output = $f->openFieldset(array('legend'=>'Current Owner'))
             .'<span class="column">'
             .$f->hidden(array('id'=>'ownership-owner','value'=>$i != null ? $i['ownership_owner'] : '0','data-url'=>URL_BASE.'owners/in_search/'))
             .$f->text(array('id'=>'ownership-owner-label','label'=>'Owner','placeholder'=>'ownership-owner','value'=>$i != null ? $c_owners->displayOwnerName($i['ownership_id'], false) : ''))
@@ -132,6 +139,7 @@ class view_items {
 
         $actionButtons = $i['item']['item_archive_state'] == '0'
             ? '<hr /><a href="'.URL_BASE.'inventory/update_item/'.$i['item']['item_id'].'/"><input class="btn-green" type="button" value="Update Informations" /></a>'
+                .'<a href="'.URL_BASE.'inventory/create_item_niboti/'.$i['item']['item_id'].'/"><input type="button" value="NIBOTI" /></a>'
                 .'<a href="'.URL_BASE.'inventory/archive_item/'.$i['item']['item_id'].'/"><input class="btn-red" type="button" value="Archive Item" /></a>'
             : '<hr />This item has been archived.';
 
@@ -287,7 +295,7 @@ class view_items {
             $output = '<table><tr>'
                 .'<th>Date</th>'
                 .'<th>Time</th>'
-                .'<th>User</th>'
+                .'<th>User -- Account Owner</th>'
                 .'<th>Log</th>'
                 .'</tr>';
             foreach ($log as $l) {
@@ -363,7 +371,11 @@ class view_items {
                     ? '<a href="'.URL_BASE.'inventory/read_item/'.$result['item_component_of'].'/"><input type="button" value="'.$componentHostName.'" /></a>'
                     : $componentHostName;
 
-                $output .= '<tr class="data" '
+                $rowClass = $result['item_archive_state'] == '0'
+                    ? 'data'
+                    : 'red disabled';
+
+                $output .= '<tr class="'.$rowClass.'" '
                     .'data-id="'.$result['item_id'].'" '
                     .'data-label="'.$result['item_name'].' ('.$result['item_serial_no'].', '.$result['item_model_no'].')" '
                     .'data-url="'.URL_BASE.'inventory/read_item/'.$result['item_id'].'/">'

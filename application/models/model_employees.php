@@ -199,4 +199,17 @@ class model_employees {
         return count($rows) ? $rows : null;
     }
 
+
+
+    public function isEmployee ($personId) {
+        $currentDate = date('Y-m-d');
+        $rows = $this->db->statement(array(
+            'q'=>"SELECT * FROM imts_persons_employment
+                WHERE employee_person = ?
+                    AND (employee_resignation_date = '0000-00-00'
+                        OR employee_resignation_date > '$currentDate')"
+            ,'v'=>array(intval($personId))));
+        return count($rows) > 0 ? true : false;
+    }
+
 }

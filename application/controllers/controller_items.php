@@ -12,18 +12,21 @@ class controller_items {
 
 
 
-    public function displayForm ($itemId=null) {
+    public function displayForm ($itemId=null, $niboti=null) {
         if ($itemId != null) {
-            $detailsItem = $this->model->readItem($itemId);
-            $detailsCurrentOwner = $this->model->readItemOwner($itemId);
-
             $infos = array(
-                'item'=>$detailsItem
-                ,'owner'=>$detailsCurrentOwner);
+                'item'=>$this->model->readItem($itemId)
+                ,'owner'=>$this->model->readItemOwner($itemId)
+                ,'niboti'=>false);
         } else {
             $infos = array(
-                'item'=>null
-                ,'owner'=>null);
+                'item'=>$niboti != null
+                    ? $this->model->readItem($niboti)
+                    : null
+                ,'owner'=>$niboti != null
+                    ? $this->model->readItemOwner($niboti)
+                    : null
+                ,'niboti'=>$niboti != null ? true : false);
         }
 
         echo $this->view->renderForm($infos);

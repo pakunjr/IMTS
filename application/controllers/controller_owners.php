@@ -12,6 +12,16 @@ class controller_owners {
 
 
 
+    public function displayTrackForm () {
+        $keyword = isset($_POST['search-keyword']) ? $_POST['search-keyword'] : '';
+        $keyword = trim($keyword);
+        $searchFor = isset($_POST['search-for']) ? $_POST['search-for'] : 'Person';
+        echo $this->view->renderTrackForm($searchFor, $keyword);
+        $this->displaySearchResults($searchFor, $keyword);
+    }
+
+
+
     public function displaySearchResults ($searchFor='Person', $keyword) {
         if (strlen(trim($keyword)) < 1) {
             echo 'Keywords can match the ff:<br /><br />'
@@ -27,17 +37,12 @@ class controller_owners {
         }
         $keyword = trim($keyword);
 
-        switch ($searchFor) {
-            case 'Person':
-                $results = $this->model->searchOwners($searchFor, $keyword);
-                break;
-
-            case 'Department':
-                $results = $this->model->searchOwners($searchFor, $keyword);
-                break;
-
-            default:
-        }
+        if ($searchFor == 'Person')
+            $results = $this->model->searchOwners($searchFor, $keyword);
+        else if ($searchFor == 'Department')
+            $results = $this->model->searchOwners($searchFor, $keyword);
+        else
+            $results = null;
 
         echo $this->view->renderSearchResults($searchFor, $results);
     }

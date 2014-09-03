@@ -24,30 +24,221 @@ class controller_pages {
         $action = $this->model->get('action');
         $extra = $this->model->get('extra');
 
+        $c_accounts = new controller_accounts();
         $c_items = new controller_items();
         $c_itemPackages = new controller_itemPackages();
         $c_owners = new controller_owners();
         $c_persons = new controller_persons();
         $c_employees = new controller_employees();
         $c_departments = new controller_departments();
+        $c_errors = new controller_errors();
 
+        $models_authenticated = array('accounts', 'admin', 'inventory', 'inventory_packages', 'persons', 'employees', 'departments', 'owners');
+        $models_public = array('home', 'track');
+
+        $models_admin = array('admin');
+
+        //Check authentication
+        if (in_array($model, $models_public)) {
+            //Route pages in public modules
+            switch ($model) {
+                case 'track':
+                    switch ($view) {
+                        case 'owner':
+                            switch ($controller) {
+                                case 'person':
+                                    $this->displayHeader();
+                                    $c_owners->displayTrackedItems();
+                                    $this->displayFooter();
+                                    break;
+
+                                case 'department':
+                                    $this->displayHeader();
+                                    $c_owners->displayTrackedItems();
+                                    $this->displayFooter();
+                                    break;
+
+                                default:
+                                    $this->displayHeader();
+                                    $c_owners->displayTrackForm();
+                                    $this->displayFooter();
+                            }
+                            break;
+
+                        case 'item':
+                            $this->displayHeader();
+                            $this->displayErrorPage('underconstruction');
+                            $this->displayFooter();
+                            break;
+
+                        default:
+                            $this->displayHeader();
+                            $this->displayErrorPage('404');
+                            $this->displayFooter();
+                    }
+                    break;
+
+                default:
+                    $this->displayHeader();
+                    $this->displayErrorPage('404');
+                    $this->displayFooter();
+            }
+            return;
+        } else if (in_array($model, $models_authenticated)) {
+            if (!isset($_SESSION['user'])) {
+                if ($model == 'accounts') {
+                    if ($view != 'login') {
+                        $this->displayHeader();
+                        $this->displayErrorPage('403');
+                        $this->displayFooter();
+                        return;
+                    }
+                } else {
+                    $this->displayHeader();
+                    $this->displayErrorPage('403');
+                    $this->displayFooter();
+                    return;
+                }
+            }
+        }
+
+        $acc_al = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : '';
+        $acc_aid = isset($_SESSION['user']) ? $_SESSION['user']['accountId'] : '';
+
+        //Route pages
         switch ($model) {
+            case 'accounts':
+                switch ($view) {
+                    case 'login':
+                        $c_accounts->loginUser();
+                        break;
+
+                    case 'logout':
+                        $c_accounts->logoutUser();
+                        break;
+
+                    case 'create_account':
+                        if ($acc_al != 'Administrator' && $acc_al != 'Admin') {
+                            $this->displayHeader();
+                            $this->displayErrorPage('403');
+                            $this->displayFooter();
+                            return;
+                        }
+
+                        switch ($controller) {
+                            case 'save':
+                                $c_accounts->createAccount();
+                                break;
+
+                            default:
+                            $this->displayHeader();
+                            $c_accounts->displayForm($controller);
+                            $this->displayFooter();
+                        }
+                        break;
+
+                    case 'read_account':
+                        $this->displayHeader();
+                        $c_accounts->displayAccountInformations($controller);
+                        $this->displayFooter();
+                        break;
+
+                    case 'update_account':
+                        if ($acc_al != 'Administrator' && $acc_al != 'Admin') {
+                            if ($action != $acc_aid) {
+                                $this->displayHeader();
+                                $this->displayErrorPage('403');
+                                $this->displayFooter();
+                                return;
+                            }
+                        }
+
+                        switch ($controller) {
+                            case 'save':
+                                $c_accounts->updateAccount();
+                                break;
+
+                            default:
+                            $this->displayHeader();
+                            $c_accounts->displayForm($controller, $action);
+                            $this->displayFooter();
+                        }
+                        break;
+
+                    case 'update_password':
+                        if ($acc_al != 'Administrator' && $acc_al != 'Admin') {
+                            if ($controller != $acc_aid) {
+                                $this->displayHeader();
+                                $this->displayErrorPage('403');
+                                $this->displayFooter();
+                                return;
+                            }
+                        }
+
+                        switch ($controller) {
+                            case 'save':
+                                $c_accounts->updatePassword();
+                                break;
+
+                            default:
+                                $this->displayHeader();
+                                $c_accounts->displayChangePasswordForm($controller);
+                                $this->displayFooter();
+                        }
+                        break;
+
+                    case 'activate_account':
+                        if ($acc_al != 'Administrator' && $acc_al != 'Admin') {
+                            $this->displayHeader();
+                            $this->displayErrorPage('403');
+                            $this->displayFooter();
+                            return;
+                        }
+
+                        $c_accounts->activateAccount($controller);
+                        break;
+
+                    case 'deactivate_account':
+                        if ($acc_al != 'Administrator' && $acc_al != 'Admin') {
+                            $this->displayHeader();
+                            $this->displayErrorPage('403');
+                            $this->displayFooter();
+                            return;
+                        }
+
+                        $c_accounts->deactivateAccount($controller);
+                        break;
+
+                    default:
+                        $this->displayHeader();
+                        $this->displayErrorPage('underconstruction');
+                        $this->displayFooter();
+                }
+                break;
+
             case 'admin':
                 switch ($view) {
                     case 'log':
                         switch ($controller) {
                             case 'errors':
+                                $this->displayHeader();
+                                $c_errors->displayLogList();
+                                $this->displayFooter();
                                 break;
 
                             case 'actions':
                                 break;
 
                             default:
+                                $this->displayHeader();
+                                $this->displayErrorPage('underconstruction');
+                                $this->displayFooter();
                         }
                         break;
 
                     default:
                         $this->displayHeader();
+                        $this->displayErrorPage('underconstruction');
                         $this->displayFooter();
                 }
                 break;
@@ -63,6 +254,19 @@ class controller_pages {
                             default:
                                 $this->displayHeader();
                                 $c_items->displayForm();
+                                $this->displayFooter();
+                        }
+                        break;
+
+                    case 'create_item_niboti':
+                        switch ($controller) {
+                            case 'save':
+                                $c_items->saveItem();
+                                break;
+
+                            default:
+                                $this->displayHeader();
+                                $c_items->displayForm(null, $controller);
                                 $this->displayFooter();
                         }
                         break;
@@ -102,6 +306,7 @@ class controller_pages {
 
                     default:
                         $this->displayHeader();
+                        $this->displayErrorPage('underconstruction');
                         $this->displayFooter();
                 }
                 break;
@@ -152,6 +357,7 @@ class controller_pages {
 
                     default:
                         $this->displayHeader();
+                        $this->displayErrorPage('underconstruction');
                         $this->displayFooter();
                 }
                 break;
@@ -198,6 +404,7 @@ class controller_pages {
 
                     default:
                         $this->displayHeader();
+                        $this->displayErrorPage('underconstruction');
                         $this->displayFooter();
                 }
                 break;
@@ -286,6 +493,7 @@ class controller_pages {
 
                     default:
                         $this->displayHeader();
+                        $this->displayErrorPage('underconstruction');
                         $this->displayFooter();
                 }
                 break;
@@ -336,6 +544,7 @@ class controller_pages {
 
                     default:
                         $this->displayHeader();
+                        $this->displayErrorPage('underconstruction');
                         $this->displayFooter();
                 }
                 break;
@@ -348,13 +557,20 @@ class controller_pages {
 
                     default:
                         $this->displayHeader();
+                        $this->displayErrorPage('underconstruction');
                         $this->displayFooter();
                 }
                 break;
 
-            default:
+            case 'home':
                 $this->displayHeader();
                 $this->displayHomepage();
+                $this->displayFooter();
+                break;
+
+            default:
+                $this->displayHeader();
+                $this->displayErrorPage('404');
                 $this->displayFooter();
         }
     }

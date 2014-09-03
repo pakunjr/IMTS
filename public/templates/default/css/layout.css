@@ -23,6 +23,13 @@ body {
     display: block;
     font-size: 0.75em;
 }
+#header #form-login {
+    display: inline-block;
+    float: right;
+    font-size: 0.85em;
+    text-align: right;
+    text-shadow: 0px 0px 0px transparent;
+}
 
 #main-content {
     display: inline-block;
