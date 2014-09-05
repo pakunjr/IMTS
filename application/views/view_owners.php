@@ -102,6 +102,14 @@ class view_owners {
         $c_itemPackages = new controller_itemPackages();
         $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
 
+        /*
+        $hosts = array();
+        $components = array();
+
+        $output = '';
+        return $output;
+        */
+
         $output = '<table><tr>'
             .'<th>Name</th>'
             .'<th>Type</th>'
