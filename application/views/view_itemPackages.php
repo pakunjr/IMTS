@@ -19,7 +19,7 @@ class view_itemPackages {
             ? '<a href="'.URL_BASE.'inventory_packages/read_package/'.$d['package_id'].'/">'.$f->button(array('value'=>'Cancel')).'</a>'
             : '';
 
-        $output = $packageName.$f->openForm(array('id'=>'', 'method'=>'post', 'action'=>$actionLink, 'enctype'=>'multipart/form-data'))
+        $output = $packageName.$f->openForm(array('id'=>'', 'class'=>'main-form', 'method'=>'post', 'action'=>$actionLink, 'enctype'=>'multipart/form-data'))
 
             .$f->hidden(array('id'=>'package-id', 'value'=>$d != null ? $d['package_id'] : '0'))
 
@@ -53,6 +53,7 @@ class view_itemPackages {
 
     public function renderSearchResults ($results) {
         $fx = new myFunctions();
+        $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
 
         if ($results != null) {
             $output = '<table><tr>'
@@ -60,7 +61,8 @@ class view_itemPackages {
                 .'<th>Description</th>'
                 .'<th>Date of Purchase</th>';
             if (isset($_POST['search-keyword'])) {
-                $output .= '<th>Actions</th>';
+                $output .= !in_array($accessLevel, array('Viewer'))
+                    ? '<th>Actions</th>' : '';
             }
             $output .= '</tr>';
             foreach ($results as $r) {
@@ -75,13 +77,20 @@ class view_itemPackages {
                     .'<td>'.$r['package_description'].'</td>'
                     .'<td>'.$fx->dateToWords($r['package_date_of_purchase']).'</td>';
                 if (isset($_POST['search-keyword'])) {
-                    $output .= '<td><a href="'.URL_BASE.'inventory_packages/update_package/'.$r['package_id'].'/"><input class="btn-green" type="button" value="Update Package" /></a></td>';
+                    $output .= !in_array($accessLevel, array('Viewer'))
+                        ? '<td><a href="'.URL_BASE.'inventory_packages/update_package/'.$r['package_id'].'/"><input class="btn-green" type="button" value="Update Package" /></a></td>'
+                        : '';
                 }
                 $output .= '</tr>';
             }
             $output .= '</table>'
                 .'<hr /><a href="'.URL_BASE.'inventory_packages/create_package/" target="_blank"><input class="btn-green" type="button" value="Add a Package" /></a>';
-        } else $output = 'There are no packages matching your keywords.<hr /><a href="'.URL_BASE.'inventory_packages/create_package/" target="_blank"><input class="btn-green" type="button" value="Add a Package" /></a>';
+        } else {
+            $output = 'There are no packages matching your keywords.<hr />';
+            $output .= !in_array($accessLevel, array('Viewer'))
+                ? '<a href="'.URL_BASE.'inventory_packages/create_package/" target="_blank"><input class="btn-green" type="button" value="Add a Package" /></a>'
+                : '';
+        }
 
         return $output;
     }
@@ -95,6 +104,7 @@ class view_itemPackages {
 
         $fx = new myFunctions();
         $c_itemPackages = new controller_itemPackages();
+        $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
 
         $output = '<div class="accordion-title">Package Information</div><div class="accordion-content accordion-content-default">'
             .'<table>'
@@ -115,8 +125,11 @@ class view_itemPackages {
 
             .'<div class="accordion-title">Items</div><div class="accordion-content">'.$c_itemPackages->displayPackageItems($d['package_id'], false).'</div>'
 
-            .'<hr /><a href="'.URL_BASE.'inventory_packages/update_package/'.$d['package_id'].'/"><input class="btn-green" type="button" value="Update Package" /></a>'
-            .'<a href="'.URL_BASE.'inventory/create_item/"><input type="button" value="Add Item" /></a>';
+            .'<hr />';
+        $output .= !in_array($accessLevel, array('Viewer'))
+            ? '<a href="'.URL_BASE.'inventory_packages/update_package/'.$d['package_id'].'/"><input class="btn-green" type="button" value="Update Package" /></a>'
+                .'<a href="'.URL_BASE.'inventory/create_item/"><input type="button" value="Add Item" /></a>'
+            : '';
         return $output;
     }
 
@@ -129,6 +142,7 @@ class view_itemPackages {
         $c_items = new controller_items();
         $c_itemTypes = new controller_itemTypes();
         $c_itemStates = new controller_itemStates();
+        $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
 
         $output = '<table><tr>'
             .'<th>Name</th>'
@@ -138,9 +152,9 @@ class view_itemPackages {
             .'<th>Quantity</th>'
             .'<th>Date of Purchase</th>'
             .'<th>Current Owner</th>'
-            .'<th>Component Of</th>'
-            .'<th>Actions</th>'
-            .'</tr>';
+            .'<th>Component Of</th>';
+        $output .= !in_array($accessLevel, array('Viewer')) ? '<th>Actions</th>' : '';
+        $output .= '</tr>';
         foreach ($datas as $d) {
             $componentName = $c_items->displayItemName($d['item_component_of'], false);
             $componentLink = $componentName != 'None'
@@ -164,9 +178,9 @@ class view_itemPackages {
                 .'<td>'.$d['item_quantity'].'</td>'
                 .'<td>'.$fx->dateToWords($d['item_date_of_purchase']).'</td>'
                 .'<td>'.$c_items->displayItemCurrentOwner($d['item_id'], false).'</td>'
-                .'<td>'.$componentLink.'</td>'
-                .'<td>'.$actionButtons.'</td>'
-                .'</tr>';
+                .'<td>'.$componentLink.'</td>';
+            $output .= !in_array($accessLevel, array('Viewer')) ? '<td>'.$actionButtons.'</td>' : '';
+            $output .= '</tr>';
         }
         $output .= '</table>';
         return $output;

@@ -18,6 +18,7 @@ class view_owners {
     public function renderSearchResults ($searchFor='Person', $results) {
         $fx = new myFunctions();
         $c_persons = new controller_persons();
+        $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
 
         switch ($searchFor) {
             case 'Person':
@@ -32,7 +33,7 @@ class view_owners {
                         $output .= '<tr class="data" '
                             .'data-id="'.$r['person_id'].'" '
                             .'data-label="'.$r['person_lastname'].', '.$r['person_firstname'].' '.$r['person_middlename'].' '.$r['person_suffix'].'" ';
-                        $output .= !isset($_SESSION['user'])
+                        $output .= !in_array($accessLevel, array('Viewer', 'Content Provider', 'Supervisor', 'Admin', 'Administrator'))
                             ? 'data-url="'.URL_BASE.'track/owner/person/'.$r['person_id'].'/"'
                             : 'data-url="'.URL_BASE.'persons/read_person/'.$r['person_id'].'/"';
                         $output .= '>'
@@ -46,9 +47,10 @@ class view_owners {
                             .'<td>'.$fx->dateToWords($r['person_birthdate']).'</td>'
                             .'</tr>';
                     }
-                    $output .= '</table>';
-                    $output .= isset($_SESSION['user'])
-                        ? '<hr /><a href="'.URL_BASE.'persons/create_person/" target="_blank"><input class="btn-green" type="button" value="Add a Person" /></a>'
+                    $output .= '</table>'
+                        .'<hr />';
+                    $output .= !in_array($accessLevel, array('Viewer'))
+                        ? '<a href="'.URL_BASE.'persons/create_person/" target="_blank"><input class="btn-green" type="button" value="Add a Person" /></a>'
                         : '';
                 } else $output = 'There are no Person/s matching your keyword.';
                 break;
@@ -64,7 +66,7 @@ class view_owners {
                         $output .= '<tr class="data" '
                             .'data-id="'.$r['department_id'].'" '
                             .'data-label="'.$r['department_name_short'].' ('.$r['department_name'].')" ';
-                        $output .= !isset($_SESSION['user'])
+                        $output .= !in_array($accessLevel, array('Viewer', 'Content Provider', 'Supervisor', 'Admin', 'Administrator'))
                             ? 'data-url="'.URL_BASE.'track/owner/department/'.$r['department_id'].'/"'
                             : 'data-url="'.URL_BASE.'departments/read_department/'.$r['department_id'].'/"';
                         $output .= '>'
@@ -73,9 +75,10 @@ class view_owners {
                             .'<td>'.nl2br($r['department_description']).'</td>'
                             .'</tr>';
                     }
-                    $output .= '</table>';
-                    $output .= isset($_SESSION['user'])
-                        ? '<hr /><a href="'.URL_BASE.'departments/create_department/" target="_blank"><input type="button" value="Add a Department" /></a>'
+                    $output .= '</table>'
+                        .'<hr />';
+                    $output .= !in_array($accessLevel, array('Viewer'))
+                        ? '<a href="'.URL_BASE.'departments/create_department/" target="_blank"><input type="button" value="Add a Department" /></a>'
                         : '';
                 } else $output = 'There are no Department/s matching your keyword.';
                 break;
@@ -97,6 +100,7 @@ class view_owners {
         $c_itemStates = new controller_itemStates();
         $c_itemTypes = new controller_itemTypes();
         $c_itemPackages = new controller_itemPackages();
+        $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
 
         $output = '<table><tr>'
             .'<th>Name</th>'
@@ -108,7 +112,9 @@ class view_owners {
             .'<th>Package</th>'
             .'<th>Date Owned</th>'
             .'<th>Date Released</th>';
-        $output .= isset($_SESSION['user']) ? '<th>Actions</th>' : '';
+        $output .= isset($_SESSION['user'])
+            && !in_array($accessLevel, array('Viewer'))
+                ? '<th>Actions</th>' : '';
         $output .= '</tr>';
         foreach ($datas as $d) {
             $componentName = $c_items->displayItemName($d['item_component_of'], false);
@@ -119,9 +125,12 @@ class view_owners {
             else
                 $componentNameLink = $componentName;
 
+            $archiveButton = in_array($accessLevel, array('Administrator', 'Admin', 'Supervisor'))
+                ? '<a href="'.URL_BASE.'inventory/archive_item/'.$d['item_id'].'/"><input class="btn-red" type="button" value="Archive Item" /></a>'
+                : '';
             $actionButtons = $d['item_archive_state'] == '0'
                 ? '<a href="'.URL_BASE.'inventory/update_item/'.$d['item_id'].'/"><input class="btn-green" type="button" value="Update Item" /></a>'
-                    .'<a href="'.URL_BASE.'inventory/archive_item/'.$d['item_id'].'/"><input class="btn-red" type="button" value="Archive Item" /></a>'
+                    .$archiveButton
                 : 'This item has been archived.';
 
             $currentDate = date('Y-m-d');
@@ -149,7 +158,9 @@ class view_owners {
                 .'<td>'.$c_itemPackages->displayPackageName($d['item_package'], false).'</td>'
                 .'<td>'.$fx->dateToWords($d['ownership_date_owned']).'</td>'
                 .'<td>'.$fx->dateToWords($d['ownership_date_released']).'</td>';
-            $output .= isset($_SESSION['user']) ? '<td>'.$actionButtons.'</td>' : '';
+            $output .= isset($_SESSION['user'])
+                && !in_array($accessLevel, array('Viewer'))
+                    ? '<td>'.$actionButtons.'</td>' : '';
             $output .= '</tr>';
         }
         $output .= '</table>';

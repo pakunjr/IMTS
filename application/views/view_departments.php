@@ -21,7 +21,7 @@ class view_departments {
             ? '<a href="'.URL_BASE.'departments/read_department/'.$d['department_id'].'/'.'"><input type="button" value="Cancel" /></a>'
             : '';
 
-        $output = $departmentName.$f->openForm(array('id'=>'', 'action'=>$actionLink, 'method'=>'post', 'enctype'=>'multipart/form-data'))
+        $output = $departmentName.$f->openForm(array('id'=>'', 'class'=>'main-form', 'action'=>$actionLink, 'method'=>'post', 'enctype'=>'multipart/form-data'))
             .$f->hidden(array('id'=>'department-id', 'value'=>$d != null ? $d['department_id'] : '0'))
 
             .$f->openFieldset(array('legend'=>'Department Information'))
@@ -53,12 +53,13 @@ class view_departments {
         $c_departments = new controller_departments();
         $c_owners = new controller_owners();
         $c_persons = new controller_persons();
+        $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
 
         $ownerName = '<h3>'.$d['department_name'].' - '.$d['department_name_short'].'</h3>';
         $ownedItems = $c_owners->displayOwnedItems('Department', $d['department_id'], false);
 
         $headName = $c_persons->displayPersonName($d['department_head'], false);
-        $headLink = $headName != 'Unknown Person' && $headName != 'None'
+        $headLink = !in_array($headName, array('Unknown Person', 'None'))
             ? '<a href="'.URL_BASE.'persons/read_person/'.$d['department_head'].'/"><input type="button" value="'.$headName.'" /></a>'
             : $headName;
 
@@ -86,7 +87,10 @@ class view_departments {
 
             .'<div class="accordion-title">Ex-Members</div><div class="accordion-content">'.$c_departments->displayDepartmentExMembers($d['department_id'], false).'</div>'
 
-            .'<hr /><a href="'.URL_BASE.'departments/update_department/'.$d['department_id'].'/"><input class="btn-green" type="button" value="Update Department" /></a>';
+            .'<hr />';
+        $output .= !in_array($accessLevel, array('Viewer'))
+                ? '<a href="'.URL_BASE.'departments/update_department/'.$d['department_id'].'/"><input class="btn-green" type="button" value="Update Department" /></a>'
+                : '';
         return $output;
     }
 
@@ -96,26 +100,28 @@ class view_departments {
         if ($datas == null) return 'There are no members for this department.';
 
         $fx = new myFunctions();
+        $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
 
         $output = '<table><tr>'
             .'<th>Name</th>'
             .'<th>Position</th>'
             .'<th>Status</th>'
             .'<th>Employment Date</th>'
-            .'<th>Resignation / End of Contract Date</th>'
-            .'<th>Actions</th>'
-            .'</tr>';
+            .'<th>Resignation / End of Contract Date</th>';
+        $output .= !in_array($accessLevel, array('Viewer'))
+                ? '<th>Actions</th>' : '';
+        $output .= '</tr>';
         foreach ($datas as $d) {
             $output .= '<tr class="data" data-url="'.URL_BASE.'persons/read_person/'.$d['person_id'].'/">'
                 .'<td>'.$d['person_lastname'].', '.$d['person_firstname'].' '.$d['person_middlename'].' '.$d['person_suffix'].'</td>'
                 .'<td>'.$d['employee_job_label'].'</td>'
                 .'<td>'.$d['employee_status_label'].'</td>'
                 .'<td>'.$fx->dateToWords($d['employee_employment_date']).'</td>'
-                .'<td>'.$fx->dateToWords($d['employee_resignation_date']).'</td>'
-                .'<td>'
-                    .'<a href="'.URL_BASE.'persons/update_person/'.$d['person_id'].'/"><input class="btn-green" type="button" value="Update Person" /></a>'
-                .'</td>'
-                .'</tr>';
+                .'<td>'.$fx->dateToWords($d['employee_resignation_date']).'</td>';
+            $output .= !in_array($accessLevel, array('Viewer'))
+                    ? '<td><a href="'.URL_BASE.'persons/update_person/'.$d['person_id'].'/"><input class="btn-green" type="button" value="Update Person" /></a></td>'
+                    : '';
+            $output .= '</tr>';
         }
         $output .= '</table>';
         return $output;
@@ -127,26 +133,28 @@ class view_departments {
         if ($datas == null) return 'There are no ex-members for this department.';
 
         $fx = new myFunctions();
+        $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
 
         $output = '<table><tr>'
             .'<th>Name</th>'
             .'<th>Position</th>'
             .'<th>Status</th>'
             .'<th>Employment Date</th>'
-            .'<th>Resignation / End of Contract Date</th>'
-            .'<th>Actions</th>'
-            .'</tr>';
+            .'<th>Resignation / End of Contract Date</th>';
+        $output .= !in_array($accessLevel, array('Viewer'))
+                ? '<th>Actions</th>' : '';
+        $output .= '</tr>';
         foreach ($datas as $d) {
             $output .= '<tr class="data" data-url="'.URL_BASE.'persons/read_person/'.$d['person_id'].'/">'
                 .'<td>'.$d['person_lastname'].', '.$d['person_firstname'].' '.$d['person_middlename'].' '.$d['person_suffix'].'</td>'
                 .'<td>'.$d['employee_job_label'].'</td>'
                 .'<td>'.$d['employee_status_label'].'</td>'
                 .'<td>'.$fx->dateToWords($d['employee_employment_date']).'</td>'
-                .'<td>'.$fx->dateToWords($d['employee_resignation_date']).'</td>'
-                .'<td>'
-                    .'<a href="'.URL_BASE.'persons/update_person/'.$d['person_id'].'/"><input class="btn-green" type="button" value="Update Person" /></a>'
-                .'</td>'
-                .'</tr>';
+                .'<td>'.$fx->dateToWords($d['employee_resignation_date']).'</td>';
+            $output .= !in_array($accessLevel, array('Viewer'))
+                    ? '<td><a href="'.URL_BASE.'persons/update_person/'.$d['person_id'].'/"><input class="btn-green" type="button" value="Update Person" /></a></td>'
+                    : '';
+            $output .= '</tr>';
         }
         $output .= '</table>';
         return $output;
@@ -174,13 +182,15 @@ class view_departments {
         if ($datas == null) return 'Your keyword did not match any department name.<hr /><a href="'.URL_BASE.'departments/create_department/" target="_blank"><input class="btn-green" type="button" value="Add a Department" /></a>';
 
         $c_persons = new controller_persons();
+        $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
 
         $output = '<table><tr>'
             .'<th>Name -- Short</th>'
             .'<th>Description</th>'
             .'<th>Head</th>';
         if (isset($_POST['search-keyword'])) {
-            $output .= '<th>Actions</th>';
+            $output .= !in_array($accessLevel, array('Viewer'))
+                ? '<th>Actions</th>' : '';
         }
         $output .= '</tr>';
         foreach ($datas as $d) {
@@ -197,12 +207,17 @@ class view_departments {
                 .'<td>'.nl2br($d['department_description']).'</td>'
                 .'<td>'.$headLink.'</td>';
             if (isset($_POST['search-keyword'])) {
-                $output .= '<td><a href="'.URL_BASE.'departments/update_department/'.$d['department_id'].'/"><input class="btn-green" type="button" value="Update Department" /></a></td>';
+                $output .= !in_array($accessLevel, array('Viewer'))
+                    ? '<td><a href="'.URL_BASE.'departments/update_department/'.$d['department_id'].'/"><input class="btn-green" type="button" value="Update Department" /></a></td>'
+                    : '';
             }
             $output .= '</tr>';
         }
         $output .= '</table>'
-            .'<hr /><a href="'.URL_BASE.'departments/create_department/" target="_blank"><input class="btn-green" type="button" value="Add a Department" /></a>';
+            .'<hr />';
+        $output .= !in_array($accessLevel, array('Viewer'))
+            ? '<a href="'.URL_BASE.'departments/create_department/" target="_blank"><input class="btn-green" type="button" value="Add a Department" /></a>'
+            : '';
         return $output;
     }
 

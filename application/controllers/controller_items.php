@@ -20,6 +20,8 @@ class controller_items {
                 ,'niboti'=>false
                 ,'thruComponent'=>false);
         } else if ($hostId != null) {
+            $hostDatas = $this->model->readItem($hostId);
+            $hd = $hostDatas;
             $infos = array(
                 'item'=>array(
                     'item_id'=>''
@@ -30,13 +32,13 @@ class controller_items {
                     ,'item_state'=>''
                     ,'item_description'=>''
                     ,'item_quantity'=>'1 pc.'
-                    ,'item_date_of_purchase'=>'0000-00-00'
-                    ,'item_package'=>''
+                    ,'item_date_of_purchase'=>$hd['item_date_of_purchase']
+                    ,'item_package'=>$hd['item_package']
                     ,'item_archive_state'=>'0'
                     ,'item_has_components'=>'0'
                     ,'item_component_of'=>$hostId
                     ,'item_log'=>'')
-                ,'owner'=>$this->model->readItemOwner($itemId)
+                ,'owner'=>$this->model->readItemOwner($hostId)
                 ,'niboti'=>false
                 ,'thruComponent'=>true);
         } else {

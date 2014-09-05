@@ -7,37 +7,43 @@ class view_pages {
         $class = ' class="current-model"';
 
         $classHome = $cModel == 'home' ? $class : '';
-        $classInventory = $cModel == 'inventory' || $cModel == 'inventory_packages' ? $class : '';
-        $classOwners = $cModel == 'persons'
-            || $cModel == 'employees'
-            || $cModel == 'owners'
-            || $cModel == 'departments' ? $class : '';
+        $classInventory = in_array($cModel, array('inventory', 'inventory_packages')) ? $class : '';
+        $classOwners = in_array($cModel, array('persons', 'employees', 'owners', 'departments')) ? $class : '';
         $classAdmin = $cModel == 'admin' ? $class : '';
-        $classMyAccount = $cModel == 'my_account'
-            || $cModel == 'accounts' ? $class : '';
+        $classMyAccount = in_array($cModel, array('my_account', 'accounts')) ? $class : '';
 
-        $user_personId = isset($_SESSION['user']) ? $_SESSION['user']['personId'] : '';
-        $user_accountId = isset($_SESSION['user']) ? $_SESSION['user']['accountId'] : '';
-        $user_accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : '';
+        $user_personId = isset($_SESSION['user']) ? $_SESSION['user']['personId'] : null;
+        $user_accountId = isset($_SESSION['user']) ? $_SESSION['user']['accountId'] : null;
+        $user_accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
 
         switch ($type) {
             case 'inventory':
-                $output = '<ul class="sub-menu">'
-                    .'<li><a href="'.URL_BASE.'inventory/create_item/">Item > New</a></li>'
-                    .'<li><a href="'.URL_BASE.'inventory/search_item/">Item > Search</a></li>'
-                    .'<li><a href="'.URL_BASE.'inventory_packages/create_package/">Packages > New</a></li>'
-                    .'<li><a href="'.URL_BASE.'inventory_packages/search_package/">Packages > Search</a></li>'
+                $output = '<ul class="sub-menu">';
+                $output .= !in_array($user_accessLevel, array('Viewer'))
+                    ? '<li><a href="'.URL_BASE.'inventory/create_item/">Item > New</a></li>'
+                    : '';
+                $output .= '<li><a href="'.URL_BASE.'inventory/search_item/">Item > Search</a></li>';
+                $output .= !in_array($user_accessLevel, array('Viewer'))
+                    ? '<li><a href="'.URL_BASE.'inventory_packages/create_package/">Packages > New</a></li>'
+                    : '';
+                $output .= '<li><a href="'.URL_BASE.'inventory_packages/search_package/">Packages > Search</a></li>'
                     .'</ul>';
                 break;
 
             case 'owners':
-                $output = '<ul class="sub-menu">'
-                    .'<li><a href="'.URL_BASE.'persons/create_person/">Person > New</a></li>'
-                    .'<li><a href="'.URL_BASE.'persons/search_person/">Person > Search</a></li>'
-                    .'<li><a href="'.URL_BASE.'departments/create_department/">Department > New</a></li>'
-                    .'<li><a href="'.URL_BASE.'departments/search_department/">Department > Search</a></li>'
-                    .'<li><a href="'.URL_BASE.'employees/create_job/">Employment > Job > Create</a></li>'
-                    .'<li><a href="'.URL_BASE.'employees/search_job/">Employment > Job > Search</a></li>'
+                $output = '<ul class="sub-menu">';
+                $output .= !in_array($user_accessLevel, array('Viewer'))
+                    ? '<li><a href="'.URL_BASE.'persons/create_person/">Person > New</a></li>'
+                    : '';
+                $output .= '<li><a href="'.URL_BASE.'persons/search_person/">Person > Search</a></li>';
+                $output .= !in_array($user_accessLevel, array('Viewer'))
+                    ? '<li><a href="'.URL_BASE.'departments/create_department/">Department > New</a></li>'
+                    : '';
+                $output .= '<li><a href="'.URL_BASE.'departments/search_department/">Department > Search</a></li>';
+                $output .= in_array($user_accessLevel, array('Administrator', 'Admin', 'Supervisor'))
+                    ? '<li><a href="'.URL_BASE.'employees/create_job/">Employment > Job > Create</a></li>'
+                    : '';
+                $output .= '<li><a href="'.URL_BASE.'employees/search_job/">Employment > Job > Search</a></li>'
                     .'</ul>';
                 break;
 
@@ -58,8 +64,7 @@ class view_pages {
             default:
                 $output = '<ul id="main-navigation">';
                 $output .= isset($_SESSION['user'])
-                        && ($user_accessLevel == 'Administrator'
-                            || $user_accessLevel == 'Admin')
+                        && (in_array($user_accessLevel, array('Administrator', 'Admin')))
                     ? '<li>'.$this->renderNavigation('admin').'<a'.$classAdmin.' href="'.URL_BASE.'admin/">Admin</a></li>'
                     : '';
                 $output .= '<li><a'.$classHome.' href="'.URL_BASE.'">Home</a></li>';

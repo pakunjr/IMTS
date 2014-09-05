@@ -6,6 +6,7 @@ class view_persons {
         $d = $datas;
 
         $f = new form(array('auto_line_break'=>true, 'auto_label'=>true));
+        $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
 
         $personName = $d != null
             ? '<h3>'.$d['person_lastname'].', '.$d['person_firstname'].' '.$d['person_middlename'].' '.$d['person_suffix'].'</h3>'
@@ -26,8 +27,9 @@ class view_persons {
         $addEmploymentButton = $d != null
             ? '<a href="'.URL_BASE.'employees/create_employment/'.$d['person_id'].'/">'.$f->button(array('class'=>'btn-green', 'value'=>'Add Employment')).'</a>'
             : '';
+        $addEmploymentButton = in_array($accessLevel, array('Administrator', 'Admin', 'Supervisor')) ? $addEmploymentButton : '';
 
-        $output = $personName.$f->openForm(array('id'=>'', 'method'=>'post', 'action'=>$actionLink, 'enctype'=>'multipart/form-data'))
+        $output = $personName.$f->openForm(array('id'=>'', 'class'=>'main-form', 'method'=>'post', 'action'=>$actionLink, 'enctype'=>'multipart/form-data'))
             .$f->hidden(array('id'=>'person-id', 'value'=>$d != null ? $d['person_id'] : '0'))
 
             .$f->openFieldset(array('class'=>'column', 'legend'=>'Biodata'))
@@ -80,6 +82,7 @@ class view_persons {
         if ($datas == null) return 'There are no person/s that matched your keyword.<hr /><a href="'.URL_BASE.'persons/create_person/" target="_blank"><input class="btn-green" type="button" value="Add a Person" /></a>';
 
         $fx = new myFunctions();
+        $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
 
         $output = '<table><tr>'
             .'<th>Lastname</th>'
@@ -91,7 +94,8 @@ class view_persons {
             .'<th colspan="2">Address</th>'
             .'<th colspan="3">Contact</th>';
         if (isset($_POST['search-keyword'])) {
-            $output .= '<th>Actions</th>';
+            $output .= !in_array($accessLevel, array('Viewer'))
+                ? '<th>Actions</th>' : '';
         }
         $output .= '</tr>';
         foreach ($datas as $d) {
@@ -113,12 +117,17 @@ class view_persons {
                 .'<td>'.$d['person_contact_b'].'</td>'
                 .'<td>'.$d['person_email'].'</td>';
             if (isset($_POST['search-keyword'])) {
-                $output .= '<td><a href="'.URL_BASE.'persons/update_person/'.$d['person_id'].'/"><input class="btn-green" type="button" value="Update Person" /></a></td>';
+                $output .= !in_array($accessLevel, array('Viewer'))
+                    ? '<td><a href="'.URL_BASE.'persons/update_person/'.$d['person_id'].'/"><input class="btn-green" type="button" value="Update Person" /></a></td>'
+                    : '';
             }
             $output .= '</tr>';
         }
         $output .= '</table>'
-            .'<hr /><a href="'.URL_BASE.'persons/create_person/" target="_blank"><input class="btn-green" type="button" value="Add a Person" /></a>';
+            .'<hr />';
+        $output .= !in_array($accessLevel, array('Viewer'))
+            ? '<a href="'.URL_BASE.'persons/create_person/" target="_blank"><input class="btn-green" type="button" value="Add a Person" /></a>'
+            : '';
         return $output;
     }
 
@@ -133,6 +142,7 @@ class view_persons {
         $c_owners = new controller_owners();
         $c_employees = new controller_employees();
         $c_accounts = new controller_accounts();
+        $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
 
         $personName = '<h3>'.$pd['person_lastname'].', '.$pd['person_firstname'].' '.$pd['person_middlename'].' '.$pd['person_suffix'].'</h3>';
         $ownedItems = $c_owners->displayOwnedItems('Person', $pd['person_id'], false);
@@ -144,11 +154,9 @@ class view_persons {
             }
         } else $departmentHeadOf = 'None';
 
-        $accAccessLevel = $c_accounts->getAccessLevel($_SESSION['user']['accountId']);
-        $createAccountButton = $accAccessLevel == 'Administrator'
-                || $accAccessLevel == 'Admin'
-            ? '<a href="'.URL_BASE.'accounts/create_account/'.$pd['person_id'].'/"><input class="btn-green" type="button" value="Create an Account for this Person" /></a>'
-            : '';
+        $createAccountButton = in_array($accessLevel, array('Administrator', 'Admin'))
+                ? '<a href="'.URL_BASE.'accounts/create_account/'.$pd['person_id'].'/"><input class="btn-green" type="button" value="Create an Account for this Person" /></a>'
+                : '';
 
         $personGender = $pd['person_gender'] == 'm' ? 'Male' : 'Female';
         $personIsEmployee = $pd['person_is_employee'] ? 'Yes' : 'No';
@@ -199,9 +207,14 @@ class view_persons {
 
             .'<div class="accordion-title">Accounts on the System</div><div class="accordion-content">'.$c_accounts->displayPersonAccounts($pd['person_id'], false).'</div>'
 
-            .'<hr /><a href="'.URL_BASE.'persons/update_person/'.$pd['person_id'].'/"><input class="btn-green" type="button" value="Update Person" /></a>'
-            .'<a href="'.URL_BASE.'employees/create_employment/'.$pd['person_id'].'/"><input class="btn-green" type="button" value="Add Employment" /></a>'
-            .$createAccountButton;
+            .'<hr />';
+        $output .= !in_array($accessLevel, array('Viewer'))
+            ? '<a href="'.URL_BASE.'persons/update_person/'.$pd['person_id'].'/"><input class="btn-green" type="button" value="Update Person" /></a>'
+            : '';
+        $output .= in_array($accessLevel, array('Administrator', 'Admin', 'Supervisor'))
+            ? '<a href="'.URL_BASE.'employees/create_employment/'.$pd['person_id'].'/"><input class="btn-green" type="button" value="Add Employment" /></a>'
+                .$createAccountButton
+            : '';
         return $output;
     }
 

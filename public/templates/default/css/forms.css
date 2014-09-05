@@ -78,7 +78,7 @@ input.btn-green,
 input.btn-red {
     display: inline-block;
     margin: 0px 1px 1px 0px;
-    padding: 5px 8px;
+    padding: 5px 12px;
     border-radius: 3px;
     border: 1px solid #999999;
     background: #fff;
@@ -132,6 +132,16 @@ input.btn-blue:active,
 input.btn-green:active,
 input.btn-red:active {
     box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3) inset;
+}
+input[disabled="disabled"],
+input[disabled="disabled"]:hover,
+input[disabled="disabled"]:active {
+    border: 1px solid #808080;
+    background: #f2f2f2;
+    box-shadow: 0px 0px 0px transparent;
+    text-decoration: line-through;
+    color: #b3b3b3;
+    cursor: not-allowed;
 }
 
 

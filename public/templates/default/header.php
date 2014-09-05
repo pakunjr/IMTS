@@ -2,6 +2,8 @@
 
 <title><?php echo SYSTEM_NAME,' | ',SYSTEM_AUTHOR; ?></title>
 
+<link rel="shortcut icon" type="image/png" href="<?php echo URL_BASE; ?>public/img/favicon.png" />
+
 <?php
 $css_jquery = array(
     'jquery/jquery-ui-1.10.4.custom/css/ui-lightness/jquery-ui-1.10.4.custom.min.css');
@@ -61,7 +63,8 @@ foreach ($js_jquery as $filename) {
 //Public javascripts
 if (ENVIRONMENT == 'DEVELOPMENT') {
     $js_public = array(
-        'script.js'
+        'alerts.js'
+        ,'script.js'
         ,'accordion.js'
         ,'forms.js');
     foreach ($js_public as $filename) {
@@ -85,6 +88,9 @@ if (ENVIRONMENT == 'DEVELOPMENT') {
         ,'navigation.js'
         ,'items.js'
         ,'owners.js'
+        ,'accounts.js'
+        ,'employment.js'
+        ,'forms.js'
         ,'in_searches.js');
     foreach ($js_template as $filename) {
         $filepath = DIR_TEMPLATE.DS.'js'.DS.$filename;
@@ -109,7 +115,8 @@ if (ENVIRONMENT == 'DEVELOPMENT') {
     $c_accounts = new controller_accounts();
     $c_accounts->displayLoginForm();
 
-    echo '<div id="header-system-name-short">',SYSTEM_NAME_SHORT,'</div>'
+    echo '<div id="header-system-logo"></div>'
+        ,'<div id="header-system-name-short">',SYSTEM_NAME_SHORT,'</div>'
         ,'<div id="header-system-name">',SYSTEM_NAME,'</div>';
     ?>
 </div>

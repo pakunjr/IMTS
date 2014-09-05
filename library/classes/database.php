@@ -44,7 +44,7 @@ class database {
 
     public function statement ($options=array()) {
         $c_errors = new controller_errors();
-
+        
         $this->connect();
         $connection = $this->connection;
 
@@ -59,7 +59,7 @@ class database {
             if ( !$stmt )
                 throw new PDOException('PDOException: Failed to prepare the query.');
         } catch ( PDOException $e ) {
-            $this->c_err->logError($e->getMessage().PHP_EOL
+            $c_errors->logError($e->getMessage().PHP_EOL
                 .'SQL Query: '.$q);
         }
 
@@ -103,7 +103,7 @@ class database {
         } catch ( PDOException $e ) {
             $c_errors->logError('Failed in executing the statement.'.PHP_EOL.PHP_EOL
                 .'SQL Query: '.$q.PHP_EOL.PHP_EOL
-                .'Reason'. $e->getMessage);
+                .'Reason'. $e->getMessage());
         }
     }
 

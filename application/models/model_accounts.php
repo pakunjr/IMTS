@@ -14,6 +14,7 @@ class model_accounts {
 
     public function createAccount ($datas) {
         $d = $datas;
+        $fx = new myFunctions();
         
         if ($d['account-password'] != $d['account-password-confirm'])
             return null;
@@ -35,6 +36,33 @@ class model_accounts {
                 ,intval(1))));
         if ($res) {
             $d['account-id'] = $this->db->lastInsertId();
+
+            //Prepare the email to be sent
+            $person = $this->db->statement(array(
+                'q'=>"SELECT person_email FROM imts_persons WHERE person_id = ? LIMIT 1"
+                ,'v'=>array(intval($d['account-owner']))));
+            if (count($person) > 0) {
+                $email = $person[0]['person_email'];
+                $email = $fx->isEmail($email) ? $email : null;
+                if ($email != null) {
+                    $to = $email;
+                    $subject = 'IMTS Account - Username and Password';
+                    $message = 'Please update your profile and change your password as soon as you have opened this email. Thank you.<hr />'
+                        .'Username: '.$d['account-username'].'<br />'
+                        .'Password: '.$d['account-password'];
+                    $headers = "From: imts@lorma.edu\r\n"
+                        ."Reply-To: palmer.gawaban@lorma.edu\r\n"
+                        ."X-Mailer: PHP/".phpversion()."\r\n"
+                        ."X-Priority: 1 (Highest)\r\n"
+                        ."X-MSMail-Priority: High\r\n"
+                        ."Importance: High\r\n"
+                        ."MIME-Version: 1.0\r\n"
+                        ."Content-type: text/html; charset=ISO-8859-1\r\n";
+                        
+                    mail($to, $subject, $message, $headers);
+                }
+            }
+
             return $d;
         } else {
             $c_errors = new controller_errors();

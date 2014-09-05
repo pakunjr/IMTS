@@ -107,8 +107,8 @@ class controller_pages {
             }
         }
 
-        $acc_al = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : '';
-        $acc_aid = isset($_SESSION['user']) ? $_SESSION['user']['accountId'] : '';
+        $acc_al = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
+        $acc_aid = isset($_SESSION['user']) ? $_SESSION['user']['accountId'] : null;
 
         //Route pages
         switch ($model) {
@@ -123,7 +123,7 @@ class controller_pages {
                         break;
 
                     case 'create_account':
-                        if ($acc_al != 'Administrator' && $acc_al != 'Admin') {
+                        if (!in_array($acc_al, array('Administrator', 'Admin'))) {
                             $this->displayHeader();
                             $this->displayErrorPage('403');
                             $this->displayFooter();
@@ -149,7 +149,7 @@ class controller_pages {
                         break;
 
                     case 'update_account':
-                        if ($acc_al != 'Administrator' && $acc_al != 'Admin') {
+                        if (!in_array($acc_al, array('Administrator', 'Admin'))) {
                             if ($action != $acc_aid) {
                                 $this->displayHeader();
                                 $this->displayErrorPage('403');
@@ -193,7 +193,7 @@ class controller_pages {
                         break;
 
                     case 'activate_account':
-                        if ($acc_al != 'Administrator' && $acc_al != 'Admin') {
+                        if (!in_array($acc_al, array('Administrator', 'Admin'))) {
                             $this->displayHeader();
                             $this->displayErrorPage('403');
                             $this->displayFooter();
@@ -204,7 +204,7 @@ class controller_pages {
                         break;
 
                     case 'deactivate_account':
-                        if ($acc_al != 'Administrator' && $acc_al != 'Admin') {
+                        if (!in_array($acc_al, array('Administrator', 'Admin'))) {
                             $this->displayHeader();
                             $this->displayErrorPage('403');
                             $this->displayFooter();
@@ -222,6 +222,13 @@ class controller_pages {
                 break;
 
             case 'admin':
+                if (!in_array($acc_al, array('Administrator', 'Admin'))) {
+                    $this->displayHeader();
+                    $this->displayErrorPage('403');
+                    $this->displayFooter();
+                    return;
+                }
+                
                 switch ($view) {
                     case 'log':
                         switch ($controller) {

@@ -5,15 +5,19 @@ class view_items {
     public function renderForm ($infos) {
         $i = $infos;
         $f = new form(array('auto_line_break'=>true,'auto_label'=>true));
+        $c_items = new controller_items();
 
         if ($i['item'] != null) {
             $itemName = '<h3>';
             $itemName .= $i['niboti']
                 ? 'New Item Based On This Item<br />' : '';
-            $itemName .= $i['item']['item_name'].'<br />'
+            $itemName .= $i['item']['item_id'] == ''
+                    || $i['item']['item_id'] == '0'
+                ? 'New Component for '.$c_items->displayItemName($i['item']['item_component_of'], false)
+                : $i['item']['item_name'].'<br />'
                 .'<small><span style="color: #03f;">Serial No</span>: '.$i['item']['item_serial_no'].'</small><br />'
-                .'<small><span style="color: #f00;">Model No</span>: '.$i['item']['item_model_no'].'</small>'
-                .'</h3>';
+                .'<small><span style="color: #f00;">Model No</span>: '.$i['item']['item_model_no'].'</small>';
+            $itemName .= '</h3>';
             $actionLink = URL_BASE.'inventory/update_item/save/';
             $submitBtn = $f->submit(array('value'=>'Save Changes','auto_line_break'=>false));
             $cancelBtn = $f->button(array('value'=>'Cancel'));
@@ -34,9 +38,9 @@ class view_items {
             $cancelBtn = '<a href="'.URL_BASE.'inventory/read_item/'.$i['item']['item_component_of'].'/"><input class="btn-red" type="button" value="Cancel" /></a>';
         }
 
-        $output = $itemName.$f->openForm(array('id'=>'form-item','method'=>'post','action'=>$actionLink,'enctype'=>'multipart/form-data'))
-            .$this->renderFormItem($infos['item'])
-            .$this->renderFormOwner($infos['owner'])
+        $output = $itemName.$f->openForm(array('id'=>'form-item', 'class'=>'main-form', 'method'=>'post', 'action'=>$actionLink, 'enctype'=>'multipart/form-data'))
+            .$this->renderFormItem($i['item'])
+            .$this->renderFormOwner($i['owner'])
             .$submitBtn.$cancelBtn
             .$f->closeForm();
         return $output;
@@ -80,7 +84,7 @@ class view_items {
             .'</span>'
 
             .'<span class="column">'
-            .$f->text(array('id'=>'item-date-of-purchase','class'=>'datepicker','label'=>'Date of Purchase','value'=>$i != null ? $i['item_date_of_purchase'] : '0000-00-00'))
+            .$f->text(array('id'=>'item-date-of-purchase','class'=>'datepicker','label'=>'Date of Purchase','value'=>$i != null ? $i['item_date_of_purchase'] : date('Y-m-d')))
             .$f->hidden(array('id'=>'item-package','value'=>$i != null ? $i['item_package'] : '0','data-url'=>URL_BASE.'inventory_packages/in_search/'))
             .$f->text(array('id'=>'item-package-label','label'=>'Package','value'=>$i != null ? $c_itemPackages->displayPackageName($i['item_package'], false) : ''))
             .$f->checkbox(array('id'=>'item-has-components','label'=>'Has Components','checked'=>$hasComponentsCheck))
@@ -106,7 +110,7 @@ class view_items {
             .'</span>'
 
             .'<span class="column">'
-            .$f->text(array('id'=>'ownership-date-owned','class'=>'datepicker','label'=>'Date Owned','value'=>$i != null ? $i['ownership_date_owned'] : ''))
+            .$f->text(array('id'=>'ownership-date-owned','class'=>'datepicker','label'=>'Date Owned','value'=>$i != null ? $i['ownership_date_owned'] : date('Y-m-d')))
             .$f->text(array('id'=>'ownership-date-released','class'=>'datepicker','label'=>'Date Released','value'=>$i != null ? $i['ownership_date_released'] : ''))
             .'</span>'
             .$f->closeFieldset();
@@ -128,6 +132,7 @@ class view_items {
         $c_itemTypes = new controller_itemTypes();
         $c_itemStates = new controller_itemStates();
         $c_itemPackages = new controller_itemPackages();
+        $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
 
         $itComponentHostName = $c_items->displayItemName($it['item_component_of'], false);
         $itComponentHostLink = $it['item_component_of'] != 0
@@ -144,11 +149,14 @@ class view_items {
         $addComponentButton = $it['item_has_components'] == '1'
             ? '<a href="'.URL_BASE.'inventory/create_item_addComponent/'.$it['item_id'].'/"><input class="btn-green" type="button" value="Add Component" /></a>'
             : '';
+        $archiveButton = in_array($accessLevel, array('Administrator', 'Admin', 'Supervisor'))
+                ? '<a href="'.URL_BASE.'inventory/archive_item/'.$i['item']['item_id'].'/"><input data-item-name="'.$i['item']['item_name'].' (S/N: '.$i['item']['item_serial_no'].' -- M/N: '.$i['item']['item_model_no'].')" class="btn-red" type="button" value="Archive Item" /></a>'
+                : '';
         $actionButtons = $i['item']['item_archive_state'] == '0'
             ? '<hr /><a href="'.URL_BASE.'inventory/update_item/'.$i['item']['item_id'].'/"><input class="btn-green" type="button" value="Update Informations" /></a>'
                 .$addComponentButton
                 .'<a href="'.URL_BASE.'inventory/create_item_niboti/'.$i['item']['item_id'].'/"><input type="button" value="NIBOTI" /></a>'
-                .'<a href="'.URL_BASE.'inventory/archive_item/'.$i['item']['item_id'].'/"><input class="btn-red" type="button" value="Archive Item" /></a>'
+                .$archiveButton
             : '<hr />This item has been archived.';
 
         $output = '<h3>'.$it['item_name'].'<br />'
@@ -206,6 +214,7 @@ class view_items {
             $c_itemStates = new controller_itemStates();
             $c_itemTypes = new controller_itemTypes();
             $c_owners = new controller_owners();
+            $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
 
             $output = '<table><tr>'
                 .'<th>Name</th>'
@@ -213,9 +222,9 @@ class view_items {
                 .'<th>State</th>'
                 .'<th>Description</th>'
                 .'<th>Quantity</th>'
-                .'<th>Current Owner</th>'
-                .'<th>Action</th>'
-                .'</tr>';
+                .'<th>Current Owner</th>';
+            $output .= !in_array($accessLevel, array('Viewer')) ? '<th>Action</th>' : '';
+            $output .= '</tr>';
             foreach ($components as $component) {
                 if ($component['ownership'] != null) {
                     $cOwnership = $component['ownership'];
@@ -229,9 +238,12 @@ class view_items {
                     $coLink = $coName;
                 }
 
+                $archiveButton = in_array($accessLevel, array('Administrator', 'Admin', 'Supervisor'))
+                        ? '<a href="'.URL_BASE.'inventory/archive_item/'.$component['item_id'].'/"><input data-item-name="'.$component['item_name'].' (S/N: '.$component['item_serial_no'].' -- M/N: '.$component['item_model_no'].')" class="btn-red" type="button" value="Archive Item" /></a>'
+                        : '';
                 $actionButtons = $component['item_archive_state'] == '0'
                     ? '<a href="'.URL_BASE.'inventory/update_item/'.$component['item_id'].'/"><input class="btn-green" type="button" value="Update Item" /></a>'
-                        .'<a href="'.URL_BASE.'inventory/archive_item/'.$component['item_id'].'/"><input class="btn-red" type="button" value="Archive Item" /></a>'
+                        .$archiveButton
                     : 'This item has been archived.';
 
                 $output .= '<tr class="data" '
@@ -245,9 +257,9 @@ class view_items {
                     .'<td>'.$c_itemStates->displayItemStateName($component['item_state'], false).'</td>'
                     .'<td>'.nl2br($component['item_description']).'</td>'
                     .'<td>'.$component['item_quantity'].'</td>'
-                    .'<td>'.$coLink.'</td>'
-                    .'<td>'.$actionButtons.'</td>'
-                    .'</tr>';
+                    .'<td>'.$coLink.'</td>';
+                $output .= !in_array($accessLevel, array('Viewer')) ? '<td>'.$actionButtons.'</td>' : '';
+                $output .= '</tr>';
             }
             $output .= '</table>';
         } else $output = 'There are no component/s for this item.';
@@ -260,14 +272,17 @@ class view_items {
         $fx = new myFunctions();
         $c_owners = new controller_owners();
 
+        $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
+
         if ($owners != null) {
             $output = '<table><tr>'
                 .'<th>Name</th>'
                 .'<th>Type</th>'
                 .'<th>Date Owned</th>'
-                .'<th>Date Released</th>'
-                .'<th>Action</th>'
-                .'</tr>';
+                .'<th>Date Released</th>';
+            $output .= !in_array($accessLevel, array('Viewer'))
+                ? '<th>Action</th>' : '';
+            $output .= '</tr>';
             foreach ($owners as $owner) {
                 $ownerName = $c_owners->displayOwnerName($owner['ownership_id'], false);
                 $dataUrl = $owner['ownership_owner_type'] == 'Person'
@@ -278,13 +293,15 @@ class view_items {
                     ? URL_BASE.'persons/update_person/'.$owner['ownership_owner'].'/'
                     : URL_BASE.'departments/update_department/'.$owner['ownership_owner'].'/';
 
-                $output .= '<tr class="special-hover owner-data" data-url="'.$dataUrl.'">'
+                $output .= '<tr class="data" data-url="'.$dataUrl.'">'
                     .'<td>'.$ownerName.'</td>'
                     .'<td>'.$owner['ownership_owner_type'].'</td>'
                     .'<td>'.$fx->dateToWords($owner['ownership_date_owned']).'</td>'
-                    .'<td>'.$fx->dateToWords($owner['ownership_date_released']).'</td>'
-                    .'<td><a href="'.$ownerUpdateLink.'"><input class="btn-green" type="button" value="Update Person" /></a></td>'
-                    .'</tr>';
+                    .'<td>'.$fx->dateToWords($owner['ownership_date_released']).'</td>';
+                $output .= !in_array($accessLevel, array('Viewer'))
+                    ? '<td><a href="'.$ownerUpdateLink.'"><input class="btn-green" type="button" value="Update Person" /></a></td>'
+                    : '';
+                $output .= '</tr>';
             }
             $output .= '</table>';
         } else $output = 'There are no owner history.';
@@ -323,7 +340,7 @@ class view_items {
 
 
     public function renderItemName ($item) {
-        return $item != null ? $item['item_name'].' ('.$item['item_serial_no'].', '.$item['item_model_no'].')' : 'None';
+        return $item != null ? $item['item_name'].' (S/N: '.$item['item_serial_no'].' -- M/N: '.$item['item_model_no'].')' : 'None';
     }
 
 
@@ -357,6 +374,8 @@ class view_items {
             $c_itemStates = new controller_itemStates();
             $c_itemPackages = new controller_itemPackages();
 
+            $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
+
             $output = '<table><tr>'
                 .'<th>Name</th>'
                 .'<th>Type</th>'
@@ -365,8 +384,8 @@ class view_items {
             if (isset($_POST['search-keyword'])) {
                 $output .= '<th>Current Owner</th>'
                     .'<th>Package</th>'
-                    .'<th>Component Of</th>'
-                    .'<th>Actions</th>';
+                    .'<th>Component Of</th>';
+                $output .= !in_array($accessLevel, array('Viewer')) ? '<th>Actions</th>' : '';
             }
             $output .= '</tr>';
             foreach ($results as $result) {
@@ -396,21 +415,32 @@ class view_items {
                     .'<td>'.$c_itemStates->displayItemStateName($result['item_state'], false).'</td>'
                     .'<td>'.nl2br($result['item_description']).'</td>';
                 if (isset($_POST['search-keyword'])) {
+                    $archiveButton = in_array($accessLevel, array('Administrator', 'Admin', 'Supervisor'))
+                            ? '<a href="'.URL_BASE.'inventory/archive_item/'.$result['item_id'].'/"><input data-item-name="'.$result['item_name'].' (S/N: '.$result['item_serial_no'].' -- M/N: '.$result['item_model_no'].')" class="btn-red" type="button" value="Archive Item" /></a>'
+                            : '';
                     $actionButtons = $result['item_archive_state'] == '0'
                         ? '<a href="'.URL_BASE.'inventory/update_item/'.$result['item_id'].'/"><input class="btn-green" type="button" value="Update Item" /></a>'
-                            .'<a href="'.URL_BASE.'inventory/archive_item/'.$result['item_id'].'/"><input class="btn-red" type="button" value="Archive Item" /></a>'
+                            .$archiveButton
                         : 'This item has been archived.';
 
                     $output .= '<td>'.$c_items->displayItemCurrentOwner($result['item_id'], false).'</td>'
                         .'<td>'.$packageLink.'</td>'
-                        .'<td>'.$componentHostLink.'</td>'
-                        .'<td>'.$actionButtons.'</td>';
+                        .'<td>'.$componentHostLink.'</td>';
+                    $output .= !in_array($accessLevel, array('Viewer')) ? '<td>'.$actionButtons.'</td>' : '';
                 }
                 $output .= '</tr>';
             }
             $output .= '</table>'
-                .'<hr /><a href="'.URL_BASE.'inventory/create_item/" target="_blank"><input class="btn-green" type="button" value="Add an Item" /></a>';
-        } else $output = 'There are no items matching your keywords.<hr /><a href="'.URL_BASE.'inventory/create_item/" target="_blank"><input class="btn-green" type="button" value="Add an Item" /></a>';
+                .'<hr />';
+            $output .= !in_array($accessLevel, array('Viewer'))
+                ? '<a href="'.URL_BASE.'inventory/create_item/" target="_blank"><input class="btn-green" type="button" value="Add an Item" /></a>'
+                : '';
+        } else {
+            $output = 'There are no items matching your keywords.<hr />';
+            $output .= !in_array($accessLevel, array('Viewer'))
+                ? '<a href="'.URL_BASE.'inventory/create_item/" target="_blank"><input class="btn-green" type="button" value="Add an Item" /></a>'
+                : '';
+        }
         return $output;
     }
 

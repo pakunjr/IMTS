@@ -14,6 +14,16 @@ body {
     text-align: left;
     text-shadow: 3px 3px 3px rgba(0, 0, 0, 0.2);
 }
+#header-system-logo {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    margin: 0px 15px 0px 0px;
+    float: left;
+    border-radius: 30px;
+    background: url('../../../../img/imts_logo_30x30.png') center center no-repeat scroll transparent;
+    box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.15);
+}
 #header #header-system-name-short {
     display: block;
     letter-spacing: 3em;

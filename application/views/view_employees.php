@@ -21,7 +21,7 @@ class view_employees {
             ? '<a href="'.URL_BASE.'employees/end_employment/'.$d['employee_id'].'/">'.$f->button(array('class'=>'btn-red', 'value'=>'End Employment')).'</a>'
             : '';
 
-        $output = $employmentName.$f->openForm(array('id'=>'', 'action'=>$actionLink, 'method'=>'post', 'enctype'=>'multipart/form-data'))
+        $output = $employmentName.$f->openForm(array('id'=>'', 'class'=>'main-form', 'action'=>$actionLink, 'method'=>'post', 'enctype'=>'multipart/form-data'))
 
             .$f->hidden(array('id'=>'employee-id', 'value'=>$d != null ? $d['employee_id'] : '0'))
             .$f->hidden(array('id'=>'employee-person', 'value'=>$personId))
@@ -63,7 +63,7 @@ class view_employees {
             ? '<h3>'.$d['employee_job_label'].'</h3>'
             : '<h3>New Job</h3>';
 
-        $output = $jobName.$f->openForm(array('id'=>'', 'method'=>'post', 'action'=>$actionLink, 'enctype'=>'multipart/form-data'))
+        $output = $jobName.$f->openForm(array('id'=>'', 'class'=>'main-form', 'method'=>'post', 'action'=>$actionLink, 'enctype'=>'multipart/form-data'))
             .$f->hidden(array('id'=>'employee-job-id', 'value'=>$d != null ? $d['employee_job_id'] : '0'))
             .$f->openFieldset(array('legend'=>'Job Information'))
             .'<span class="column">'
@@ -86,6 +86,7 @@ class view_employees {
         $d = $datas;
         $fx = new myFunctions();
         $c_departments = new controller_departments();
+        $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
 
         $currentDate = date('Y-m-d');
 
@@ -95,19 +96,21 @@ class view_employees {
             .'<th>Job Label -- Definition</th>'
             .'<th>Department Short -- Name</th>'
             .'<th>Employment Date</th>'
-            .'<th>Resignation / End of Contract Date</th>'
-            .'<th>Actions</th>'
-            .'</tr>';
+            .'<th>Resignation / End of Contract Date</th>';
+        $output .= in_array($accessLevel, array('Administrator', 'Admin', 'Supervisor'))
+                ? '<th>Actions</th>' : '';
+        $output .= '</tr>';
         foreach ($datas as $d) {
             $deptName = $c_departments->displayDepartmentName($d['employee_department'], false);
             $deptLink = $deptName != 'None'
                 ? '<a href="'.URL_BASE.'departments/read_department/'.$d['employee_department'].'/"><input type="button" value="'.$deptName.'" /></a>'
                 : $deptName;
 
-            $actionButtons = $d['employee_resignation_date'] > $currentDate || $d['employee_resignation_date'] == '0000-00-00'
-                ? '<a href="'.URL_BASE.'employees/update_employment/'.$d['employee_person'].'/'.$d['employee_id'].'/"><input class="btn-green" type="button" value="Update Employment" /></a>'
-                    .'<a href="'.URL_BASE.'employees/end_employment/'.$d['employee_id'].'/"><input class="btn-red" type="button" value="End Employment" /></a>'
-                : 'N/A';
+            $actionButtons = $d['employee_resignation_date'] > $currentDate
+                || $d['employee_resignation_date'] == '0000-00-00'
+                    ? '<a href="'.URL_BASE.'employees/update_employment/'.$d['employee_person'].'/'.$d['employee_id'].'/"><input class="btn-green" type="button" value="Update Employment" /></a>'
+                        .'<a href="'.URL_BASE.'employees/end_employment/'.$d['employee_id'].'/"><input class="btn-red" type="button" value="End Employment" /></a>'
+                    : 'N/A';
 
             $output .= '<tr>'
                 .'<td>'.$d['employee_no'].'</td>'
@@ -115,11 +118,10 @@ class view_employees {
                 .'<td>'.$d['employee_job_label'].' -- '.nl2br($d['employee_job_description']).'</td>'
                 .'<td>'.$deptLink.'</td>'
                 .'<td>'.$fx->dateToWords($d['employee_employment_date']).'</td>'
-                .'<td>'.$fx->dateToWords($d['employee_resignation_date']).'</td>'
-                .'<td>'
-                    .$actionButtons
-                .'</td>'
-                .'</tr>';
+                .'<td>'.$fx->dateToWords($d['employee_resignation_date']).'</td>';
+            $output .= in_array($accessLevel, array('Administrator', 'Admin', 'Supervisor'))
+                ? '<td>'.$actionButtons.'</td>' : '';
+            $output .= '</tr>';
         }
         $output .= '</table>';
         return $output;
@@ -172,13 +174,22 @@ class view_employees {
 
 
     public function renderSearchResultsJob ($datas) {
-        if ($datas == null) return 'Your keyword did not match any Job name.<hr /><a href="'.URL_BASE.'employees/create_job/" target="_blank"><input class="btn-green" type="button" value="Add a Job" /></a>';
+        $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
+        
+        if ($datas == null) {
+            $output = 'Your keyword did not match any Job name.<hr />';
+            $output .= in_array($accessLevel, array('Administrator', 'Admin', 'Supervisor'))
+                ? '<a href="'.URL_BASE.'employees/create_job/" target="_blank"><input class="btn-green" type="button" value="Add a Job" /></a>'
+                : '';
+            return $output;
+        }
 
         $output = '<table><tr>'
             .'<th>Label</th>'
             .'<th>Description</th>';
         if (isset($_POST['search-keyword'])) {
-            $output .= '<th>Actions</th>';
+            $output .= in_array($accessLevel, array('Administrator', 'Admin', 'Supervisor'))
+                ? '<th>Actions</th>' : '';
         }
         $output .= '</tr>';
         foreach ($datas as $d) {
@@ -189,12 +200,17 @@ class view_employees {
                 .'<td>'.$d['employee_job_label'].'</td>'
                 .'<td>'.nl2br($d['employee_job_description']).'</td>';
             if (isset($_POST['search-keyword'])) {
-                $output .= '<td><a href="'.URL_BASE.'employees/update_job/'.$d['employee_job_id'].'/"><input class="btn-green" type="button" value="Update Job" /></a></td>';
+                $output .= in_array($accessLevel, array('Administrator', 'Admin', 'Supervisor'))
+                    ? '<td><a href="'.URL_BASE.'employees/update_job/'.$d['employee_job_id'].'/"><input class="btn-green" type="button" value="Update Job" /></a></td>'
+                    : '';
             }
             $output .= '</tr>';
         }
         $output .= '</table>'
-            .'<hr /><a href="'.URL_BASE.'employees/create_job/" target="_blank"><input class="btn-green" type="button" value="Add a Job" /></a>';
+            .'<hr />';
+        $output .= in_array($accessLevel, array('Administrator', 'Admin', 'Supervisor'))
+            ? '<a href="'.URL_BASE.'employees/create_job/" target="_blank"><input class="btn-green" type="button" value="Add a Job" /></a>'
+            : '';
         return $output;
     }
 
@@ -206,6 +222,8 @@ class view_employees {
             return;
         }
         $d = $datas;
+        $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
+
         $output = '<table><tr>'
             .'<th>Label</th>'
             .'<th>Description</th>'
@@ -215,7 +233,10 @@ class view_employees {
             .'<td>'.nl2br($d['employee_job_description']).'</td>'
             .'</tr>'
             .'</table>'
-            .'<hr /><a href="'.URL_BASE.'employees/update_job/'.$d['employee_job_id'].'/"><input class="btn-green" type="button" value="Update Job" /></a>';
+            .'<hr />';
+        $output .= in_array($accessLevel, array('Administrator', 'Admin', 'Supervisor'))
+                ? '<a href="'.URL_BASE.'employees/update_job/'.$d['employee_job_id'].'/"><input class="btn-green" type="button" value="Update Job" /></a>'
+                : '';
         return $output;
     }
 
