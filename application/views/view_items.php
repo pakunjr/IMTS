@@ -146,17 +146,18 @@ class view_items {
 
         $hasComponents = $it['item_has_components'] == '1' ? 'Yes' : 'No';
 
-        $addComponentButton = $it['item_has_components'] == '1'
+        $btnAddComponent = $it['item_has_components'] == '1'
             ? '<a href="'.URL_BASE.'inventory/create_item_addComponent/'.$it['item_id'].'/"><input class="btn-green" type="button" value="Add Component" /></a>'
             : '';
-        $archiveButton = in_array($accessLevel, array('Administrator', 'Admin', 'Supervisor'))
-                ? '<a href="'.URL_BASE.'inventory/archive_item/'.$i['item']['item_id'].'/"><input data-item-name="'.$i['item']['item_name'].' (S/N: '.$i['item']['item_serial_no'].' -- M/N: '.$i['item']['item_model_no'].')" class="btn-red" type="button" value="Archive Item" /></a>'
-                : '';
+        $btnNiboti = '<a href="'.URL_BASE.'inventory/create_item_niboti/'.$i['item']['item_id'].'/"><input type="button" value="NIBOTI" /></a>';
+        $btnArchive = in_array($accessLevel, array('Administrator', 'Admin', 'Supervisor'))
+            ? '<a href="'.URL_BASE.'inventory/archive_item/'.$i['item']['item_id'].'/"><input data-item-name="'.$i['item']['item_name'].' (S/N: '.$i['item']['item_serial_no'].' -- M/N: '.$i['item']['item_model_no'].')" class="btn-red" type="button" value="Archive Item" /></a>'
+            : '';
         $actionButtons = $i['item']['item_archive_state'] == '0'
             ? '<hr /><a href="'.URL_BASE.'inventory/update_item/'.$i['item']['item_id'].'/"><input class="btn-green" type="button" value="Update Informations" /></a>'
-                .$addComponentButton
-                .'<a href="'.URL_BASE.'inventory/create_item_niboti/'.$i['item']['item_id'].'/"><input type="button" value="NIBOTI" /></a>'
-                .$archiveButton
+                .$btnAddComponent
+                .$btnNiboti
+                .$btnArchive
             : '<hr />This item has been archived.';
 
         $output = '<h3>'.$it['item_name'].'<br />'
@@ -197,9 +198,9 @@ class view_items {
             .'</table>'
             .'</div>'
 
-            .'<div class="accordion-title">Component/s</div><div class="accordion-content">'.$this->renderItemComponents($i['components']).'</div>'
+            .'<div class="accordion-title">Item Component/s</div><div class="accordion-content">'.$this->renderItemComponents($i['components']).'</div>'
 
-            .'<div class="accordion-title">Ownership/s History</div><div class="accordion-content">'.$this->renderItemOwnershipHistory($i['owners']).'</div>'
+            .'<div class="accordion-title">History of Ownership/s</div><div class="accordion-content">'.$this->renderItemOwnershipHistory($i['owners']).'</div>'
 
             .'<div class="accordion-title">Log</div><div class="accordion-content">'.$this->renderItemLog($i['item']['item_log']).'</div>'
 
@@ -292,6 +293,8 @@ class view_items {
                 $ownerUpdateLink = $owner['ownership_owner_type'] == 'Person'
                     ? URL_BASE.'persons/update_person/'.$owner['ownership_owner'].'/'
                     : URL_BASE.'departments/update_department/'.$owner['ownership_owner'].'/';
+                $ownerUpdateBtnValue = $owner['ownership_owner_type'] == 'Person'
+                    ? 'Update Person' : 'Update Department';
 
                 $output .= '<tr class="data" data-url="'.$dataUrl.'">'
                     .'<td>'.$ownerName.'</td>'
@@ -299,7 +302,7 @@ class view_items {
                     .'<td>'.$fx->dateToWords($owner['ownership_date_owned']).'</td>'
                     .'<td>'.$fx->dateToWords($owner['ownership_date_released']).'</td>';
                 $output .= !in_array($accessLevel, array('Viewer'))
-                    ? '<td><a href="'.$ownerUpdateLink.'"><input class="btn-green" type="button" value="Update Person" /></a></td>'
+                    ? '<td><a href="'.$ownerUpdateLink.'"><input class="btn-green" type="button" value="'.$ownerUpdateBtnValue.'" /></a></td>'
                     : '';
                 $output .= '</tr>';
             }
@@ -368,13 +371,13 @@ class view_items {
 
 
     public function renderSearchResults ($results) {
+        $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
+        
         if ($results != null) {
             $c_items = new controller_items();
             $c_itemTypes = new controller_itemTypes();
             $c_itemStates = new controller_itemStates();
             $c_itemPackages = new controller_itemPackages();
-
-            $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
 
             $output = '<table><tr>'
                 .'<th>Name</th>'

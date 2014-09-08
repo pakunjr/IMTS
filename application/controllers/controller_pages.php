@@ -24,6 +24,7 @@ class controller_pages {
         $action = $this->model->get('action');
         $extra = $this->model->get('extra');
 
+        $db = new database();
         $c_accounts = new controller_accounts();
         $c_items = new controller_items();
         $c_itemPackages = new controller_itemPackages();
@@ -46,15 +47,16 @@ class controller_pages {
                         case 'owner':
                             switch ($controller) {
                                 case 'person':
+                                case 'department':
                                     $this->displayHeader();
-                                    $c_owners->displayTrackedItems('Person', $action);
+                                    $c_owners->displayTrackedItems(ucfirst($controller), $action);
                                     $this->displayFooter();
                                     break;
 
-                                case 'department':
-                                    $this->displayHeader();
-                                    $c_owners->displayTrackedItems('Department', $action);
-                                    $this->displayFooter();
+                                case 'person_printable':
+                                case 'department_printable':
+                                    $ownerType = $controller == 'person_printable' ? 'Person' : 'Department';
+                                    $c_owners->pdfOwnedItems($ownerType, $action);
                                     break;
 
                                 default:
@@ -172,11 +174,13 @@ class controller_pages {
 
                     case 'update_password':
                         if ($acc_al != 'Administrator' && $acc_al != 'Admin') {
-                            if ($controller != $acc_aid) {
-                                $this->displayHeader();
-                                $this->displayErrorPage('403');
-                                $this->displayFooter();
-                                return;
+                            if ($controller != 'save') {
+                                if ($controller != $acc_aid) {
+                                    $this->displayHeader();
+                                    $this->displayErrorPage('403');
+                                    $this->displayFooter();
+                                    return;
+                                }
                             }
                         }
 
@@ -236,6 +240,20 @@ class controller_pages {
                                 $this->displayHeader();
                                 $c_errors->displayLogList();
                                 $this->displayFooter();
+                                break;
+
+                            case 'database_errors':
+                                switch ($action) {
+                                    case 'clean':
+                                        $db->cleanDatabaseErrors();
+                                        header('location: '.URL_BASE.'admin/log/database_errors/');
+                                        break;
+
+                                    default:
+                                        $this->displayHeader();
+                                        $db->displayDatabaseErrors();
+                                        $this->displayFooter();
+                                }
                                 break;
 
                             case 'actions':

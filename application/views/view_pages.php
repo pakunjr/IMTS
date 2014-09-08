@@ -50,6 +50,7 @@ class view_pages {
             case 'admin':
                 $output = '<ul class="sub-menu">'
                     .'<li><a href="'.URL_BASE.'admin/log/errors/">Error/s &amp; Exception/s Log</a></li>'
+                    .'<li><a href="'.URL_BASE.'admin/log/database_errors/">Database Exceptions and Errors</a></li>'
                     .'</ul>';
                 break;
 
@@ -69,10 +70,7 @@ class view_pages {
                     : '';
                 $output .= '<li><a'.$classHome.' href="'.URL_BASE.'">Home</a></li>';
                 $output .= !isset($_SESSION['user'])
-                    ? '<li><a href="'.URL_BASE.'track/item/">Track Item</a></li>'
-                    : '';
-                $output .= !isset($_SESSION['user'])
-                    ? '<li><a href="'.URL_BASE.'track/owner/">Track Owner</a></li>'
+                    ? '<li><a href="'.URL_BASE.'track/owner/">Track</a></li>'
                     : '';
                 $output .= isset($_SESSION['user'])
                     ? '<li>'.$this->renderNavigation('inventory').'<a'.$classInventory.' href="'.URL_BASE.'inventory/">Inventory</a></li>'

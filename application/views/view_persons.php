@@ -145,7 +145,7 @@ class view_persons {
         $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
 
         $personName = '<h3>'.$pd['person_lastname'].', '.$pd['person_firstname'].' '.$pd['person_middlename'].' '.$pd['person_suffix'].'</h3>';
-        $ownedItems = $c_owners->displayOwnedItems('Person', $pd['person_id'], false);
+        $ownedItems = $c_owners->displayOwnedItemsSummary('Person', $pd['person_id'], false);
 
         if ($pd['person_head_departments'] != null) {
             $departmentHeadOf = '';
@@ -201,7 +201,7 @@ class view_persons {
             .'</table>'
             .'</div>'
 
-            .'<div class="accordion-title">Ownership History</div><div class="accordion-content">'.$ownedItems.'</div>'
+            .'<div class="accordion-title">Owned Items and History</div><div class="accordion-content">'.$ownedItems.'</div>'
 
             .'<div class="accordion-title">Employment History</div><div class="accordion-content">'.$c_employees->displayEmploymentHistory($pd['person_id'], false).'</div>'
 

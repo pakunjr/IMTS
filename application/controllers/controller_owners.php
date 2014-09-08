@@ -59,7 +59,7 @@ class controller_owners {
         } else $ownerName = 'None';
 
         echo '<h3>',$ownerName,'</h3><hr />';
-        $this->displayOwnedItems($ownerType, $ownerId);
+        $this->displayOwnedItemsSummary($ownerType, $ownerId);
     }
 
 
@@ -73,11 +73,35 @@ class controller_owners {
 
 
 
+    public function displayOwnedItemsSummary ($ownerType, $ownerId, $echo=true) {
+        $ownerships = $this->model->readOwnedItems($ownerType, $ownerId);
+        $output = $this->view->renderOwnedItemsSummary($ownerships);
+        if (!$echo) return $output;
+        echo $output;
+    }
+
+
+
     public function displayOwnerName ($ownershipId, $echo=true) {
         $owner = $this->model->readOwner($ownershipId);
         $name = $this->view->renderOwnerName($owner);
         if (!$echo) return $name;
         echo $name;
+    }
+
+
+
+    public function pdfOwnedItems ($ownerType, $ownerId) {
+        $ownerships = $this->model->readOwnedItems($ownerType, $ownerId);
+        $output = $this->view->renderPdfOwnedItems($ownerships);
+        $file = DIR_PLUGINS.DS.'html2pdf'.DS.'html2pdf.class.php';
+        if (file_exists($file)) {
+            ob_start();
+            require_once($file);
+            $html2pdf = new HTML2PDF('P', 'A4', 'en');
+            $html2pdf->WriteHTML($output);
+            $html2pdf->Output('tracked-item.pdf');
+        }
     }
 
 }

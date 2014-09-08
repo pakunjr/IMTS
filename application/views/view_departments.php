@@ -56,7 +56,7 @@ class view_departments {
         $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
 
         $ownerName = '<h3>'.$d['department_name'].' - '.$d['department_name_short'].'</h3>';
-        $ownedItems = $c_owners->displayOwnedItems('Department', $d['department_id'], false);
+        $ownedItems = $c_owners->displayOwnedItemsSummary('Department', $d['department_id'], false);
 
         $headName = $c_persons->displayPersonName($d['department_head'], false);
         $headLink = !in_array($headName, array('Unknown Person', 'None'))
@@ -81,7 +81,7 @@ class view_departments {
             .'</table>'
             .'</div>'
 
-            .'<div class="accordion-title">Ownership History</div><div class="accordion-content">'.$ownedItems.'</div>'
+            .'<div class="accordion-title">Owned Items and History</div><div class="accordion-content">'.$ownedItems.'</div>'
 
             .'<div class="accordion-title">Members</div><div class="accordion-content">'.$c_departments->displayDepartmentMembers($d['department_id'], false).'</div>'
 

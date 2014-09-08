@@ -16,7 +16,10 @@ define('DIR_TEMPLATES', DIR_PUBLIC.DS.'templates');
 
 $config_file = DIR_APPLICATION.DS.'config.php';
 if (file_exists($config_file)) require_once($config_file);
-else echo 'Fatal Error: Your systems configuration file is missing.<br />You have and will encounter fatal errors.';
+else {
+    echo 'Fatal Error: Your systems configuration file is missing.<br />You have and will encounter fatal errors.';
+    exit();
+}
 
 define('DIR_TEMPLATE', DIR_TEMPLATES.DS.SYSTEM_TEMPLATE);
 

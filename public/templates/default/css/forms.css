@@ -75,10 +75,13 @@ input[type="submit"],
 input[type="reset"],
 input.btn-blue,
 input.btn-green,
-input.btn-red {
+input.btn-red,
+*.btn-blue,
+*.btn-green,
+*.btn-red {
     display: inline-block;
     margin: 0px 1px 1px 0px;
-    padding: 5px 12px;
+    padding: 8px 13px;
     border-radius: 3px;
     border: 1px solid #999999;
     background: #fff;
@@ -89,40 +92,51 @@ input.btn-red {
     white-space: normal;
 }
 input[type="button"]:hover,
-input.btn-blue:hover {
+input.btn-blue:hover,
+*.btn-blue:hover {
     border-color: #134d80;
     background-color: #1b6cb3;
     box-shadow:
         1px 1px 2px rgba(255, 255, 255, 0.25) inset
         ,-2px -2px 3px rgba(0, 0, 0, 0.3) inset;
+    text-decoration: none;
+    text-shadow: 0px 0px 0px transparent;
     color: #fff;
 }
 input[type="submit"],
-input.btn-green {
+input.btn-green,
+*.btn-green {
     /*border-color: #09590d;*/
     /*background-color: #59805b;*/
 }
 input[type="submit"]:hover,
-input.btn-green:hover {
+input.btn-green:hover,
+*.btn-green:hover {
     border-color: #14660f;
     background-color: #198013;
     box-shadow:
         1px 1px 2px rgba(255, 255, 255, 0.25) inset
         ,-2px -2px 3px rgba(0, 0, 0, 0.3) inset;
+    text-decoration: none;
+    text-shadow: 0px 0px 0px transparent;
     color: #fff;
 }
 input[type="reset"],
-input.btn-red {
+input.btn-red,
+*.btn-red {
     /*border-color: #660f0f;*/
     /*background-color: #805959;*/
 }
 input[type="reset"]:hover,
-input.btn-red:hover {
+input.btn-red:hover,
+*.btn-red:hover {
     border-color: #661e0f;
     background-color: #992d17;
     box-shadow:
         1px 1px 2px rgba(255, 255, 255, 0.25) inset
         ,-2px -2px 3px rgba(0, 0, 0, 0.3) inset;
+    text-decoration: none;
+    text-shadow: 0px 0px 0px transparent;
     color: #fff;
 }
 input[type="button"]:active,
@@ -130,7 +144,10 @@ input[type="submit"]:active,
 input[type="reset"]:active,
 input.btn-blue:active,
 input.btn-green:active,
-input.btn-red:active {
+input.btn-red:active,
+*.btn-blue:active,
+*.btn-green:active,
+*.btn-red:active {
     box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3) inset;
 }
 input[disabled="disabled"],

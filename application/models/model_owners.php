@@ -77,6 +77,10 @@ class model_owners {
             'q'=>"SELECT * FROM imts_ownership AS ownshp 
                 LEFT JOIN imts_items AS items
                     ON ownshp.ownership_item = items.item_id
+                LEFT JOIN imts_items_type AS iType
+                    ON items.item_type = iType.item_type_id
+                LEFT JOIN imts_items_state = iState
+                    ON items.item_state = iState.item_state_id
                 WHERE
                     ownshp.ownership_owner = ?
                     AND ownshp.ownership_owner_type = ?
