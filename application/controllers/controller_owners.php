@@ -58,8 +58,7 @@ class controller_owners {
             $ownerName = $c_departments->displayDepartmentName($ownerId, false);
         } else $ownerName = 'None';
 
-        echo '<h3>',$ownerName,'</h3>'
-            .'<div class="hr"></div>';
+        echo 'List of items owned by the ',$ownerType,', <b>',$ownerName,'</b><br />';
         $this->displayOwnedItemsSummary($ownerType, $ownerId);
     }
 

@@ -8,6 +8,8 @@ body {
     text-align: center;
 }
 
+
+
 #header {
     display: block;
     padding: 10px 0px;
@@ -41,6 +43,8 @@ body {
     text-shadow: 0px 0px 0px transparent;
 }
 
+
+
 #main-content {
     display: inline-block;
     margin: 10px 15px 30px 15px;
@@ -50,6 +54,24 @@ body {
     box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.35);
     text-align: left;
 }
+
+
+
+#footer {
+    display: block;
+    padding: 10px 0px;
+    text-align: center;
+}
+#footer #copyright {
+    display: inline-block;
+    padding: 10px 18px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+    text-align: left;
+    font-size: 0.75em;
+}
+
+
 
 a {
     text-decoration: none;
@@ -64,5 +86,5 @@ div.hr {
     width: 100%;
     height: 2px;
     margin: 5px 0px;
-    background: #111;
+    background: #b3b3b3;
 }

@@ -126,3 +126,5 @@ $c_pages = new controller_pages();
 $c_pages->displayBreadcrumb();
 $c_pages->displaynavigation();
 ?>
+
+<div class="hr"></div><br />

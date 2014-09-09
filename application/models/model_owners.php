@@ -90,7 +90,6 @@ class model_owners {
                     ,ownshp.ownership_date_released DESC
                     ,items.item_type ASC
                     ,items.item_state ASC
-                    ,items.item_component_of ASC
                     ,items.item_name ASC
                     ,items.item_serial_no ASC
                     ,items.item_model_no ASC"

@@ -184,12 +184,13 @@ class view_owners {
         foreach ($datas as $d) {
             if ($d['item_component_of'] == '0')
                 $items[$d['item_id']] = $d;
-            else
+            else {
                 $items[$d['item_component_of']]['components'][$d['item_id']] = $d;
+            }
         }
 
         $itemCount = 1;
-        $output = '<span id="total-no-of-items">'
+        $output = '<span style="'; $output.=$printable ? 'font-size: 8pt;' : 'font-size: 0.85em;'; $output.='">'
                 .'Total no. of items: '.count($items).'<br />'
                 .'Total no. of items including components: '.count($datas)
             .'</span>'
@@ -244,7 +245,7 @@ class view_owners {
         }
         $output .= '</table><div class="hr"></div>';
         $output .= !$printable
-            ? '<a href="'.URL_BASE.'track/owner/'.strtolower($datas[0]['ownership_owner_type']).'_printable/'.$datas[0]['ownership_owner'].'/" target="_blank"><input type="button" value="Printable Version" /></a>'
+            ? '<a href="'.URL_BASE.'track/owner/'.strtolower($datas[0]['ownership_owner_type']).'_printable/'.$datas[0]['ownership_owner'].'/" target="_blank"><input type="button" value="Generate PDF" /></a>'
             : '';
         return $output;
     }
@@ -260,36 +261,7 @@ class view_owners {
 
         $fx = new myFunctions();
 
-        $content = '<style type="text/css">'
-            ."
-                table {
-                    width: 100%;
-                    border-collapse: collapse;
-                }
-                table th,
-                table td {
-                    padding: 4px 5px;
-                    border: 1px solid #333;
-                    font-size: 8pt;
-                }
-                table th {
-                    text-align: center;
-                }
-
-                div.hr {
-                    display: block;
-                    width: 100%;
-                    height: 1px;
-                    margin: 4px 0px;
-                    background: #333;
-                }
-
-                #total-no-of-items {
-                    font-size: 8pt;
-                }
-            "
-            .'</style>'
-            .'<page pageset="new" orientation="portrait" format="A4" backcolor="#fff" backleft="5mm" backright="5mm" backtop="10mm" backbottom="10mm" footer="">'
+        $content = '<page pageset="new" orientation="portrait" format="A4" backcolor="#fff" backleft="5mm" backright="5mm" backtop="10mm" backbottom="10mm" footer="">'
             .$fx->pdfHeader();
 
         $ownerType = $datas[0]['ownership_owner_type'];
@@ -303,8 +275,7 @@ class view_owners {
             $ownerName = 'Unknown Owner';
         }
 
-        $content .= 'This is a list of items owned by the '.$ownerType.', <b>'.$ownerName.'</b>'
-            .'<div class="hr"></div>'
+        $content .= 'This is a list of items owned by the '.$ownerType.', <b>'.$ownerName.'</b><br />'
             .$this->renderOwnedItemsSummary($datas, true)
             .$fx->pdfFooter()
             .'</page>';
