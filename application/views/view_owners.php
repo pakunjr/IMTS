@@ -9,7 +9,7 @@ class view_owners {
             .$f->text(array('id'=>'search-keyword', 'label'=>'Search', 'value'=>$keyword))
             .$f->submit(array('value'=>'Search'))
             .$f->closeForm()
-            .'<hr />';
+            .'<div class="hr"></div>';
         return $output;
     }
     
@@ -48,7 +48,7 @@ class view_owners {
                             .'</tr>';
                     }
                     $output .= '</table>'
-                        .'<hr />';
+                        .'<div class="hr"></div>';
                     $output .= !in_array($accessLevel, array('Viewer'))
                         ? '<a href="'.URL_BASE.'persons/create_person/" target="_blank"><input class="btn-green" type="button" value="Add a Person" /></a>'
                         : '';
@@ -76,7 +76,7 @@ class view_owners {
                             .'</tr>';
                     }
                     $output .= '</table>'
-                        .'<hr />';
+                        .'<div class="hr"></div>';
                     $output .= !in_array($accessLevel, array('Viewer'))
                         ? '<a href="'.URL_BASE.'departments/create_department/" target="_blank"><input type="button" value="Add a Department" /></a>'
                         : '';
@@ -174,7 +174,7 @@ class view_owners {
 
 
 
-    public function renderOwnedItemsSummary ($datas) {
+    public function renderOwnedItemsSummary ($datas, $printable=false) {
         if ($datas == null) return 'There are no items.';
 
         $fx = new myFunctions();
@@ -189,16 +189,15 @@ class view_owners {
         }
 
         $itemCount = 1;
-        $output = 'Total no. of items: '.count($items).'<hr />'
+        $output = 'Total no. of items: '.count($items).'<div class="hr"></div>'
             .'<table><tr>'
             .'<th>No.</th>'
             .'<th>Name</th>'
-            .'<th>Type</th>'
             .'<th>State</th>'
             .'<th>Date Owned</th>'
             .'<th>Date Released</th>'
             .'<th>Components</th>';
-        $output .= isset($_SESSION['user']) && !in_array($aLevel, array('Viewer')) ? '<th>Actions</th>' : '';
+        $output .= isset($_SESSION['user']) && !in_array($aLevel, array('Viewer')) && !$printable ? '<th>Actions</th>' : '';
         $output .= '</tr>';
         foreach ($items as $i) {
             $btnUpdate = !in_array($aLevel, array('View')) ? '<a href="'.URL_BASE.'inventory/update_item/'.$i['item_id'].'/"><input class="btn-green" type="button" value="Update Item" /></a>' : '';
@@ -206,101 +205,96 @@ class view_owners {
             $actionButtons = $btnUpdate.$btnArchive;
             $actionButtons = $i['item_archive_state'] == '0' ? $actionButtons : 'This item is already archived.';
 
+            $itemState = $i['item_archive_state'] == '1' ? 'Archived' : $i['item_state_label'];
+
             $output .= '<tr class="';
                 $output .= isset($_SESSION['user']) ? 'data' : '';
                 $output .= '" '
                 .'data-url="'.URL_BASE.'inventory/read_item/'.$i['item_id'].'/">'
-                .'<td>'.$itemCount.'</td>'
-                .'<td>'
+                .'<td'; $output.=$printable ? ' style="width: 0.35%;"' : ''; $output.='>'.$itemCount.'</td>'
+                .'<td'; $output.=$printable ? ' style="width: 31.8%;"' : ''; $output.='>'
                     .'<b>'.$i['item_name'].'</b><br />'
                     .'Serial No.: '.$i['item_serial_no'].'<br />'
                     .'Model No.: '.$i['item_model_no']
                 .'</td>'
-                .'<td>'.$i['item_type_label'].'</td>'
-                .'<td>'.$i['item_state_label'].'</td>'
-                .'<td>'.$fx->dateToWords($i['ownership_date_owned']).'</td>'
-                .'<td>'.$fx->dateToWords($i['ownership_date_released']).'</td>'
-                .'<td>';
+                .'<td'; $output.=$printable ? ' style="width: 8%;"' : ''; $output.='>'.$itemState.'</td>'
+                .'<td'; $output.=$printable ? ' style="width: 10%;"' : ''; $output.='>'.$fx->dateToWords($i['ownership_date_owned']).'</td>'
+                .'<td'; $output.=$printable ? ' style="width: 10%;"' : ''; $output.='>'.$fx->dateToWords($i['ownership_date_released']).'</td>'
+                .'<td'; $output.=$printable ? ' style="width: 31.8%;"' : ''; $output.='>';
                 if (isset($i['components'])
                     && is_array($i['components'])) {
                     foreach ($i['components'] as $c) {
                         $itemName = '<b>'.$c['item_name'].'</b><br />'
                             .'Serial No.: '.$c['item_serial_no'].'<br />'
                             .'Model No.: '.$c['item_model_no'];
-                        $output .= isset($_SESSION['user'])
+                        $output .= isset($_SESSION['user']) && !$printable
                             ? '<a class="btn-blue" href="'.URL_BASE.'inventory/read_item/'.$c['item_id'].'/">'.$itemName.'</a><br />'
                             : '<br />'.$itemName.'<br />';
                     }
                 } else $output .= 'This item do not have any components.';
             $output .= '</td>';
-            $output .= isset($_SESSION['user']) && !in_array($aLevel, array('Viewer')) ? '<td>'.$actionButtons.'</td>' : '';
+            $output .= isset($_SESSION['user']) && !in_array($aLevel, array('Viewer')) && !$printable ? '<td>'.$actionButtons.'</td>' : '';
             $output .= '</tr>';
 
             $itemCount++;
         }
-        $output .= '</table><hr />'
-            .'<a href="'.URL_BASE.'track/owner/'.strtolower($datas[0]['ownership_owner_type']).'_printable/'.$datas[0]['ownership_owner'].'/" target="_blank"><input type="button" value="Printable Version" /></a>';
+        $output .= '</table><div class="hr"></div>';
+        $output .= !$printable
+            ? '<a href="'.URL_BASE.'track/owner/'.strtolower($datas[0]['ownership_owner_type']).'_printable/'.$datas[0]['ownership_owner'].'/" target="_blank"><input type="button" value="Printable Version" /></a>'
+            : '';
         return $output;
     }
 
 
 
     public function renderPdfOwnedItems ($datas) {
-        if ($datas == null) return '<page>'
-            .'There are no items to display.'
-            .'</page>';
+        if ($datas == null)
+            return '<style type="text/css"></style>'
+                .'<page backcolor="#fff" backleft="5mm" backright="5mm" backtop="10mm" backbottom="10mm">'
+                .'There are no items to display.'
+                .'</page>';
 
         $fx = new myFunctions();
         $loggedUser = isset($_SESSION['user']) ? '<b>'.$_SESSION['user']['username'].'</b> :: <b>'.$_SESSION['user']['name'].'</b>' : 'an <b>Anonymous Person</b>';
 
-        $content = '<page>'
-            ."<style>
-                @page {
-                    display: block;
-                    width: 8.5in;
-
-                    @frame header {
-                        -pdf-frame-content: header-content;
-                    }
-
-                    @frame footer {
-                        -pdf-frame-content: footer-content;
-                    }
-                }
-
-                #footer-content {
-                    text-align: center;
-                    font-size: 7.5pt;
-                    line-height: 9.5pt;
+        $content = '<style type="text/css">'
+            ."
+                h1,
+                h2,
+                h3,
+                h4,
+                h5 {
+                    margin: 3px 0px;
                 }
 
                 table {
                     border-collapse: collapse;
                 }
-
                 table th,
                 table td {
-                    padding: 5px 8px;
-                    border: 1px solid #ccc;
+                    padding: 3px 8px 5px 8px;
+                    border: 1px solid #111;
+                    font-size: 8pt;
                 }
-            </style>"
-            .'<div id="header-content">'
-            .'<h2>Inventory Monitoring and Tracking System</h2>'
-            .'</div>';
+
+                div.hr {
+                    display: block;
+                    width: 100%;
+                    height: 1px;
+                    margin: 4px 0px;
+                    background: #111;
+                }
+            "
+            .'</style>'
+            .'<page backcolor="#fff" backleft="5mm" backright="5mm" backtop="10mm" backbottom="10mm">';
         if ($datas[0]['ownership_owner_type'] == 'Person') {
             $c_persons = new controller_persons();
-            $content .= '<h3>'.$c_persons->displayPersonName($datas[0]['ownership_owner'], false).'</h3><hr />';
+            $content .= '<h3>'.$c_persons->displayPersonName($datas[0]['ownership_owner'], false).'</h3><div class="hr"></div>';
         } else {
             $c_departments = new controller_departments();
-            $content .= '<h3>'.$c_departments->displayDepartmentName($datas[0]['ownership_owner'], false).'</h3><hr />';
+            $content .= '<h3>'.$c_departments->displayDepartmentName($datas[0]['ownership_owner'], false).'</h3><div class="hr"></div>';
         }
-        $content .= '<span style="font-size: 8.5pt;">'.$this->renderOwnedItemsSummary($datas).'</span>'
-            .'<br /><div id="footer-content">'
-            .'This document is generated through the Inventory Monitoring and Tracking System.<br />'
-            .'Date of Generation: '.$fx->dateToWords(date('Y-m-d')).' @ '.date('H:i:s').'<br />'
-            .'Generated by '.$loggedUser.'<br />'
-            .'Lorma Colleges &copy; 2014'
-            .'</div>'
+        $content .= $this->renderOwnedItemsSummary($datas, true)
             .'</page>';
         return $content;
     }

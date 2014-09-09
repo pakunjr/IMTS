@@ -58,3 +58,11 @@ a {
 a:hover {
     text-decoration: underline;
 }
+
+div.hr {
+    display: block;
+    width: 100%;
+    height: 2px;
+    margin: 4px 0px;
+    background: #111;
+}

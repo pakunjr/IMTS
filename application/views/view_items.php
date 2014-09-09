@@ -38,9 +38,12 @@ class view_items {
             $cancelBtn = '<a href="'.URL_BASE.'inventory/read_item/'.$i['item']['item_component_of'].'/"><input class="btn-red" type="button" value="Cancel" /></a>';
         }
 
-        $output = $itemName.$f->openForm(array('id'=>'form-item', 'class'=>'main-form', 'method'=>'post', 'action'=>$actionLink, 'enctype'=>'multipart/form-data'))
+        $output = $itemName
+            .'<div class="hr"></div>'
+            .$f->openForm(array('id'=>'form-item', 'class'=>'main-form', 'method'=>'post', 'action'=>$actionLink, 'enctype'=>'multipart/form-data'))
             .$this->renderFormItem($i['item'])
             .$this->renderFormOwner($i['owner'])
+            .'<div class="hr"></div>'
             .$submitBtn.$cancelBtn
             .$f->closeForm();
         return $output;
@@ -154,11 +157,11 @@ class view_items {
             ? '<a href="'.URL_BASE.'inventory/archive_item/'.$i['item']['item_id'].'/"><input data-item-name="'.$i['item']['item_name'].' (S/N: '.$i['item']['item_serial_no'].' -- M/N: '.$i['item']['item_model_no'].')" class="btn-red" type="button" value="Archive Item" /></a>'
             : '';
         $actionButtons = $i['item']['item_archive_state'] == '0'
-            ? '<hr /><a href="'.URL_BASE.'inventory/update_item/'.$i['item']['item_id'].'/"><input class="btn-green" type="button" value="Update Informations" /></a>'
+            ? '<div class="hr"></div><a href="'.URL_BASE.'inventory/update_item/'.$i['item']['item_id'].'/"><input class="btn-green" type="button" value="Update Informations" /></a>'
                 .$btnAddComponent
                 .$btnNiboti
                 .$btnArchive
-            : '<hr />This item has been archived.';
+            : '<div class="hr"></div>This item has been archived.';
 
         $output = '<h3>'.$it['item_name'].'<br />'
             .'<small><span style="color: #03f;">Serial</span>: '.$it['item_serial_no'].'</small><br />'
@@ -364,7 +367,7 @@ class view_items {
     public function renderSearchForm ($keyword) {
         $f = new form(array('auto_line_break'=>false, 'auto_label'=>true));
 
-        $output = $f->openForm(array('method'=>'post', 'action'=>URL_BASE.'inventory/search_item/', 'enctype'=>'multipart/form-data')).$f->text(array('id'=>'search-keyword', 'label'=>'Search', 'value'=>$keyword)).$f->submit(array('value'=>'Search')).$f->closeForm().'<hr />';
+        $output = $f->openForm(array('method'=>'post', 'action'=>URL_BASE.'inventory/search_item/', 'enctype'=>'multipart/form-data')).$f->text(array('id'=>'search-keyword', 'label'=>'Search', 'value'=>$keyword)).$f->submit(array('value'=>'Search')).$f->closeForm().'<div class="hr"></div>';
         return $output;
     }
 
@@ -434,12 +437,12 @@ class view_items {
                 $output .= '</tr>';
             }
             $output .= '</table>'
-                .'<hr />';
+                .'<div class="hr"></div>';
             $output .= !in_array($accessLevel, array('Viewer'))
                 ? '<a href="'.URL_BASE.'inventory/create_item/" target="_blank"><input class="btn-green" type="button" value="Add an Item" /></a>'
                 : '';
         } else {
-            $output = 'There are no items matching your keywords.<hr />';
+            $output = 'There are no items matching your keywords.<div class="hr"></div>';
             $output .= !in_array($accessLevel, array('Viewer'))
                 ? '<a href="'.URL_BASE.'inventory/create_item/" target="_blank"><input class="btn-green" type="button" value="Add an Item" /></a>'
                 : '';

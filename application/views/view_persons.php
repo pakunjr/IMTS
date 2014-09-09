@@ -29,7 +29,9 @@ class view_persons {
             : '';
         $addEmploymentButton = in_array($accessLevel, array('Administrator', 'Admin', 'Supervisor')) ? $addEmploymentButton : '';
 
-        $output = $personName.$f->openForm(array('id'=>'', 'class'=>'main-form', 'method'=>'post', 'action'=>$actionLink, 'enctype'=>'multipart/form-data'))
+        $output = $personName
+            .'<div class="hr"></div>'
+            .$f->openForm(array('id'=>'', 'class'=>'main-form', 'method'=>'post', 'action'=>$actionLink, 'enctype'=>'multipart/form-data'))
             .$f->hidden(array('id'=>'person-id', 'value'=>$d != null ? $d['person_id'] : '0'))
 
             .$f->openFieldset(array('class'=>'column', 'legend'=>'Biodata'))
@@ -59,6 +61,7 @@ class view_persons {
 
             .$employmentFieldset
 
+            .'<div class="hr"></div>'
             .'<div>'
             .$f->submit(array('value'=>$d != null ? 'Update Person' : 'Save Person', 'auto_line_break'=>false))
             .$cancelButton
@@ -72,14 +75,14 @@ class view_persons {
 
     public function renderSearchForm ($keyword) {
         $f = new form(array('auto_line_break'=>false, 'auto_label'=>true));
-        $output = $f->openForm(array('id'=>'', 'method'=>'post', 'action'=>URL_BASE.'persons/search_person/', 'enctype'=>'multipart/form-data')).$f->text(array('id'=>'search-keyword', 'label'=>'Search', 'value'=>$keyword)).$f->submit(array('value'=>'Search')).$f->closeForm().'<hr />';
+        $output = $f->openForm(array('id'=>'', 'method'=>'post', 'action'=>URL_BASE.'persons/search_person/', 'enctype'=>'multipart/form-data')).$f->text(array('id'=>'search-keyword', 'label'=>'Search', 'value'=>$keyword)).$f->submit(array('value'=>'Search')).$f->closeForm().'<div class="hr"></div>';
         return $output;
     }
 
 
 
     public function renderSearchResults ($datas) {
-        if ($datas == null) return 'There are no person/s that matched your keyword.<hr /><a href="'.URL_BASE.'persons/create_person/" target="_blank"><input class="btn-green" type="button" value="Add a Person" /></a>';
+        if ($datas == null) return 'There are no person/s that matched your keyword.<div class="hr"></div><a href="'.URL_BASE.'persons/create_person/" target="_blank"><input class="btn-green" type="button" value="Add a Person" /></a>';
 
         $fx = new myFunctions();
         $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
@@ -124,7 +127,7 @@ class view_persons {
             $output .= '</tr>';
         }
         $output .= '</table>'
-            .'<hr />';
+            .'<div class="hr"></div>';
         $output .= !in_array($accessLevel, array('Viewer'))
             ? '<a href="'.URL_BASE.'persons/create_person/" target="_blank"><input class="btn-green" type="button" value="Add a Person" /></a>'
             : '';
@@ -160,7 +163,7 @@ class view_persons {
 
         $personGender = $pd['person_gender'] == 'm' ? 'Male' : 'Female';
         $personIsEmployee = $pd['person_is_employee'] ? 'Yes' : 'No';
-        $output = $personName.'<hr />'
+        $output = $personName.'<div class="hr"></div>'
             .'<div class="accordion-title">Person Information</div><div class="accordion-content accordion-content-default">'
             .'<table>'
             .'<tr>'
@@ -207,7 +210,7 @@ class view_persons {
 
             .'<div class="accordion-title">Accounts on the System</div><div class="accordion-content">'.$c_accounts->displayPersonAccounts($pd['person_id'], false).'</div>'
 
-            .'<hr />';
+            .'<div class="hr"></div>';
         $output .= !in_array($accessLevel, array('Viewer'))
             ? '<a href="'.URL_BASE.'persons/update_person/'.$pd['person_id'].'/"><input class="btn-green" type="button" value="Update Person" /></a>'
             : '';

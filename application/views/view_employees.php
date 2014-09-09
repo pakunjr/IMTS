@@ -21,7 +21,9 @@ class view_employees {
             ? '<a href="'.URL_BASE.'employees/end_employment/'.$d['employee_id'].'/">'.$f->button(array('class'=>'btn-red', 'value'=>'End Employment')).'</a>'
             : '';
 
-        $output = $employmentName.$f->openForm(array('id'=>'', 'class'=>'main-form', 'action'=>$actionLink, 'method'=>'post', 'enctype'=>'multipart/form-data'))
+        $output = $employmentName
+            .'<div class="hr"></div>'
+            .$f->openForm(array('id'=>'', 'class'=>'main-form', 'action'=>$actionLink, 'method'=>'post', 'enctype'=>'multipart/form-data'))
 
             .$f->hidden(array('id'=>'employee-id', 'value'=>$d != null ? $d['employee_id'] : '0'))
             .$f->hidden(array('id'=>'employee-person', 'value'=>$personId))
@@ -42,6 +44,7 @@ class view_employees {
             .'</span>'
             .$f->closeFieldset()
 
+            .'<div class="hr"></div>'
             .$f->submit(array('value'=>$d != null ? 'Update Employment' : 'Save Employment', 'auto_line_break'=>false))
             .'<a href="'.URL_BASE.'persons/read_person/'.$personId.'/">'.$f->button(array('auto_line_break'=>false, 'value'=>'Cancel')).'</a>'
             .$endEmploymentButton
@@ -130,7 +133,7 @@ class view_employees {
 
 
     public function renderSearchResults ($datas) {
-        if ($datas == null) return 'There are no employee matching your keyword.<hr /><a href="'.URL_BASE.'persons/search_person/" target="_blank"><input class="btn-green" type="button" value="Search a Person" /></a>';
+        if ($datas == null) return 'There are no employee matching your keyword.<div class="hr"></div><a href="'.URL_BASE.'persons/search_person/" target="_blank"><input class="btn-green" type="button" value="Search a Person" /></a>';
 
         $fx = new myFunctions();
 
@@ -156,7 +159,7 @@ class view_employees {
                 .'</tr>';
         }
         $output .= '</table>'
-            .'<hr /><a href="'.URL_BASE.'persons/search_person/" target="_blank"><input class="btn-green" type="button" value="Search a Person" /></a>';
+            .'<div class="hr"></div><a href="'.URL_BASE.'persons/search_person/" target="_blank"><input class="btn-green" type="button" value="Search a Person" /></a>';
         return $output;
     }
 
@@ -167,7 +170,7 @@ class view_employees {
         $output = $f->openForm(array('id'=>'', 'method'=>'post', 'action'=>URL_BASE.'employees/search_job/', 'enctype'=>'mutlipart/form-data'))
             .$f->text(array('id'=>'search-keyword', 'label'=>'Search', 'value'=>$keyword))
             .$f->submit(array('value'=>'Search'))
-            .$f->closeForm().'<hr />';
+            .$f->closeForm().'<div class="hr"></div>';
         return $output;
     }
 
@@ -177,7 +180,7 @@ class view_employees {
         $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
         
         if ($datas == null) {
-            $output = 'Your keyword did not match any Job name.<hr />';
+            $output = 'Your keyword did not match any Job name.<div class="hr"></div>';
             $output .= in_array($accessLevel, array('Administrator', 'Admin', 'Supervisor'))
                 ? '<a href="'.URL_BASE.'employees/create_job/" target="_blank"><input class="btn-green" type="button" value="Add a Job" /></a>'
                 : '';
@@ -207,7 +210,7 @@ class view_employees {
             $output .= '</tr>';
         }
         $output .= '</table>'
-            .'<hr />';
+            .'<div class="hr"></div>';
         $output .= in_array($accessLevel, array('Administrator', 'Admin', 'Supervisor'))
             ? '<a href="'.URL_BASE.'employees/create_job/" target="_blank"><input class="btn-green" type="button" value="Add a Job" /></a>'
             : '';
@@ -224,7 +227,9 @@ class view_employees {
         $d = $datas;
         $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
 
-        $output = '<table><tr>'
+        $output = '<h3>'.$d['employee_job_label'].'</h3>'
+            .'<div class="hr"></div>'
+            .'<table><tr>'
             .'<th>Label</th>'
             .'<th>Description</th>'
             .'</tr>'
@@ -233,7 +238,7 @@ class view_employees {
             .'<td>'.nl2br($d['employee_job_description']).'</td>'
             .'</tr>'
             .'</table>'
-            .'<hr />';
+            .'<div class="hr"></div>';
         $output .= in_array($accessLevel, array('Administrator', 'Admin', 'Supervisor'))
                 ? '<a href="'.URL_BASE.'employees/update_job/'.$d['employee_job_id'].'/"><input class="btn-green" type="button" value="Update Job" /></a>'
                 : '';

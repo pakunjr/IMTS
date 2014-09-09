@@ -63,7 +63,7 @@ class view_departments {
             ? '<a href="'.URL_BASE.'persons/read_person/'.$d['department_head'].'/"><input type="button" value="'.$headName.'" /></a>'
             : $headName;
 
-        $output = $ownerName.'<hr />'
+        $output = $ownerName.'<div class="hr"></div>'
             .'<div class="accordion-title">Department Information</div><div class="accordion-content accordion-content-default">'
             .'<table>'
             .'<tr>'
@@ -87,7 +87,7 @@ class view_departments {
 
             .'<div class="accordion-title">Ex-Members</div><div class="accordion-content">'.$c_departments->displayDepartmentExMembers($d['department_id'], false).'</div>'
 
-            .'<hr />';
+            .'<div class="hr"></div>';
         $output .= !in_array($accessLevel, array('Viewer'))
                 ? '<a href="'.URL_BASE.'departments/update_department/'.$d['department_id'].'/"><input class="btn-green" type="button" value="Update Department" /></a>'
                 : '';
@@ -172,14 +172,14 @@ class view_departments {
     public function renderSearchForm ($keyword) {
         $f = new form(array('auto_line_break'=>false, 'auto_label'=>true));
 
-        $output = $f->openForm(array('id'=>'', 'method'=>'post', 'action'=>URL_BASE.'departments/search_department/')).$f->text(array('id'=>'search-keyword', 'label'=>'Search', 'value'=>$keyword)).$f->submit(array('value'=>'Search')).$f->closeForm().'<hr />';
+        $output = $f->openForm(array('id'=>'', 'method'=>'post', 'action'=>URL_BASE.'departments/search_department/')).$f->text(array('id'=>'search-keyword', 'label'=>'Search', 'value'=>$keyword)).$f->submit(array('value'=>'Search')).$f->closeForm().'<div class="hr"></div>';
         return $output;
     }
 
 
 
     public function renderSearchResults ($datas) {
-        if ($datas == null) return 'Your keyword did not match any department name.<hr /><a href="'.URL_BASE.'departments/create_department/" target="_blank"><input class="btn-green" type="button" value="Add a Department" /></a>';
+        if ($datas == null) return 'Your keyword did not match any department name.<div class="hr"></div><a href="'.URL_BASE.'departments/create_department/" target="_blank"><input class="btn-green" type="button" value="Add a Department" /></a>';
 
         $c_persons = new controller_persons();
         $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
@@ -214,7 +214,7 @@ class view_departments {
             $output .= '</tr>';
         }
         $output .= '</table>'
-            .'<hr />';
+            .'<div class="hr"></div>';
         $output .= !in_array($accessLevel, array('Viewer'))
             ? '<a href="'.URL_BASE.'departments/create_department/" target="_blank"><input class="btn-green" type="button" value="Add a Department" /></a>'
             : '';
