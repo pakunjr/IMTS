@@ -58,7 +58,8 @@ class controller_owners {
             $ownerName = $c_departments->displayDepartmentName($ownerId, false);
         } else $ownerName = 'None';
 
-        echo '<h3>',$ownerName,'</h3><hr />';
+        echo '<h3>',$ownerName,'</h3>'
+            .'<div class="hr"></div>';
         $this->displayOwnedItemsSummary($ownerType, $ownerId);
     }
 
@@ -94,14 +95,21 @@ class controller_owners {
     public function pdfOwnedItems ($ownerType, $ownerId) {
         $ownerships = $this->model->readOwnedItems($ownerType, $ownerId);
         $output = $this->view->renderPdfOwnedItems($ownerships);
-        $file = DIR_PLUGINS.DS.'html2pdf'.DS.'html2pdf.class.php';
-        if (file_exists($file)) {
-            ob_start();
-            require_once($file);
-            $html2pdf = new HTML2PDF('P', 'A4', 'en');
-            $html2pdf->WriteHTML($output);
-            $html2pdf->Output('tracked-item.pdf');
+
+        if (strtolower($ownerType) == 'person') {
+            $c_persons = new controller_persons();
+            $ownerName = $c_persons->displayPersonName($ownerId, false);
+        } else if (strtolower($ownerType) == 'department') {
+            $c_departments = new controller_departments();
+            $ownerName = $c_departments->displayDepartmentName($ownerId, false);
+        } else {
+            $ownerName = 'Unknown Owner';
         }
+
+        $fx = new myFunctions();
+        $fx->pdfCreate(array(
+            'filename'=>'Items of '.$ownerName
+            ,'content'=>$output));
     }
 
 }

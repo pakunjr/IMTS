@@ -8,7 +8,7 @@ $(document).ready(function () {
 
             if ($this.hasClass('main-form')) {
                 $btnSubmit.on('click', function () {
-                    myConfirm('Do you want to save / update the information into / from the system?', function () {
+                    myConfirm('Submit this form?<div class="hr"></div><span style="color: #03f;">Note: Please make sure that all information you have entered is correct.</span>', function () {
                         $this.submit();
                     });
                     return false;

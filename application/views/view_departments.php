@@ -21,7 +21,9 @@ class view_departments {
             ? '<a href="'.URL_BASE.'departments/read_department/'.$d['department_id'].'/'.'"><input type="button" value="Cancel" /></a>'
             : '';
 
-        $output = $departmentName.$f->openForm(array('id'=>'', 'class'=>'main-form', 'action'=>$actionLink, 'method'=>'post', 'enctype'=>'multipart/form-data'))
+        $output = $departmentName
+            .'<div class="hr"></div>'
+            .$f->openForm(array('id'=>'', 'class'=>'main-form', 'action'=>$actionLink, 'method'=>'post', 'enctype'=>'multipart/form-data'))
             .$f->hidden(array('id'=>'department-id', 'value'=>$d != null ? $d['department_id'] : '0'))
 
             .$f->openFieldset(array('legend'=>'Department Information'))
@@ -37,6 +39,7 @@ class view_departments {
             .'</span>'
             .$f->closeFieldset()
 
+            .'<div class="hr"></div>'
             .$f->submit(array('value'=>$d != null ? 'Update Department' : 'Save Department', 'auto_line_break'=>false))
             .$cancelButton
             .$f->closeForm();

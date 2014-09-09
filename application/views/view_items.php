@@ -166,6 +166,7 @@ class view_items {
         $output = '<h3>'.$it['item_name'].'<br />'
             .'<small><span style="color: #03f;">Serial</span>: '.$it['item_serial_no'].'</small><br />'
             .'<small><span style="color: #f00;">Model</span>: '.$it['item_model_no'].'</small></h3>'
+            .'<div class="hr"></div>'
             .'<div class="accordion-title">Item Information</div><div class="accordion-content accordion-content-default">'
             .'<table>'
             .'<tr>'

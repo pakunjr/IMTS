@@ -7,6 +7,7 @@ class view_pages {
         $class = ' class="current-model"';
 
         $classHome = $cModel == 'home' ? $class : '';
+        $classTrack = $cModel == 'track' ? $class : '';
         $classInventory = in_array($cModel, array('inventory', 'inventory_packages')) ? $class : '';
         $classOwners = in_array($cModel, array('persons', 'employees', 'owners', 'departments')) ? $class : '';
         $classAdmin = $cModel == 'admin' ? $class : '';
@@ -49,6 +50,7 @@ class view_pages {
 
             case 'admin':
                 $output = '<ul class="sub-menu">'
+                    .'<li><a href="'.URL_BASE.'admin/phpinfo/">PHP Info</a></li>'
                     .'<li><a href="'.URL_BASE.'admin/log/errors/">Error/s &amp; Exception/s Log</a></li>'
                     .'<li><a href="'.URL_BASE.'admin/log/database_errors/">Database Exceptions and Errors</a></li>'
                     .'</ul>';
@@ -70,7 +72,7 @@ class view_pages {
                     : '';
                 $output .= '<li><a'.$classHome.' href="'.URL_BASE.'">Home</a></li>';
                 $output .= !isset($_SESSION['user'])
-                    ? '<li><a href="'.URL_BASE.'track/owner/">Track</a></li>'
+                    ? '<li><a'.$classTrack.' href="'.URL_BASE.'track/owner/">Track</a></li>'
                     : '';
                 $output .= isset($_SESSION['user'])
                     ? '<li>'.$this->renderNavigation('inventory').'<a'.$classInventory.' href="'.URL_BASE.'inventory/">Inventory</a></li>'

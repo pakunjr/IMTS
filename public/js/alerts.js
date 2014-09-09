@@ -66,7 +66,7 @@ var myPopup = function (type, message, myAction) {
         ,'padding': '10px 15px'
         ,'border-radius': '3px'
         ,'border': '1px solid #333'
-        ,'background': '#fff'
+        ,'background': '#f7f7f7'
         ,'box-shadow': '3px 3px 3px rgba(0, 0, 0, 0.2)'
         ,'text-align': 'center'
     });
@@ -86,6 +86,7 @@ var myPopup = function (type, message, myAction) {
         ,'padding': '10px 13px'
         ,'border-radius': '3px'
         ,'border': '1px solid #ccc'
+        ,'background': '#fff'
         ,'font-size': '0.9em'
         ,'text-align': 'left'
     });

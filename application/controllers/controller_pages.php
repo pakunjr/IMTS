@@ -266,6 +266,12 @@ class controller_pages {
                         }
                         break;
 
+                    case 'phpinfo':
+                        $this->displayHeader();
+                        phpinfo();
+                        $this->displayFooter();
+                        break;
+
                     default:
                         $this->displayHeader();
                         $this->displayErrorPage('underconstruction');

@@ -6,7 +6,7 @@ $(document).ready(function () {
                 ,url = $this.parent('a').attr('href');
                 
             $this.on('click', function () {
-                myConfirm('Do you want to end this employment', function () {
+                myConfirm('Do you want to end this person\'s employment?<div class="hr"></div><span style="color: #f00;">Warning: This action is undoable. You will need an admin access to reverse it\'s effects.</span>', function () {
                     window.location = url;
                 });
                 return false;

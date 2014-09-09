@@ -25,7 +25,7 @@ $(document).ready(function () {
                 ,itemName = $this.attr('data-item-name')
                 ,url = $this.parent('a').attr('href');
             $this.on('click', function () {
-                myConfirm('Do you want to archive this item?<br /><br />Item Name:<br />'+itemName, function () {
+                myConfirm('Do you want to archive this item?<div class="hr"></div><small>Item Name: '+itemName+'</small><br /><br /><span style="color: #f00;">Warning: This action is undoable, you will need an admin access to reverse this action.</span>', function () {
                     window.location = url;
                 });
                 return false;

@@ -5,6 +5,7 @@ $s['SYSTEM_NAME_SHORT'] = 'IMTS';
 $s['SYSTEM_VERSION'] = '1.0';
 $s['SYSTEM_AUTHOR'] = 'PakunJr';
 $s['SYSTEM_TEMPLATE'] = 'default';
+$s['SYSTEM_YEAR_START'] = '2014';
 
 $s['URL_BASE'] = 'http://'.$_SERVER['HTTP_HOST'].'/IMTS/';
 $s['URL_TEMPLATE'] = $s['URL_BASE'].'public/templates/'.$s['SYSTEM_TEMPLATE'].'/';

@@ -189,7 +189,11 @@ class view_owners {
         }
 
         $itemCount = 1;
-        $output = 'Total no. of items: '.count($items).'<div class="hr"></div>'
+        $output = '<span id="total-no-of-items">'
+                .'Total no. of items: '.count($items).'<br />'
+                .'Total no. of items including components: '.count($datas)
+            .'</span>'
+            .'<div class="hr"></div>'
             .'<table><tr>'
             .'<th>No.</th>'
             .'<th>Name</th>'
@@ -201,18 +205,18 @@ class view_owners {
         $output .= '</tr>';
         foreach ($items as $i) {
             $btnUpdate = !in_array($aLevel, array('View')) ? '<a href="'.URL_BASE.'inventory/update_item/'.$i['item_id'].'/"><input class="btn-green" type="button" value="Update Item" /></a>' : '';
-            $btnArchive = in_array($aLevel, array('Administrator', 'Admin', 'Supervisor')) ? '<a href="'.URL_BASE.'inventory/archive_item/'.$i['item_id'].'/"><input class="btn-red" type="button" value="Archive Item" /></a>' : '';
+            $btnArchive = in_array($aLevel, array('Administrator', 'Admin', 'Supervisor')) ? '<a href="'.URL_BASE.'inventory/archive_item/'.$i['item_id'].'/"><input class="btn-red" type="button" value="Archive Item" data-item-name="'.$i['item_name'].' (S/N: '.$i['item_serial_no'].' -- M/N: '.$i['item_model_no'].')" /></a>' : '';
             $actionButtons = $btnUpdate.$btnArchive;
             $actionButtons = $i['item_archive_state'] == '0' ? $actionButtons : 'This item is already archived.';
 
-            $itemState = $i['item_archive_state'] == '1' ? 'Archived' : $i['item_state_label'];
+            $itemState = $i['item_archive_state'] == '1' ? 'Disposed' : $i['item_state_label'];
 
             $output .= '<tr class="';
                 $output .= isset($_SESSION['user']) ? 'data' : '';
                 $output .= '" '
                 .'data-url="'.URL_BASE.'inventory/read_item/'.$i['item_id'].'/">'
                 .'<td'; $output.=$printable ? ' style="width: 0.35%;"' : ''; $output.='>'.$itemCount.'</td>'
-                .'<td'; $output.=$printable ? ' style="width: 31.8%;"' : ''; $output.='>'
+                .'<td'; $output.=$printable ? ' style="width: 33%;"' : ''; $output.='>'
                     .'<b>'.$i['item_name'].'</b><br />'
                     .'Serial No.: '.$i['item_serial_no'].'<br />'
                     .'Model No.: '.$i['item_model_no']
@@ -220,7 +224,7 @@ class view_owners {
                 .'<td'; $output.=$printable ? ' style="width: 8%;"' : ''; $output.='>'.$itemState.'</td>'
                 .'<td'; $output.=$printable ? ' style="width: 10%;"' : ''; $output.='>'.$fx->dateToWords($i['ownership_date_owned']).'</td>'
                 .'<td'; $output.=$printable ? ' style="width: 10%;"' : ''; $output.='>'.$fx->dateToWords($i['ownership_date_released']).'</td>'
-                .'<td'; $output.=$printable ? ' style="width: 31.8%;"' : ''; $output.='>';
+                .'<td'; $output.=$printable ? ' style="width: 33%;"' : ''; $output.='>';
                 if (isset($i['components'])
                     && is_array($i['components'])) {
                     foreach ($i['components'] as $c) {
@@ -255,26 +259,21 @@ class view_owners {
                 .'</page>';
 
         $fx = new myFunctions();
-        $loggedUser = isset($_SESSION['user']) ? '<b>'.$_SESSION['user']['username'].'</b> :: <b>'.$_SESSION['user']['name'].'</b>' : 'an <b>Anonymous Person</b>';
 
         $content = '<style type="text/css">'
             ."
-                h1,
-                h2,
-                h3,
-                h4,
-                h5 {
-                    margin: 3px 0px;
-                }
-
                 table {
+                    width: 100%;
                     border-collapse: collapse;
                 }
                 table th,
                 table td {
-                    padding: 3px 8px 5px 8px;
-                    border: 1px solid #111;
+                    padding: 4px 5px;
+                    border: 1px solid #333;
                     font-size: 8pt;
+                }
+                table th {
+                    text-align: center;
                 }
 
                 div.hr {
@@ -282,19 +281,32 @@ class view_owners {
                     width: 100%;
                     height: 1px;
                     margin: 4px 0px;
-                    background: #111;
+                    background: #333;
+                }
+
+                #total-no-of-items {
+                    font-size: 8pt;
                 }
             "
             .'</style>'
-            .'<page backcolor="#fff" backleft="5mm" backright="5mm" backtop="10mm" backbottom="10mm">';
-        if ($datas[0]['ownership_owner_type'] == 'Person') {
+            .'<page pageset="new" orientation="portrait" format="A4" backcolor="#fff" backleft="5mm" backright="5mm" backtop="10mm" backbottom="10mm" footer="">'
+            .$fx->pdfHeader();
+
+        $ownerType = $datas[0]['ownership_owner_type'];
+        if (strtolower($ownerType) == 'person') {
             $c_persons = new controller_persons();
-            $content .= '<h3>'.$c_persons->displayPersonName($datas[0]['ownership_owner'], false).'</h3><div class="hr"></div>';
-        } else {
+            $ownerName = $c_persons->displayPersonName($datas[0]['ownership_owner'], false);
+        } else if (strtolower($ownerType) == 'department') {
             $c_departments = new controller_departments();
-            $content .= '<h3>'.$c_departments->displayDepartmentName($datas[0]['ownership_owner'], false).'</h3><div class="hr"></div>';
+            $ownerName = $c_departments->displayDepartmentName($datas[0]['ownership_owner'], false);
+        } else {
+            $ownerName = 'Unknown Owner';
         }
-        $content .= $this->renderOwnedItemsSummary($datas, true)
+
+        $content .= 'This is a list of items owned by the '.$ownerType.', <b>'.$ownerName.'</b>'
+            .'<div class="hr"></div>'
+            .$this->renderOwnedItemsSummary($datas, true)
+            .$fx->pdfFooter()
             .'</page>';
         return $content;
     }
