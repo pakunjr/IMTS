@@ -54,50 +54,96 @@ class myFunctions {
         if (file_exists($file)) {
             $filename = isset($options['filename'])
                 ? $options['filename']
-                : 'Unknown';
+                : 'Unknown File';
             $content = isset($options['content'])
-                ? $options['content']
-                : '<style type="text/css"></style><page>'
-                    .$this->pdfHeader()
-                    .'No content has been set.'
-                    .$this->pdfFooter()
-                .'</page>';
+                ? $this->pdfTemplate($options['content'], $filename)
+                : $this->pdfTemplate('Empty PDF file.', $filename);
 
-            ob_start();
-            require_once($file);
-            $html2pdf = new HTML2PDF('P', 'A4', 'en');
-            $html2pdf->pdf->SetAuthor(SYSTEM_AUTHOR);
-            $html2pdf->pdf->SetTitle(SYSTEM_NAME.' '.SYSTEM_VERSION);
-            $html2pdf->pdf->SetSubject('Generated Document by '.SYSTEM_NAME.' '.SYSTEM_VERSION);
-            $html2pdf->pdf->SetKeywords('Inventory, Monitoring, Tracking, System, Items, Owners, Lorma, Colleges, Palmer, PakunJr, Pakun');
-            $html2pdf->pdf->SetDisplayMode('fullpage');
-            $html2pdf->writeHTML($content);
-            $html2pdf->Output($filename.'.pdf');
+            try {
+                ob_start();
+                require_once($file);
+                $html2pdf = new HTML2PDF('P', 'A4', 'en');
+                $html2pdf->pdf->SetAuthor(SYSTEM_AUTHOR);
+                $html2pdf->pdf->SetTitle(SYSTEM_NAME.' '.SYSTEM_VERSION);
+                $html2pdf->pdf->SetSubject('Generated Document by '.SYSTEM_NAME.' '.SYSTEM_VERSION);
+                $html2pdf->pdf->SetKeywords('Inventory, Monitoring, Tracking, System, Items, Owners, Lorma, Colleges, Palmer, PakunJr, Pakun');
+                $html2pdf->pdf->SetDisplayMode('fullpage');
+                $html2pdf->writeHTML($content);
+                $html2pdf->Output($filename.'.pdf');
+            } catch (HTML2PDF_exception $e) {
+                $c_errors = new controller_errors();
+                $c_errors->logError('PDF Generation Failed: '.PHP_EOL.$e);
+                echo 'Can\'t produce PDF file.<br />PDF Error: ',$e;
+            }
         }
     }
 
 
 
-    public function pdfHeader () {
-        $file = DIR_TEMPLATE.DS.'header_printable.php';
-        if (file_exists($file)) {
-            ob_start();
-            require_once($file);
-            $contents = ob_get_clean();
-            return $contents;
-        } else return 'Printable header file is missing.';
-    }
+    public function pdfTemplate ($contents, $title='Unknown Document') {
+        $loggedUser = isset($_SESSION['user']) ? '<b>'.$_SESSION['user']['username'].'</b> :: <b>'.$_SESSION['user']['name'].'</b>' : 'an <b>Anonymous Person</b>';
+        $output = '<style type="text/css">'."
+                <!--
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
+                table th,
+                table td {
+                    margin: 0px;
+                    padding: 4px 5px 4px 8px;
+                    border: 1px solid #333;
+                    font-size: 8pt;
+                    vertical-align: middle;
+                }
+                table th {
+                    text-align: center;
+                }
 
+                div.hr {
+                    display: block;
+                    width: 100%;
+                    height: 2px;
+                    margin: 4px 0px;
+                    background: #4d4d4d;
+                }
+                div.light {
+                    height: 1px;
+                }
+                div.heavy {
+                    height: 3px;
+                }
 
+                .pdf-header,
+                .pdf-footer {
+                    display: block;
+                    font-size: 7.5pt;
+                    font-family: Courier;
+                    color: #4d4d4d;
+                }
+                div.pdf-contents {
+                    font-family: Helvetica;
+                }
+                -->
+            ".'</style>'
 
-    public function pdfFooter () {
-        $file = DIR_TEMPLATE.DS.'footer_printable.php';
-        if (file_exists($file)) {
-            ob_start();
-            require_once($file);
-            $contents = ob_get_clean();
-            return $contents;
-        } else return 'Printable footer file is missing.';
+            .'<page pageset="new" orientation="portrait" format="A4" backcolor="#fff" backleft="0.5in" backright="0.5in" backtop="0.5in" backbottom="1in" footer="">'
+                .'<page_header class="pdf-header">'
+                    .SYSTEM_NAME_SHORT.' - '.SYSTEM_NAME.' '.SYSTEM_VERSION
+                    .'<div class="hr light" style="background: #595959;"></div>'
+                .'</page_header>'
+                .'<page_footer class="pdf-footer">'
+                    .'<div class="hr light" style="background: #595959;"></div>'
+                    .'This document is generated through <b>'.SYSTEM_NAME.' '.SYSTEM_VERSION.'</b><br />'
+                    .'Generated by '.$loggedUser.' on <b>'.date('Y-m-d').'</b> @ <b>'.date('H:i:s').'</b><br />'
+                    .'Lorma Colleges &copy; '.SYSTEM_YEAR_START;
+        $output .= SYSTEM_YEAR_START < date('Y') ? ' - '.date('Y').'<br />' : '<br />';
+        $output .= 'Page <b>[[page_cu]]</b> of <b>[[page_nb]]</b> || '.$title
+                .'</page_footer>'
+
+                .'<div class="pdf-contents">'.$contents.'</div>'
+            .'</page>';
+        return $output;
     }
 
 }

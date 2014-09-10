@@ -33,4 +33,24 @@ $(document).ready(function () {
         });
     }
 
+
+
+    if ($('input[value="Save Item"]').length > 0) {
+        $('input[value="Save Item"]').each(function () {
+            var $this = $(this)
+                ,$parentForm = $this.closest('form')
+                ,$itemNameBox = $parentForm.find('#item-name')
+                ,itemName = $itemNameBox.val();
+
+            if ($.trim(itemName).length < 1) {
+                $parentForm.on('submit', function () {
+                    myAlert('Please provide an item name, thank you.', function () {
+                        $('#item-name').focus();
+                    });
+                    return false;
+                });
+            }
+        });
+    }
+
 });

@@ -37,7 +37,7 @@ class model_errors {
                     ,error_date
                     ,error_time
                     ,error_archived
-                ) VALUES(?,?,?,?)"
+                ) VALUES(?,?,?,?,?)"
             ,'v'=>array(
                 intval($currentLoggedAccount)
                 ,$details

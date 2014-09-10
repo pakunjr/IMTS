@@ -193,14 +193,12 @@ class view_owners {
         $output = '<span style="'; $output.=$printable ? 'font-size: 8pt;' : 'font-size: 0.85em;'; $output.='">'
                 .'Total no. of items: '.count($items).'<br />'
                 .'Total no. of items including components: '.count($datas)
-            .'</span>'
+            .'</span><br />'
             .'<div class="hr"></div>'
             .'<table><tr>'
             .'<th>No.</th>'
             .'<th>Name</th>'
-            .'<th>State</th>'
-            .'<th>Date Owned</th>'
-            .'<th>Date Released</th>'
+            .'<th>Dates<br />Owned - Released</th>'
             .'<th>Components</th>';
         $output .= isset($_SESSION['user']) && !in_array($aLevel, array('Viewer')) && !$printable ? '<th>Actions</th>' : '';
         $output .= '</tr>';
@@ -210,31 +208,39 @@ class view_owners {
             $actionButtons = $btnUpdate.$btnArchive;
             $actionButtons = $i['item_archive_state'] == '0' ? $actionButtons : 'This item is already archived.';
 
-            $itemState = $i['item_archive_state'] == '1' ? 'Disposed' : $i['item_state_label'];
-
             $output .= '<tr class="';
                 $output .= isset($_SESSION['user']) ? 'data' : '';
                 $output .= '" '
                 .'data-url="'.URL_BASE.'inventory/read_item/'.$i['item_id'].'/">'
-                .'<td'; $output.=$printable ? ' style="width: 0.35%;"' : ''; $output.='>'.$itemCount.'</td>'
-                .'<td'; $output.=$printable ? ' style="width: 33%;"' : ''; $output.='>'
+                .'<td>'.$itemCount.'</td>'
+                .'<td>'
                     .'<b>'.$i['item_name'].'</b><br />'
                     .'Serial No.: '.$i['item_serial_no'].'<br />'
                     .'Model No.: '.$i['item_model_no']
+                    .'<br /><br />'
+                    .nl2br($i['item_description'])
                 .'</td>'
-                .'<td'; $output.=$printable ? ' style="width: 8%;"' : ''; $output.='>'.$itemState.'</td>'
-                .'<td'; $output.=$printable ? ' style="width: 10%;"' : ''; $output.='>'.$fx->dateToWords($i['ownership_date_owned']).'</td>'
-                .'<td'; $output.=$printable ? ' style="width: 10%;"' : ''; $output.='>'.$fx->dateToWords($i['ownership_date_released']).'</td>'
-                .'<td'; $output.=$printable ? ' style="width: 33%;"' : ''; $output.='>';
+                .'<td>'
+                    .$fx->dateToWords($i['ownership_date_owned'])
+                    .' - '
+                    .$fx->dateToWords($i['ownership_date_released']).'</td>'
+                .'<td>';
                 if (isset($i['components'])
                     && is_array($i['components'])) {
+                    $componentCount = 1;
                     foreach ($i['components'] as $c) {
                         $itemName = '<b>'.$c['item_name'].'</b><br />'
                             .'Serial No.: '.$c['item_serial_no'].'<br />'
                             .'Model No.: '.$c['item_model_no'];
                         $output .= isset($_SESSION['user']) && !$printable
                             ? '<a class="btn-blue" href="'.URL_BASE.'inventory/read_item/'.$c['item_id'].'/">'.$itemName.'</a><br />'
-                            : '<br />'.$itemName.'<br />';
+                            : $itemName;
+                        $output .= (!isset($_SESSION['user']) 
+                                    && $componentCount != count($i['components']))
+                                || ($printable
+                                    && $componentCount != count($i['components']))
+                                ? '<br /><br />' : '';
+                        $componentCount++;
                     }
                 } else $output .= 'This item do not have any components.';
             $output .= '</td>';
@@ -254,15 +260,9 @@ class view_owners {
 
     public function renderPdfOwnedItems ($datas) {
         if ($datas == null)
-            return '<style type="text/css"></style>'
-                .'<page backcolor="#fff" backleft="5mm" backright="5mm" backtop="10mm" backbottom="10mm">'
-                .'There are no items to display.'
-                .'</page>';
+            return 'There are no items to display.';
 
         $fx = new myFunctions();
-
-        $content = '<page pageset="new" orientation="portrait" format="A4" backcolor="#fff" backleft="5mm" backright="5mm" backtop="10mm" backbottom="10mm" footer="">'
-            .$fx->pdfHeader();
 
         $ownerType = $datas[0]['ownership_owner_type'];
         if (strtolower($ownerType) == 'person') {
@@ -275,10 +275,8 @@ class view_owners {
             $ownerName = 'Unknown Owner';
         }
 
-        $content .= 'This is a list of items owned by the '.$ownerType.', <b>'.$ownerName.'</b><br />'
-            .$this->renderOwnedItemsSummary($datas, true)
-            .$fx->pdfFooter()
-            .'</page>';
+        $content = 'This is a list of items owned by the '.$ownerType.', <b>'.$ownerName.'</b><br />'
+            .$this->renderOwnedItemsSummary($datas, true);
         return $content;
     }
 

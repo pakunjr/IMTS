@@ -86,6 +86,7 @@ if (ENVIRONMENT == 'DEVELOPMENT') {
         'layout.js'
         ,'breadcrumb_timer.js'
         ,'navigation.js'
+        ,'errors.js'
         ,'items.js'
         ,'owners.js'
         ,'accounts.js'
@@ -127,4 +128,4 @@ $c_pages->displayBreadcrumb();
 $c_pages->displaynavigation();
 ?>
 
-<div class="hr"></div><br />
+<div class="hr light"></div><br />
