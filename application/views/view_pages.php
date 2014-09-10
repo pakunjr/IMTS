@@ -64,6 +64,13 @@ class view_pages {
                     .'</ul>';
                 break;
 
+            case 'tracking':
+                $output = '<ul class="sub-menu">'
+                    .'<li><a href="'.URL_BASE.'track/owner/">Owner</a></li>'
+                    .'<li><a href="'.URL_BASE.'track/">Item</a></li>'
+                    .'</ul>';
+                break;
+
             default:
                 $output = '<ul id="main-navigation">';
                 $output .= isset($_SESSION['user'])
@@ -72,7 +79,7 @@ class view_pages {
                     : '';
                 $output .= '<li><a'.$classHome.' href="'.URL_BASE.'">Home</a></li>';
                 $output .= !isset($_SESSION['user'])
-                    ? '<li><a'.$classTrack.' href="'.URL_BASE.'track/owner/">Track</a></li>'
+                    ? '<li>'.$this->renderNavigation('tracking').'<a'.$classTrack.' href="'.URL_BASE.'track/owner/">Track</a></li>'
                     : '';
                 $output .= isset($_SESSION['user'])
                     ? '<li>'.$this->renderNavigation('inventory').'<a'.$classInventory.' href="'.URL_BASE.'inventory/">Inventory</a></li>'
