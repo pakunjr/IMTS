@@ -22,7 +22,7 @@ class view_departments {
             : '';
 
         $output = $departmentName
-            .'<div class="hr"></div>'
+            .'<div class="hr-light"></div>'
             .$f->openForm(array('id'=>'', 'class'=>'main-form', 'action'=>$actionLink, 'method'=>'post', 'enctype'=>'multipart/form-data'))
             .$f->hidden(array('id'=>'department-id', 'value'=>$d != null ? $d['department_id'] : '0'))
 
@@ -39,7 +39,7 @@ class view_departments {
             .'</span>'
             .$f->closeFieldset()
 
-            .'<div class="hr"></div>'
+            .'<div class="hr-light"></div>'
             .$f->submit(array('value'=>$d != null ? 'Update Department' : 'Save Department', 'auto_line_break'=>false))
             .$cancelButton
             .$f->closeForm();
@@ -66,7 +66,7 @@ class view_departments {
             ? '<a href="'.URL_BASE.'persons/read_person/'.$d['department_head'].'/"><input type="button" value="'.$headName.'" /></a>'
             : $headName;
 
-        $output = $ownerName.'<div class="hr"></div>'
+        $output = $ownerName.'<div class="hr-light"></div>'
             .'<div class="accordion-title">Department Information</div><div class="accordion-content accordion-content-default">'
             .'<table>'
             .'<tr>'
@@ -90,7 +90,7 @@ class view_departments {
 
             .'<div class="accordion-title">Ex-Members</div><div class="accordion-content">'.$c_departments->displayDepartmentExMembers($d['department_id'], false).'</div>'
 
-            .'<div class="hr"></div>';
+            .'<div class="hr-light"></div>';
         $output .= !in_array($accessLevel, array('Viewer'))
                 ? '<a href="'.URL_BASE.'departments/update_department/'.$d['department_id'].'/"><input class="btn-green" type="button" value="Update Department" /></a>'
                 : '';
@@ -175,14 +175,14 @@ class view_departments {
     public function renderSearchForm ($keyword) {
         $f = new form(array('auto_line_break'=>false, 'auto_label'=>true));
 
-        $output = $f->openForm(array('id'=>'', 'method'=>'post', 'action'=>URL_BASE.'departments/search_department/')).$f->text(array('id'=>'search-keyword', 'label'=>'Search', 'value'=>$keyword)).$f->submit(array('value'=>'Search')).$f->closeForm().'<div class="hr"></div>';
+        $output = $f->openForm(array('id'=>'', 'method'=>'post', 'action'=>URL_BASE.'departments/search_department/')).$f->text(array('id'=>'search-keyword', 'label'=>'Search', 'value'=>$keyword)).$f->submit(array('value'=>'Search')).$f->closeForm().'<div class="hr-light"></div>';
         return $output;
     }
 
 
 
     public function renderSearchResults ($datas) {
-        if ($datas == null) return 'Your keyword did not match any department name.<div class="hr"></div><a href="'.URL_BASE.'departments/create_department/" target="_blank"><input class="btn-green" type="button" value="Add a Department" /></a>';
+        if ($datas == null) return 'Your keyword did not match any department name.<div class="hr-light"></div><a href="'.URL_BASE.'departments/create_department/" target="_blank"><input class="btn-green" type="button" value="Add a Department" /></a>';
 
         $c_persons = new controller_persons();
         $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
@@ -217,7 +217,7 @@ class view_departments {
             $output .= '</tr>';
         }
         $output .= '</table>'
-            .'<div class="hr"></div>';
+            .'<div class="hr-light"></div>';
         $output .= !in_array($accessLevel, array('Viewer'))
             ? '<a href="'.URL_BASE.'departments/create_department/" target="_blank"><input class="btn-green" type="button" value="Add a Department" /></a>'
             : '';

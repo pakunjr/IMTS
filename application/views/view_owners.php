@@ -9,7 +9,7 @@ class view_owners {
             .$f->text(array('id'=>'search-keyword', 'label'=>'Search', 'value'=>$keyword))
             .$f->submit(array('value'=>'Search'))
             .$f->closeForm()
-            .'<div class="hr"></div>';
+            .'<div class="hr-light"></div>';
         return $output;
     }
     
@@ -48,11 +48,16 @@ class view_owners {
                             .'</tr>';
                     }
                     $output .= '</table>'
-                        .'<div class="hr"></div>';
+                        .'<div class="hr-light"></div>';
                     $output .= !in_array($accessLevel, array('Viewer'))
                         ? '<a href="'.URL_BASE.'persons/create_person/" target="_blank"><input class="btn-green" type="button" value="Add a Person" /></a>'
                         : '';
-                } else $output = 'There are no Person/s matching your keyword.';
+                } else {
+                    $output = 'There are no Person/s matching your keyword.';
+                    $output .= !in_array($accessLevel, array('Viewer'))
+                        ? '<div class="hr-light"></div><a href="'.URL_BASE.'persons/create_person/"><input type="button" value="Add Person" /></a>'
+                        : '';
+                }
                 break;
 
             case 'Department':
@@ -76,11 +81,16 @@ class view_owners {
                             .'</tr>';
                     }
                     $output .= '</table>'
-                        .'<div class="hr"></div>';
+                        .'<div class="hr-light"></div>';
                     $output .= !in_array($accessLevel, array('Viewer'))
                         ? '<a href="'.URL_BASE.'departments/create_department/" target="_blank"><input type="button" value="Add a Department" /></a>'
                         : '';
-                } else $output = 'There are no Department/s matching your keyword.';
+                } else {
+                    $output = 'There are no Department/s matching your keyword.';
+                    $output .= !in_array($accessLevel, array('Viewer'))
+                        ? '<div class="hr-light"></div><a href="'.URL_BASE.'departments/create_department/"><input type="button" value="Add Department" /></a>'
+                        : '';
+                }
                 break;
 
             default:
@@ -182,9 +192,9 @@ class view_owners {
 
         $items = array();
         foreach ($datas as $d) {
-            if ($d['item_component_of'] == '0')
+            if ($d['item_component_of'] == '0') {
                 $items[$d['item_id']] = $d;
-            else {
+            } else {
                 $items[$d['item_component_of']]['components'][$d['item_id']] = $d;
             }
         }
@@ -194,7 +204,7 @@ class view_owners {
                 .'Total no. of items: '.count($items).'<br />'
                 .'Total no. of items including components: '.count($datas)
             .'</span><br />'
-            .'<div class="hr"></div>'
+            .'<div class="hr-light"></div>'
             .'<table><tr>'
             .'<th>No.</th>'
             .'<th>Name</th>'
@@ -249,7 +259,7 @@ class view_owners {
 
             $itemCount++;
         }
-        $output .= '</table><div class="hr"></div>';
+        $output .= '</table><div class="hr-light"></div>';
         $output .= !$printable
             ? '<a href="'.URL_BASE.'track/owner/'.strtolower($datas[0]['ownership_owner_type']).'_printable/'.$datas[0]['ownership_owner'].'/" target="_blank"><input type="button" value="Generate PDF" /></a>'
             : '';

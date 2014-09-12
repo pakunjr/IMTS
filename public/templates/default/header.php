@@ -128,4 +128,4 @@ $c_pages->displayBreadcrumb();
 $c_pages->displaynavigation();
 ?>
 
-<div class="hr light"></div><br />
+<div class="hr-heavy"></div><br />

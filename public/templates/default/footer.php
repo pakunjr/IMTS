@@ -1,5 +1,5 @@
 <br /><div id="footer">
-    <div class="hr light"></div>
+    <div class="hr-heavy"></div>
     <?php
         $output = '<div id="copyright">'
             .SYSTEM_NAME.' '.SYSTEM_VERSION.'<br />'

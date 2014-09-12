@@ -44,8 +44,10 @@ class view_pages {
                 $output .= in_array($user_accessLevel, array('Administrator', 'Admin', 'Supervisor'))
                     ? '<li><a href="'.URL_BASE.'employees/create_job/">Employment > Job > Create</a></li>'
                     : '';
-                $output .= '<li><a href="'.URL_BASE.'employees/search_job/">Employment > Job > Search</a></li>'
-                    .'</ul>';
+                $output .= in_array($user_accessLevel, array('Administrator', 'Admin', 'Supervisor'))
+                    ? '<li><a href="'.URL_BASE.'employees/search_job/">Employment > Job > Search</a></li>'
+                    : '';
+                $output .= '</ul>';
                 break;
 
             case 'admin':

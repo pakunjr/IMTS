@@ -25,6 +25,8 @@ class model_items {
                     ,item_quantity
                     ,item_date_of_purchase
                     ,item_package
+                    ,item_cost
+                    ,item_depreciation
                     ,item_has_components
                     ,item_component_of
                 ) VALUES(?,?,?,?,?,?,?,?,?,?,?)"
@@ -38,6 +40,8 @@ class model_items {
                 ,$d['item-quantity']
                 ,$d['item-date-of-purchase']
                 ,intval($d['item-package'])
+                ,$d['item-cost']
+                ,$d['item-depreciation']
                 ,intval($d['item-has-components'])
                 ,intval($d['item-component-of']))));
         if ($res) {
@@ -136,6 +140,8 @@ class model_items {
                     ,item_quantity = ?
                     ,item_date_of_purchase = ?
                     ,item_package = ?
+                    ,item_cost = ?
+                    ,item_depreciation = ?
                     ,item_has_components = ?
                     ,item_component_of = ?
                 WHERE item_id = ?"
@@ -149,6 +155,8 @@ class model_items {
                 ,$d['item-quantity']
                 ,$d['item-date-of-purchase']
                 ,intval($d['item-package'])
+                ,$d['item-cost']
+                ,$d['item-depreciation']
                 ,intval($d['item-has-components'])
                 ,intval($d['item-component-of'])
                 ,intval($d['item-id']))));
@@ -226,7 +234,10 @@ class model_items {
                             AND (
                                 item_name LIKE ?
                                 OR item_serial_no LIKE ?
-                                OR item_model_no LIKE ?)"
+                                OR item_model_no LIKE ?)
+                        ORDER BY
+                            LENGTH(item_name) ASC
+                            ,item_name ASC"
                     ,'v'=>array(
                         "%$keyword%"
                         ,"%$keyword%"

@@ -35,6 +35,7 @@ $(document).ready(function () {
 
 
 
+    /*
     if ($('input[value="Save Item"]').length > 0) {
         $('input[value="Save Item"]').each(function () {
             var $this = $(this)
@@ -52,5 +53,6 @@ $(document).ready(function () {
             }
         });
     }
+    */
 
 });

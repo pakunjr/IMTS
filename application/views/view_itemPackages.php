@@ -45,7 +45,7 @@ class view_itemPackages {
 
     public function renderSearchForm ($keyword) {
         $f = new form(array('auto_line_break'=>false, 'auto_label'=>true));
-        $output = $f->openForm(array('id'=>'', 'action'=>URL_BASE.'inventory_packages/search_package/', 'method'=>'post', 'enctype'=>'multipart/form-data')).$f->text(array('id'=>'search-keyword', 'value'=>$keyword, 'label'=>'Search')).$f->submit(array('value'=>'Search')).$f->closeForm().'<div class="hr"></div>';
+        $output = $f->openForm(array('id'=>'', 'action'=>URL_BASE.'inventory_packages/search_package/', 'method'=>'post', 'enctype'=>'multipart/form-data')).$f->text(array('id'=>'search-keyword', 'value'=>$keyword, 'label'=>'Search')).$f->submit(array('value'=>'Search')).$f->closeForm().'<div class="hr-light"></div>';
         return $output;
     }
 
@@ -84,9 +84,9 @@ class view_itemPackages {
                 $output .= '</tr>';
             }
             $output .= '</table>'
-                .'<div class="hr"></div><a href="'.URL_BASE.'inventory_packages/create_package/" target="_blank"><input class="btn-green" type="button" value="Add a Package" /></a>';
+                .'<div class="hr-light"></div><a href="'.URL_BASE.'inventory_packages/create_package/" target="_blank"><input class="btn-green" type="button" value="Add a Package" /></a>';
         } else {
-            $output = 'There are no packages matching your keywords.<div class="hr"></div>';
+            $output = 'There are no packages matching your keywords.<div class="hr-light"></div>';
             $output .= !in_array($accessLevel, array('Viewer'))
                 ? '<a href="'.URL_BASE.'inventory_packages/create_package/" target="_blank"><input class="btn-green" type="button" value="Add a Package" /></a>'
                 : '';
@@ -125,7 +125,7 @@ class view_itemPackages {
 
             .'<div class="accordion-title">Items</div><div class="accordion-content">'.$c_itemPackages->displayPackageItems($d['package_id'], false).'</div>'
 
-            .'<div class="hr"></div>';
+            .'<div class="hr-light"></div>';
         $output .= !in_array($accessLevel, array('Viewer'))
             ? '<a href="'.URL_BASE.'inventory_packages/update_package/'.$d['package_id'].'/"><input class="btn-green" type="button" value="Update Package" /></a>'
                 .'<a href="'.URL_BASE.'inventory/create_item/"><input type="button" value="Add Item" /></a>'

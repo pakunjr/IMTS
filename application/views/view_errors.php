@@ -30,7 +30,7 @@ class view_errors {
             $count--;
         }
         $output .= '</table>'
-            .'<div class="hr"></div>'
+            .'<div class="hr-light"></div>'
             .'<a href="'.URL_BASE.'admin/log/errors/"><input type="button" value="Refresh" /></a>'
             .'<a href="#archiveAll"><input class="btn-red" type="button" value="Archive All Errors" /></a>';
         return $output;

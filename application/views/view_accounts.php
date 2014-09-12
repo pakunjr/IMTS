@@ -35,7 +35,7 @@ class view_accounts {
                 .$f->password(array('id'=>'account-password-confirm', 'label'=>'Confirm Password'));
 
         $output = $formTitle
-            .'<div class="hr"></div>'
+            .'<div class="hr-light"></div>'
             .$f->openForm(array('id'=>'', 'class'=>'main-form', 'method'=>'post', 'action'=>$actionLink, 'enctype'=>'multipart/form-data'))
 
             .$f->hidden(array('id'=>'account-owner', 'value'=>$personId))
@@ -48,7 +48,7 @@ class view_accounts {
             .$passwordBlock
             .'</span>'
             .$f->closeFieldset()
-            .'<div class="hr"></div>'
+            .'<div class="hr-light"></div>'
             .$f->submit(array('value'=>$d != null ? 'Update Account' : 'Save Account', 'auto_line_break'=>false))
             .$cancelButton
             .$deactivateButton
@@ -129,7 +129,7 @@ class view_accounts {
         $accountOwnerName = $d['person_lastname'].', '.$d['person_firstname'].' '.$d['person_middlename'].' '.$d['person_suffix'];
         $accountOwnerNameLink = '<a href="'.URL_BASE.'persons/read_person/'.$d['person_id'].'/"><input type="button" value="'.$accountOwnerName.'" /></a>';
         $output = '<h3>'.$d['account_username'].' -- '.$d['person_lastname'].', '.$d['person_firstname'].' '.$d['person_middlename'].' '.$d['person_suffix'].'</h3>'
-            .'<div class="hr"></div>'
+            .'<div class="hr-light"></div>'
             .'<div class="accordion-title">Account Information</div><div class="accordion-content accordion-content-default">'
             .'<table>'
             .'<tr>'
@@ -146,7 +146,7 @@ class view_accounts {
             .'</tr>'
             .'</table>'
             .'</div>'
-            .'<div class="hr"></div>';
+            .'<div class="hr-light"></div>';
         $output .= in_array($accessLevel, array('Administrator', 'Admin'))
             ? '<a href="'.URL_BASE.'accounts/update_account/'.$d['person_id'].'/'.$d['account_id'].'/"><input class="btn-green" type="button" value="Update Account" /></a>'
             : '';

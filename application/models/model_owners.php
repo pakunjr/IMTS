@@ -74,7 +74,7 @@ class model_owners {
 
     public function readOwnedItems ($ownerType, $ownerId) {
         $ownerships = $this->db->statement(array(
-            'q'=>"SELECT * FROM imts_ownership AS ownshp 
+            'q'=>"SELECT *, CAST(items.item_name AS UNSIGNED) AS item_name_cast FROM imts_ownership AS ownshp 
                 LEFT JOIN imts_items AS items
                     ON ownshp.ownership_item = items.item_id
                 LEFT JOIN imts_items_type AS iType
@@ -88,8 +88,6 @@ class model_owners {
                     items.item_archive_state ASC
                     ,FIELD(ownshp.ownership_date_released, '0000-00-00') DESC
                     ,ownshp.ownership_date_released DESC
-                    ,items.item_type ASC
-                    ,items.item_state ASC
                     ,items.item_id ASC
                     ,items.item_name ASC
                     ,items.item_serial_no ASC

@@ -67,15 +67,11 @@ class controller_pages {
                             break;
 
                         case 'item':
-                            $this->displayHeader();
-                            $this->displayErrorPage('underconstruction');
-                            $this->displayFooter();
+                            $this->haltAccess('underconstruction');
                             break;
 
                         default:
-                            $this->displayHeader();
-                            $this->displayErrorPage('404');
-                            $this->displayFooter();
+                            $this->haltAccess('404');
                     }
                     break;
 
@@ -86,24 +82,18 @@ class controller_pages {
                     break;
 
                 default:
-                    $this->displayHeader();
-                    $this->displayErrorPage('404');
-                    $this->displayFooter();
+                    $this->haltAccess('404');
             }
             return;
         } else if (in_array($model, $models_authenticated)) {
             if (!isset($_SESSION['user'])) {
                 if ($model == 'accounts') {
                     if ($view != 'login') {
-                        $this->displayHeader();
-                        $this->displayErrorPage('403');
-                        $this->displayFooter();
+                        $this->haltAccess('403');
                         return;
                     }
                 } else {
-                    $this->displayHeader();
-                    $this->displayErrorPage('403');
-                    $this->displayFooter();
+                    $this->haltAccess('403');
                     return;
                 }
             }
@@ -126,9 +116,7 @@ class controller_pages {
 
                     case 'create_account':
                         if (!in_array($acc_al, array('Administrator', 'Admin'))) {
-                            $this->displayHeader();
-                            $this->displayErrorPage('403');
-                            $this->displayFooter();
+                            $this->haltAccess('403');
                             return;
                         }
 
@@ -145,6 +133,13 @@ class controller_pages {
                         break;
 
                     case 'read_account':
+                        if ($acc_aid != $controller) {
+                            if (in_array($acc_al, array('Viewer', 'Content Provider'))) {
+                                $this->haltAccess('403');
+                                return;
+                            }
+                        }
+
                         $this->displayHeader();
                         $c_accounts->displayAccountInformations($controller);
                         $this->displayFooter();
@@ -153,9 +148,7 @@ class controller_pages {
                     case 'update_account':
                         if (!in_array($acc_al, array('Administrator', 'Admin'))) {
                             if ($action != $acc_aid) {
-                                $this->displayHeader();
-                                $this->displayErrorPage('403');
-                                $this->displayFooter();
+                                $this->haltAccess('403');
                                 return;
                             }
                         }
@@ -173,12 +166,10 @@ class controller_pages {
                         break;
 
                     case 'update_password':
-                        if ($acc_al != 'Administrator' && $acc_al != 'Admin') {
+                        if (!in_array($acc_al, array('Administrator', 'Admin'))) {
                             if ($controller != 'save') {
                                 if ($controller != $acc_aid) {
-                                    $this->displayHeader();
-                                    $this->displayErrorPage('403');
-                                    $this->displayFooter();
+                                    $this->haltAccess('403');
                                     return;
                                 }
                             }
@@ -198,9 +189,7 @@ class controller_pages {
 
                     case 'activate_account':
                         if (!in_array($acc_al, array('Administrator', 'Admin'))) {
-                            $this->displayHeader();
-                            $this->displayErrorPage('403');
-                            $this->displayFooter();
+                            $this->haltAccess('403');
                             return;
                         }
 
@@ -209,9 +198,7 @@ class controller_pages {
 
                     case 'deactivate_account':
                         if (!in_array($acc_al, array('Administrator', 'Admin'))) {
-                            $this->displayHeader();
-                            $this->displayErrorPage('403');
-                            $this->displayFooter();
+                            $this->haltAccess('403');
                             return;
                         }
 
@@ -219,17 +206,13 @@ class controller_pages {
                         break;
 
                     default:
-                        $this->displayHeader();
-                        $this->displayErrorPage('underconstruction');
-                        $this->displayFooter();
+                        $this->haltAccess('underconstruction');
                 }
                 break;
 
             case 'admin':
                 if (!in_array($acc_al, array('Administrator', 'Admin'))) {
-                    $this->displayHeader();
-                    $this->displayErrorPage('403');
-                    $this->displayFooter();
+                    $this->haltAccess('403');
                     return;
                 }
                 
@@ -260,9 +243,7 @@ class controller_pages {
                                 break;
 
                             default:
-                                $this->displayHeader();
-                                $this->displayErrorPage('underconstruction');
-                                $this->displayFooter();
+                                $this->haltAccess('underconstruction');
                         }
                         break;
 
@@ -273,15 +254,18 @@ class controller_pages {
                         break;
 
                     default:
-                        $this->displayHeader();
-                        $this->displayErrorPage('underconstruction');
-                        $this->displayFooter();
+                        $this->haltAccess('underconstruction');
                 }
                 break;
 
             case 'inventory':
                 switch ($view) {
                     case 'create_item':
+                        if (in_array($acc_al, array('Viewer'))) {
+                            $this->haltAccess('403');
+                            return;
+                        }
+
                         switch ($controller) {
                             case 'save':
                                 $c_items->saveItem();
@@ -295,6 +279,11 @@ class controller_pages {
                         break;
 
                     case 'create_item_niboti':
+                        if (in_array($acc_al, array('Viewer'))) {
+                            $this->haltAccess('403');
+                            return;
+                        }
+
                         switch ($controller) {
                             case 'save':
                                 $c_items->saveItem();
@@ -308,6 +297,11 @@ class controller_pages {
                         break;
 
                     case 'create_item_addComponent':
+                        if (in_array($acc_al, array('Viewer'))) {
+                            $this->haltAccess('403');
+                            return;
+                        }
+
                         switch ($controller) {
                             case 'save':
                                 $c_items->saveItem();
@@ -327,6 +321,11 @@ class controller_pages {
                         break;
 
                     case 'update_item':
+                        if (in_array($acc_al, array('Viewer'))) {
+                            $this->haltAccess('403');
+                            return;
+                        }
+
                         switch ($controller) {
                             case 'save':
                                 $c_items->updateItem();
@@ -340,6 +339,11 @@ class controller_pages {
                         break;
 
                     case 'archive_item':
+                        if (!in_array($acc_al, array('Administrator', 'Admin', 'Supervisor'))) {
+                            $this->haltAccess('403');
+                            return;
+                        }
+
                         $c_items->archiveItem($controller);
                         break;
 
@@ -350,19 +354,23 @@ class controller_pages {
                         break;
 
                     case 'in_search_componentHost':
+
                         $c_items->displaySearchResults('componentHosts', $controller);
                         break;
 
                     default:
-                        $this->displayHeader();
-                        $this->displayErrorPage('underconstruction');
-                        $this->displayFooter();
+                        $this->haltAccess('underconstruction');
                 }
                 break;
 
             case 'inventory_packages':
                 switch ($view) {
                     case 'create_package':
+                        if (in_array($acc_al, array('Viewer'))) {
+                            $this->haltAccess('403');
+                            return;
+                        }
+
                         switch ($controller) {
                             case 'save':
                                 $c_itemPackages->createPackage();
@@ -382,6 +390,11 @@ class controller_pages {
                         break;
 
                     case 'update_package':
+                        if (in_array($acc_al, array('Viewer'))) {
+                            $this->haltAccess('403');
+                            return;
+                        }
+
                         switch ($controller) {
                             case 'save':
                                 $c_itemPackages->updatePackage();
@@ -405,15 +418,18 @@ class controller_pages {
                         break;
 
                     default:
-                        $this->displayHeader();
-                        $this->displayErrorPage('underconstruction');
-                        $this->displayFooter();
+                        $this->haltAccess('underconstruction');
                 }
                 break;
 
             case 'persons':
                 switch ($view) {
                     case 'create_person':
+                        if (in_array($acc_al, array('Viewer'))) {
+                            $this->haltAccess('403');
+                            return;
+                        }
+
                         switch ($controller) {
                             case 'save':
                                 $c_persons->createPerson();
@@ -433,6 +449,11 @@ class controller_pages {
                         break;
 
                     case 'update_person':
+                        if (in_array($acc_al, array('Viewer'))) {
+                            $this->haltAccess('403');
+                            return;
+                        }
+
                         switch ($controller) {
                             case 'save':
                                 $c_persons->updatePerson();
@@ -452,15 +473,18 @@ class controller_pages {
                         break;
 
                     default:
-                        $this->displayHeader();
-                        $this->displayErrorPage('underconstruction');
-                        $this->displayFooter();
+                        $this->haltAccess('underconstruction');
                 }
                 break;
 
             case 'employees':
                 switch ($view) {
                     case 'create_employment':
+                        if (!in_array($acc_al, array('Administrator', 'Admin', 'Supervisor'))) {
+                            $this->haltAccess('403');
+                            return;
+                        }
+
                         switch ($action) {
                             case 'save':
                                 $c_employees->createEmployment();
@@ -474,6 +498,11 @@ class controller_pages {
                         break;
 
                     case 'create_job':
+                        if (!in_array($acc_al, array('Administrator', 'Admin', 'Supervisor'))) {
+                            $this->haltAccess('403');
+                            return;
+                        }
+
                         switch ($controller) {
                             case 'save':
                                 $c_employees->createJob();
@@ -493,6 +522,11 @@ class controller_pages {
                         break;
 
                     case 'update_employment':
+                        if (!in_array($acc_al, array('Administrator', 'Admin', 'Supervisor'))) {
+                            $this->haltAccess('403');
+                            return;
+                        }
+
                         switch ($action) {
                             case 'save':
                                 $c_employees->updateEmployment();
@@ -506,6 +540,11 @@ class controller_pages {
                         break;
 
                     case 'update_job':
+                        if (!in_array($acc_al, array('Administrator', 'Admin', 'Supervisor'))) {
+                            $this->haltAccess('403');
+                            return;
+                        }
+
                         switch ($controller) {
                             case 'save':
                                 $c_employees->updateJob();
@@ -519,10 +558,20 @@ class controller_pages {
                         break;
 
                     case 'delete_job':
+                        if (!in_array($acc_al, array('Administrator', 'Admin'))) {
+                            $this->haltAccess('403');
+                            return;
+                        }
+
                         $c_employees->deleteJob($controller);
                         break;
 
                     case 'end_employment':
+                        if (!in_array($acc_al, array('Administrator', 'Admin', 'Supervisor'))) {
+                            $this->haltAccess('403');
+                            return;
+                        }
+
                         $c_employees->endEmployment($controller);
                         break;
 
@@ -541,15 +590,18 @@ class controller_pages {
                         break;
 
                     default:
-                        $this->displayHeader();
-                        $this->displayErrorPage('underconstruction');
-                        $this->displayFooter();
+                        $this->haltAccess('underconstruction');
                 }
                 break;
 
             case 'departments':
                 switch ($view) {
                     case 'create_department':
+                        if (in_array($acc_al, array('Viewer'))) {
+                            $this->haltAccess('403');
+                            return;
+                        }
+
                         switch ($controller) {
                             case 'save':
                                 $c_departments->createDepartment();
@@ -569,6 +621,11 @@ class controller_pages {
                         break;
 
                     case 'update_department':
+                        if (in_array($acc_al, array('Viewer'))) {
+                            $this->haltAccess('403');
+                            return;
+                        }
+
                         switch ($controller) {
                             case 'save':
                                 $c_departments->updateDepartment();
@@ -592,9 +649,7 @@ class controller_pages {
                         break;
 
                     default:
-                        $this->displayHeader();
-                        $this->displayErrorPage('underconstruction');
-                        $this->displayFooter();
+                        $this->haltAccess('underconstruction');
                 }
                 break;
 
@@ -605,9 +660,7 @@ class controller_pages {
                         break;
 
                     default:
-                        $this->displayHeader();
-                        $this->displayErrorPage('underconstruction');
-                        $this->displayFooter();
+                        $this->haltAccess('underconstruction');
                 }
                 break;
 
@@ -618,9 +671,7 @@ class controller_pages {
                 break;
 
             default:
-                $this->displayHeader();
-                $this->displayErrorPage('404');
-                $this->displayFooter();
+                $this->haltAccess('404');
         }
     }
 
@@ -667,6 +718,14 @@ class controller_pages {
         $output = $this->view->renderErrorPage($type);
         if (!$echo) return $output;
         echo $output;
+    }
+
+
+
+    public function haltAccess ($errorType='unknown', $echo=true) {
+        $this->displayHeader();
+        $this->displayErrorPage($errorType, $echo);
+        $this->displayFooter();
     }
 
 }
