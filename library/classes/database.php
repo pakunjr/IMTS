@@ -29,6 +29,12 @@ class database {
 
 
 
+    public function __destruct () {
+        
+    }
+
+
+
     public function connect () {
         $host = $this->host;
         $database = $this->database;
@@ -60,7 +66,9 @@ class database {
             ? $options['v']
             : array();
 
-        //Prepare the statement
+        /**
+         * Prepare the SQL statement
+         */
         try {
             $stmt = $connection->prepare($q);
             if ( !$stmt )
@@ -70,7 +78,10 @@ class database {
                 .'SQL Query: '.$q);
         }
 
-        //Bind the parameters
+        /**
+         * Bind the paramters for
+         * processing
+         */
         if ( is_array($v) ) {
             $ph = 0;
             foreach ( $v as $value ) {
@@ -89,7 +100,10 @@ class database {
             }
         }
 
-        //Execute the statement and return necessary output
+        /**
+         * Execute statements and return
+         * necessary variables
+         */
         try {
             if ( strpos($q, 'SELECT') !== false ) {
                 $array = array();
@@ -172,10 +186,11 @@ class database {
 
     public function logDatabaseError ($details) {
         $file = $this->errorFile;
-        if ($file == null) {
-            echo 'Fatal Error: Database encountered an error and your log file for these type of errors is missing.<br />Please create your log file `db_errors.php` on the directory root > library > logs > db_errors.php';
-            exit();
-        }
+        if ($file == null)
+            exit('<span style="display: inline-block; color: #f00;">'
+                .'FATAL ERROR: Database encountered an error and your log file for these type of errors is missing.<br />'
+                .'Please create your log file `db_errors.php` on the directory root > library > logs > db_errors.php'
+                .'</span>');
 
         $content = file_get_contents($file);
         $content = unserialize($content);
@@ -191,28 +206,30 @@ class database {
         $content = serialize($content);
         $logSuccess = file_put_contents($file, $content);
 
-        if (!$logSuccess) {
-            echo 'Fatal Error: Failed to log database error due to unknown reason/s.';
-            exit();
-        }
+        if (!$logSuccess)
+            exit('<span style="display: inline-block; color: #f00;">'
+                .'FATAL ERROR: Failed to log database error due to unknown reason/s.'
+                .'</span>');
     }
 
 
 
     public function cleanDatabaseErrors () {
         $file = $this->errorFile;
-        if ($file == null) {
-            echo 'Fatal Error: Your log file for database errors is missing.<br />Please create your log file `db_errors.php` on the directory root > library > logs > db_errors.php';
-            exit();
-        }
+        if ($file == null)
+            exit('<span style="display: inline-block; color: #f00;">'
+                .'FATAL ERROR: Your log file for database errors is missing.<br />'
+                .'Please create your log file `db_errors.php` on the directory root.'
+                .'</span>');
 
         file_put_contents($file, '');
         $contents = file_get_contents($file);
 
-        if (strlen(trim($contents)) > 0) {
-            echo 'Action Error: Failed to clean database errors due to unknown reason/s.<br /><a href="'.URL_BASE.'admin/log/database_errors/">Click here to go back.</a>';
-            exit();
-        }
+        if (strlen(trim($contents)) > 0)
+            exit('<span style="display: inline-block; color: #f00;">'
+                .'ACTION ERROR: Failed to clean database errors to unknown reason/s.<br />'
+                .'<a href="'.URL_BASE.'admin/log/database_errors/">Click here to go back.</a>'
+                .'</span>');
     }
 
 }

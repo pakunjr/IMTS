@@ -10,6 +10,12 @@ class model_owners {
 
 
 
+    public function __destruct () {
+
+    }
+
+
+
     public function readOwner ($ownershipId) {
         $ownership = $this->db->statement(array(
             'q'=>"SELECT * FROM imts_ownership WHERE ownership_id = ? LIMIT 1"
@@ -73,8 +79,29 @@ class model_owners {
 
 
     public function readOwnedItems ($ownerType, $ownerId) {
+        $accessLevel = isset($_SESSION['user'])
+            ? $_SESSION['user']['accessLevel']
+            : null;
+
+        $query = "SELECT * FROM imts_items AS items
+            LEFT JOIN imts_ownership AS ownshp ON items.item_id = ownshp.ownership_item
+            LEFT JOIN imts_items_type AS iType ON items.item_type = iType.item_type_id
+            LEFT JOIN imts_items_state AS iState ON items.item_state = iState.item_state_id
+            WHERE ownshp.ownership_owner = ?
+                AND ownshp.ownership_owner_type = ?
+                ";
+        $query .= !in_array($accessLevel, array('Administrator', 'Admin', 'Supervisor'))
+            ? "AND items.item_archive_state = 0"
+            : '';
+        $query .= "
+            ORDER BY
+                items.item_name ASC
+                ,items.item_serial_no ASC
+                ,items.item_model_no ASC";
+
+        /*
         $ownerships = $this->db->statement(array(
-            'q'=>"SELECT *, CAST(items.item_name AS UNSIGNED) AS item_name_cast FROM imts_ownership AS ownshp 
+            'q'=>"SELECT * FROM imts_ownership AS ownshp 
                 LEFT JOIN imts_items AS items
                     ON ownshp.ownership_item = items.item_id
                 LEFT JOIN imts_items_type AS iType
@@ -88,11 +115,17 @@ class model_owners {
                     items.item_archive_state ASC
                     ,FIELD(ownshp.ownership_date_released, '0000-00-00') DESC
                     ,ownshp.ownership_date_released DESC
-                    ,items.item_id ASC
                     ,items.item_name ASC
                     ,items.item_serial_no ASC
                     ,items.item_model_no ASC"
             ,'v'=>array(intval($ownerId), $ownerType)));
+        */
+
+        $ownerships = $this->db->statement(array(
+            'q'=>$query
+            ,'v'=>array(
+                intval($ownerId)
+                ,$ownerType)));
         return count($ownerships) > 0 ? $ownerships : null;
     }
 

@@ -16,21 +16,27 @@ class form {
 
 
 
-    //Open a form tag
+    public function __destruct () {
+
+    }
+
+
+
+    // Open a form tag
     public function openForm ($o=array()) {
         return '<form autocomplete="off"'.$this->parseAttributes($o).'>';
     }
 
 
 
-    //Close a form tag
+    // Close a form tag
     public function closeForm () {
         return '</form>';
     }
 
 
 
-    //Open a fieldset tag
+    // Open a fieldset tag
     public function openFieldset ($o=array()) {
         $output = '<fieldset'.$this->parseAttributes($o).'>';
         $output .= isset($o['legend'])
@@ -40,7 +46,7 @@ class form {
 
 
 
-    //Close a fieldset tag
+    // Close a fieldset tag
     public function closeFieldset () {
         return '</fieldset>';
     }
@@ -188,8 +194,10 @@ class form {
 
 
 
-    //Parse the attributes that will be inserted
-    //in each generated elements in each functions
+    /**
+     * Parse the attributes that will be inserted
+     * in each generated elements in each functions
+     */
     private function parseAttributes ($o=array(), $e=array()) {
         $tmp_attr = '';
         array_push(
@@ -201,7 +209,7 @@ class form {
             ,'auto_line_break'
         );
 
-        //Process automated placeholder attribute
+        // Process automated placeholder attribute
         if ( !isset($o['placeholder']) && !in_array('placeholder', $e) ) {
             if ( isset($o['name']) )
                 $o['placeholder'] = $o['name'];
@@ -209,12 +217,12 @@ class form {
                 $o['placeholder'] = $o['id'];
         }
 
-        //Process automated name attribute
+        // Process automated name attribute
         if ( !isset($o['name']) && isset($o['id']) && !in_array('name', $e) ) {
             $o['name'] = $o['id'];
         }
 
-        //Process automated title attribute
+        // Process automated title attribute
         if ( !isset($o['title']) && !in_array('title', $e) ) {
             if ( isset($o['label']) )
                 $o['title'] = $o['label'];
@@ -226,7 +234,7 @@ class form {
                 $o['title'] = $o['id'];
         }
 
-        //Process remaining attributes
+        // Process remaining attributes
         foreach ( $o as $n => $v ) {
             if ( !in_array($n, $e) )
                 $tmp_attr .= ' '.$n.'="'.$v.'"';
@@ -236,7 +244,7 @@ class form {
 
 
 
-    //Render the label of each elements or functions
+    // Render the label of each elements or functions
     private function renderLabel ($o=array()) {
         if ( isset($o['auto_label']) && !$o['auto_label'] ) return false;
         else if ( !$this->auto_label ) return false;
@@ -254,9 +262,11 @@ class form {
 
 
 
-    //Render auto line break and the
-    //auto_line_break settings of each
-    //form functions
+    /**
+     * Render auto_line_break and the
+     * auto_line_break settings of each
+     * form functions
+     */
     private function autoLineBreak ($o=array()) {
         if ( isset($o['auto_line_break']) ) {
             if ( $o['auto_line_break'] ) return '<br />'.PHP_EOL;

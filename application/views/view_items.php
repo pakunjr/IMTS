@@ -2,6 +2,18 @@
 
 class view_items {
 
+    public function __construct () {
+
+    }
+
+
+
+    public function __destruct () {
+
+    }
+
+
+
     public function renderForm ($infos) {
         $i = $infos;
         $f = new form(array('auto_line_break'=>true,'auto_label'=>true));
@@ -187,10 +199,10 @@ class view_items {
                 .'<td>'.$itComponentHostLink.'</td>'
             .'</tr>'
             .'<tr>'
-                .'<th rowspan="4">Description</th>'
-                .'<td rowspan="4">'.nl2br($it['item_description']).'</td>'
-                .'<th>Date of Purchase</th>'
-                .'<td>'.$fx->dateToWords($it['item_date_of_purchase']).'</td>'
+                .'<th rowspan="3">Description</th>'
+                .'<td rowspan="3">'.nl2br($it['item_description']).'</td>'
+                .'<th>Has Component/s</th>'
+                .'<td>'.$hasComponents.'</td>'
             .'</tr>'
             .'<tr>'
                 .'<th>Package</th>'
@@ -201,8 +213,10 @@ class view_items {
                 .'<td>'.$c_items->displayItemCurrentOwner($it['item_id'], false).'</td>'
             .'</tr>'
             .'<tr>'
-                .'<th>Has Component/s</th>'
-                .'<td>'.$hasComponents.'</td>'
+                .'<th>Price<div class="hr-light"></div>Depreciation</th>'
+                .'<td>'.$it['item_cost'].'<div class="hr-light"></div>'.$it['item_depreciation'].'</td>'
+                .'<th>Date of Purchase</th>'
+                .'<td>'.$fx->dateToWords($it['item_date_of_purchase']).'</td>'
             .'</tr>'
             .'</table>'
             .'</div>'
@@ -228,10 +242,9 @@ class view_items {
 
             $output = '<table><tr>'
                 .'<th>Name</th>'
-                .'<th>Type</th>'
-                .'<th>State</th>'
-                .'<th>Description</th>'
+                .'<th>State<div class="hr-light"></div>Type</th>'
                 .'<th>Quantity</th>'
+                .'<th>Price<div class="hr-light"></div>Depreciation</th>'
                 .'<th>Current Owner</th>';
             $output .= !in_array($accessLevel, array('Viewer')) ? '<th>Action</th>' : '';
             $output .= '</tr>';
@@ -261,12 +274,17 @@ class view_items {
                     .'<td>'
                         .$component['item_name'].'<br />'
                         .'<span style="color: #03f;">Serial</span>: '.$component['item_serial_no'].'<br />'
-                        .'<span style="color: #f00;">Model</span>: '.$component['item_model_no']
+                        .'<span style="color: #f00;">Model</span>: '.$component['item_model_no'].'<br />'
+                        .'<div class="hr-light"></div>'
+                        .'Description: '.nl2br($component['item_description'])
                     .'</td>'
-                    .'<td>'.$c_itemTypes->displayItemTypeName($component['item_type'], false).'</td>'
-                    .'<td>'.$c_itemStates->displayItemStateName($component['item_state'], false).'</td>'
-                    .'<td>'.nl2br($component['item_description']).'</td>'
+                    .'<td>'
+                        .$c_itemStates->displayItemStateName($component['item_state'], false)
+                        .'<div class="hr-light"></div>'
+                        .$c_itemTypes->displayItemTypeName($component['item_type'], false)
+                    .'</td>'
                     .'<td>'.$component['item_quantity'].'</td>'
+                    .'<td>'.$component['item_cost'].'<div class="hr-light"></div>'.$component['item_depreciation'].'</td>'
                     .'<td>'.$coLink.'</td>';
                 $output .= !in_array($accessLevel, array('Viewer')) ? '<td>'.$actionButtons.'</td>' : '';
                 $output .= '</tr>';

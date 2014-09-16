@@ -1,6 +1,6 @@
 <?php
 
-class model_packages {
+class model_maintenance {
 
     private $db;
 

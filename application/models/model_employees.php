@@ -10,6 +10,12 @@ class model_employees {
 
 
 
+    public function __destruct () {
+
+    }
+
+
+
     public function createEmployment ($datas) {
         $d = $datas;
         $res = $this->db->statement(array(

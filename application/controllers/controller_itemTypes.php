@@ -12,6 +12,12 @@ class controller_itemTypes {
 
 
 
+    public function __destruct () {
+
+    }
+
+
+
     public function displaySelectForm ($options=array(), $echo=true) {
         $types = $this->model->readItemTypes();
         $form = $this->view->renderSelectForm($types, $options);

@@ -12,6 +12,12 @@ class controller_errors {
 
 
 
+    public function __destruct () {
+
+    }
+
+
+
     public function logError ($details) {
         $res = $this->model->logError($details);
         return $res;

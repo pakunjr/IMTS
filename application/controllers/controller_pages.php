@@ -17,6 +17,12 @@ class controller_pages {
 
 
 
+    public function __destruct () {
+
+    }
+
+
+
     public function renderPages () {
         $model = $this->model->get('model');
         $view = $this->model->get('view');

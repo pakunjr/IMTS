@@ -2,6 +2,18 @@
 
 class view_errors {
 
+    public function __construct () {
+
+    }
+
+
+
+    public function __destruct () {
+
+    }
+
+
+
     public function renderLogList ($datas) {
         if ($datas == null) return 'There are no recorded errors.';
 

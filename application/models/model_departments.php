@@ -10,6 +10,12 @@ class model_departments {
 
 
 
+    public function __destruct () {
+
+    }
+
+
+
     public function createDepartment ($datas) {
         $d = $datas;
         $res = $this->db->statement(array(

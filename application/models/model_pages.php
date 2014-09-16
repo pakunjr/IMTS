@@ -8,6 +8,18 @@ class model_pages {
     private $action;
     private $extra;
 
+    public function __construct () {
+
+    }
+
+
+
+    public function __destruct () {
+
+    }
+
+
+
     public function get ($data) {
         return $this->$data;
     }

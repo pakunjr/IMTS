@@ -12,6 +12,12 @@ class controller_accounts {
 
 
 
+    public function __destruct () {
+
+    }
+
+
+
     public function createAccount () {
         if (!isset($_POST)) {
             header('location: '.URL_BASE.'accounts/');

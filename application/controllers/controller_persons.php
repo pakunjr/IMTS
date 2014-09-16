@@ -12,6 +12,12 @@ class controller_persons {
 
 
 
+    public function __destruct () {
+
+    }
+
+
+
     public function createPerson () {
         if (!isset($_POST)) {
             header('location: '.URL_BASE.'persons/create_person/');

@@ -2,6 +2,18 @@
 
 class view_employees {
 
+    public function __construct () {
+
+    }
+
+
+
+    public function __destruct () {
+
+    }
+
+
+
     public function renderForm ($personId, $datas) {
         $d = $datas;
         $f = new form(array('auto_line_break'=>true, 'auto_label'=>true));

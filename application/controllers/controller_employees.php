@@ -12,6 +12,12 @@ class controller_employees {
 
 
 
+    public function __destruct () {
+
+    }
+
+
+
     public function createEmployment () {
         if (!isset($_POST)) {
             header('location: '.URL_BASE.'persons/');

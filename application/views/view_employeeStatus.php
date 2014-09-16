@@ -2,6 +2,18 @@
 
 class view_employeeStatus {
 
+    public function __construct () {
+
+    }
+
+
+
+    public function __destruct () {
+
+    }
+
+
+
     public function renderSelectForm ($datas, $options) {
         $f = new form(array(
                 'auto_line_break'=>isset($options['auto_line_break']) ? $options['auto_line_break'] : true

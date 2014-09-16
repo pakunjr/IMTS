@@ -10,6 +10,12 @@ class model_items {
 
 
 
+    public function __destruct () {
+
+    }
+
+
+
     public function createItem ($datas) {
         $d = $datas;
         $d['item-has-components'] = isset($d['item-has-components']) ? '1' : '0';
@@ -29,7 +35,7 @@ class model_items {
                     ,item_depreciation
                     ,item_has_components
                     ,item_component_of
-                ) VALUES(?,?,?,?,?,?,?,?,?,?,?)"
+                ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)"
             ,'v'=>array(
                 $d['item-name']
                 ,$d['item-serial-no']
@@ -46,7 +52,7 @@ class model_items {
                 ,intval($d['item-component-of']))));
         if ($res) {
             $d['item-id'] = $this->db->lastInsertId();
-            $this->logAction($d['item-id'], 'This item was created.');
+            $this->logAction($d['item-id'], 'Item Creation: SUCCESS');
             return $d;
         } else return null;
     }
@@ -70,8 +76,11 @@ class model_items {
                 ,$d['ownership-date-owned']
                 ,$d['ownership-date-released'])));
         
-        if ($ownership) $this->logAction($d['item-id'], 'Successfully created an ownership for this item.');
-        else $this->logAction($d['item-id'], 'Failed to create an ownership for this item.');
+        if ($ownership) {
+            $d['ownership-id'] = $this->db->lastInsertId();
+            return $d;
+        } else
+            return null;
     }
 
 
@@ -161,8 +170,10 @@ class model_items {
                 ,intval($d['item-component-of'])
                 ,intval($d['item-id']))));
 
-        if ($r) $this->logAction($d['item-id'], 'This item has been updated.');
-        else $this->logAction($d['item-id'], 'Something went wrong when updating this item.');
+        if ($r)
+            $this->logAction($d['item-id'], 'Update: SUCCESS');
+        else
+            $this->logAction($d['item-id'], 'Update: FAILED');
         
         return $d;
     }
@@ -182,8 +193,10 @@ class model_items {
                 ,$d['ownership-date-released']
                 ,intval($d['ownership-id']))));
 
-        if ($ownership) $this->logAction($d['item-id'], 'The ownership of this item has been updated successfully.');
-        else $this->logAction($d['item-id'], 'The ownership of this item have failed to be updated.');
+        if ($ownership)
+            $this->logAction($d['item-id'], 'Current Owner Update alongside Item Update: SUCCESS');
+        else
+            $this->logAction($d['item-id'], 'Current Owner Update alongside Item Update: FAILED');
     }
 
 
@@ -209,16 +222,26 @@ class model_items {
 
 
     public function searchItems ($searchType='items', $keyword) {
+        $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
+
         switch ($searchType) {
             case 'items':
+                $query = "SELECT * FROM imts_items
+                    WHERE
+                        (item_name LIKE ?
+                        OR item_serial_no LIKE ?
+                        OR item_model_no LIKE ?)";
+                $query .= !in_array($accessLevel, array('Administrator', 'Admin', 'Supervisor'))
+                    ? " AND item_archive_state = 0"
+                    : "";
+                $query .= "
+                    ORDER BY
+                        item_name ASC
+                        ,item_serial_no ASC
+                        ,item_model_no ASC";
+
                 $rows = $this->db->statement(array(
-                    'q'=>"SELECT * FROM imts_items
-                        WHERE
-                            item_name LIKE ?
-                            OR item_serial_no LIKE ?
-                            OR item_model_no LIKE ?
-                        ORDER BY
-                            item_archive_state ASC"
+                    'q'=>$query
                     ,'v'=>array(
                         "%$keyword%"
                         ,"%$keyword%"
@@ -280,7 +303,8 @@ class model_items {
         if (count($rows) > 0) {
             if ($rows[0]['item_has_components'] == 1) return true;
             else return false;
-        } else return null;
+        } else
+            return null;
     }
     
 }

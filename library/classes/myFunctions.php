@@ -19,18 +19,18 @@ class myFunctions {
             return 'N/A';
 
         $months = array(
-            'January'
-            ,'February'
-            ,'March'
-            ,'April'
+            'Jan'
+            ,'Feb'
+            ,'Mar'
+            ,'Apr'
             ,'May'
-            ,'June'
-            ,'July'
-            ,'August'
-            ,'September'
-            ,'October'
-            ,'November'
-            ,'December');
+            ,'Jun'
+            ,'Jul'
+            ,'Aug'
+            ,'Sep'
+            ,'Oct'
+            ,'Nov'
+            ,'Dec');
 
         $splitDate = explode('-', $myDate);
         $year = $splitDate[0];

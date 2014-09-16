@@ -10,6 +10,12 @@ class model_itemPackages {
 
 
 
+    public function __destruct () {
+
+    }
+
+
+
     public function createPackage ($datas) {
         $d = $datas;
         $res = $this->db->statement(array(

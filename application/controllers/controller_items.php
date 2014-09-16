@@ -12,6 +12,12 @@ class controller_items {
 
 
 
+    public function __destruct () {
+
+    }
+
+
+
     public function displayForm ($itemId=null, $niboti=null, $hostId=null) {
         if ($itemId != null) {
             $infos = array(
@@ -37,7 +43,9 @@ class controller_items {
                     ,'item_archive_state'=>'0'
                     ,'item_has_components'=>'0'
                     ,'item_component_of'=>$hostId
-                    ,'item_log'=>'')
+                    ,'item_log'=>''
+                    ,'item_cost'=>'0.00 PHP'
+                    ,'item_depreciation'=>'UNDEFINED')
                 ,'owner'=>$this->model->readItemOwner($hostId)
                 ,'niboti'=>false
                 ,'thruComponent'=>true);
@@ -131,7 +139,8 @@ class controller_items {
     public function displayIsItemComponentHost ($itemId, $echo=true) {
         $isHost = $this->model->isItemComponentHost($itemId);
         $output = $isHost ? 'Yes' : 'No';
-        if (!$echo) return $output;
+        if (!$echo)
+            return $output;
         echo $output;
     }
 
@@ -144,21 +153,50 @@ class controller_items {
             if ($d != null) {
                 $currentOwner = $this->model->readItemOwner($d['item-id']);
                 $co = $currentOwner;
+                $c_owners = new controller_owners();
 
                 if ($co != null) {
+                    /**
+                     * Check if ownership of the item
+                     * is being change
+                     */
                     if ($co['ownership_owner'] != $d['ownership-owner']) {
+                        /**
+                         * Remove ownership of the current
+                         * owner and create ownership for
+                         * the new owner if there is a new
+                         * owner
+                         */
                         $this->model->deleteItemOwnership($co['ownership_id']);
-                        if ($d['ownership-owner'] != '0')
-                            $this->model->createItemOwnership($d);
+                        if ($d['ownership-owner'] != '0') {
+                            $newItemOwnershipData = $this->model->createItemOwnership($d);
+                            $niod = $newItemOwnershipData;
+                            if ($niod != null)
+                                $this->model->logAction($niod['item-id'], 'Changed ownership from `'.$c_owners->displayOwnerName($co['ownership_id'], false).'` to `'.$c_owners->displayOwnerName($niod['ownership-id'], false).'`');
+                        } else
+                            $this->model->logAction($d['item-id'], 'Removed ownership of `'.$c_owners->displayOwnerName($co['ownership_id'], false).'`');
                     }
                 } else {
-                    if ($d['ownership-owner'] != 0)
-                        $this->model->createItemOwnership($d);
+                    /**
+                     * New ownership for item that is not
+                     * owned
+                     */
+                    if ($d['ownership-owner'] != 0) {
+                        $newItemOwnershipData = $this->model->createItemOwnership($d);
+                        $niod = $newItemOwnershipData;
+                        if ($niod != null)
+                            $this->model->logAction($d['item-id'], 'Created new ownership for `'.$c_owners->displayOwnerName($niod['ownership-id'], false).'`');
+                    }
                 }
-
                 header('location: '.URL_BASE.'inventory/read_item/'.$d['item-id'].'/');
-            } else header('location: '.URL_BASE.'inventory/new_item/');
-        } else header('location: '.URL_BASE.'inventory/new_item/');
+            } else
+                exit('<span style="display: inline-block; color: #f00;">SYSTEM ERROR: Failed to save the new item.'
+                    .'<br />Exiting...<br /><br />'
+                    .'<a href="'.URL_BASE.'inventory/create_item/"><input type="button" value="Back to New Item Form." /></a></span>');
+        } else
+            exit('<span style="display: inline-block; color: #f00;">USER ERROR: The system do not know how you got here but you are on the wrong page.'
+                .'<br />Exiting...<br /><br />'
+                .'<a href="'.URL_BASE.'inventory/create_item/"><input type="button" value="Back to New Item Form." /></a></span>');
     }
 
 
@@ -170,23 +208,53 @@ class controller_items {
             if ($d != null) {
                 $currentOwner = $this->model->readItemOwner($d['item-id']);
                 $co = $currentOwner;
+                $c_owners = new controller_owners();
 
                 if ($co != null) {
+                    /**
+                     * Check if ownership of the item
+                     * is being change
+                     */
                     if ($co['ownership_owner'] != $d['ownership-owner']) {
+                        /**
+                         * Remove ownership of the current
+                         * owner and create ownership for
+                         * the new owner if there is a new
+                         * owner
+                         */
                         $this->model->deleteItemOwnership($co['ownership_id']);
-                        if ($d['ownership-owner'] != '0')
-                            $this->model->createItemOwnership($d);
+                        if ($d['ownership-owner'] != '0') {
+                            $newItemOwnershipData = $this->model->createItemOwnership($d);
+                            $niod = $newItemOwnershipData;
+                            if ($niod != null)
+                                $this->model->logAction($niod['item-id'], 'Changed ownership from `'.$c_owners->displayOwnerName($co['ownership_id'], false).'` to `'.$c_owners->displayOwnerName($niod['ownership-id'], false).'`');
+                        } else
+                            $this->model->logAction($d['item-id'], 'Removed ownership of `'.$c_owners->displayOwnerName($co['ownership_id'], false).'`');
                     } else {
-                        $d['ownership-id'] = $co['ownership_id'];
+                        /**
+                         * If there is no new owner, update
+                         * the current owner
+                         */
                         $this->model->updateItemOwnership($d);
                     }
                 } else {
-                    if ($d['ownership-owner'] != '0')
-                        $this->model->createItemOwnership($d);
+                    /**
+                     * New ownership for item that is not
+                     * owned
+                     */
+                    if ($d['ownership-owner'] != 0) {
+                        $newItemOwnershipData = $this->model->createItemOwnership($d);
+                        $niod = $newItemOwnershipData;
+                        if ($niod != null)
+                            $this->model->logAction($d['item-id'], 'Created new ownership for `'.$c_owners->displayOwnerName($niod['ownership-id'], false).'`');
+                    }
                 }
             }
             header('location: '.URL_BASE.'inventory/read_item/'.$d['item-id'].'/');
-        } else header('location: '.URL_BASE.'inventory/');
+        } else
+            exit('<span style="display: inline-block; color: #f00;">USER ERROR: The system do not know how you got here but you are on the wrong page.'
+                .'<br />Exiting...<br /><br />'
+                .'<a href="'.URL_BASE.'inventory/create_item/"><input type="button" value="Back to New Item Form." /></a></span>');
     }
 
 

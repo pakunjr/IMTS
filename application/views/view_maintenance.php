@@ -1,11 +1,9 @@
 <?php
 
-class model_packages {
-
-    private $db;
+class view_maintenance {
 
     public function __construct () {
-        $this->db = new database();
+
     }
 
 
@@ -13,5 +11,5 @@ class model_packages {
     public function __destruct () {
 
     }
-
+    
 }

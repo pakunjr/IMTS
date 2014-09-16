@@ -10,6 +10,12 @@ class model_errors {
 
 
 
+    public function __destruct () {
+
+    }
+
+
+
     public function readErrors () {
         $rows = $this->db->statement(array(
             'q'=>"SELECT * FROM imts_logs_errors AS err

@@ -12,6 +12,12 @@ class controller_employeeStatus {
 
 
 
+    public function __destruct () {
+
+    }
+
+
+
     public function displaySelectForm ($options=array(), $echo=true) {
         $status = $this->model->readStatuses();
         $output = $this->view->renderSelectForm($status, $options);

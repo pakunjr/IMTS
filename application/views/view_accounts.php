@@ -2,6 +2,18 @@
 
 class view_accounts {
 
+    public function __construct () {
+
+    }
+
+
+
+    public function __destruct () {
+
+    }
+
+
+
     public function renderForm ($personId, $datas) {
         $d = $datas;
 
@@ -20,6 +32,7 @@ class view_accounts {
         $cancelButton = $d != null
             ? '<a href="'.URL_BASE.'accounts/read_account/'.$d['account_id'].'/"><input class="btn-red" type="button" value="Cancel" /></a>'
             : '<a href="'.URL_BASE.'persons/read_person/'.$personId.'/"><input type="button" value="Cancel" /></a>';
+
         if ($d != null
                 && isset($_SESSION['user'])
                 && ($_SESSION['user']['accessLevel'] == 'Administrator'
@@ -27,7 +40,8 @@ class view_accounts {
             $deactivateButton = $d['account_deactivated'] == 0
                 ? '<a href="'.URL_BASE.'accounts/deactivate_account/'.$d['account_id'].'/"><input class="btn-red" type="button" value="Deactivate Account" /></a>'
                 : '<a href="'.URL_BASE.'accounts/activate_account/'.$d['account_id'].'/"><input class="btn-green" type="button" value="Activate Account" /></a>';
-        } else $deactivateButton = '';
+        } else
+            $deactivateButton = '';
 
         $passwordBlock = $d != null
             ? ''
@@ -121,8 +135,12 @@ class view_accounts {
 
         $accountStatus = $d['account_deactivated'] == '0' ? 'Activated' : 'Deactivated';
         $deactivateBtn = $d['account_deactivated'] == '0'
-            ? '<a href="'.URL_BASE.'accounts/deactivate_account/'.$d['account_id'].'/"><input class="btn-red" type="button" value="Deactivate Account" /></a>'
-            : '<a href="'.URL_BASE.'accounts/activate_account/'.$d['account_id'].'/"><input class="btn-green" type="button" value="Activate Account" /></a>';
+            ? '<a href="'.URL_BASE.'accounts/deactivate_account/'.$d['account_id'].'/">'
+                .'<input class="btn-red" type="button" value="Deactivate Account" />'
+                .'</a>'
+            : '<a href="'.URL_BASE.'accounts/activate_account/'.$d['account_id'].'/">'
+                .'<input class="btn-green" type="button" value="Activate Account" />'
+                .'</a>';
         $deactivateBtn = in_array($accessLevel, array('Administrator', 'Admin'))
             ? $deactivateBtn : '';
 
@@ -150,7 +168,9 @@ class view_accounts {
         $output .= in_array($accessLevel, array('Administrator', 'Admin'))
             ? '<a href="'.URL_BASE.'accounts/update_account/'.$d['person_id'].'/'.$d['account_id'].'/"><input class="btn-green" type="button" value="Update Account" /></a>'
             : '';
-        $output .= '<a href="'.URL_BASE.'accounts/update_password/'.$d['account_id'].'/"><input type="button" value="Change Password" /></a>'
+        $output .= '<a href="'.URL_BASE.'accounts/update_password/'.$d['account_id'].'/">'
+            .'<input type="button" value="Change Password" />'
+            .'</a>'
             .$deactivateBtn;
         return $output;
     }

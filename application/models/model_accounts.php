@@ -12,6 +12,12 @@ class model_accounts {
 
 
 
+    public function __destruct () {
+
+    }
+
+
+
     public function createAccount ($datas) {
         $d = $datas;
         $fx = new myFunctions();

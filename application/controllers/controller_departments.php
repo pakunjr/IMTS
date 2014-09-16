@@ -12,6 +12,12 @@ class controller_departments {
 
 
 
+    public function __destruct () {
+
+    }
+
+
+
     public function createDepartment () {
         if (!isset($_POST)) {
             header('location: '.URL_BASE.'departments/create_department/');

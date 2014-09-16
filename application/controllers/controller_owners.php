@@ -12,6 +12,12 @@ class controller_owners {
 
 
 
+    public function __destruct () {
+
+    }
+
+
+
     public function displayTrackForm () {
         $keyword = isset($_POST['search-keyword']) ? $_POST['search-keyword'] : '';
         $keyword = trim($keyword);
@@ -56,7 +62,8 @@ class controller_owners {
         } else if ($ownerType == 'Department') {
             $c_departments = new controller_departments();
             $ownerName = $c_departments->displayDepartmentName($ownerId, false);
-        } else $ownerName = 'None';
+        } else
+            $ownerName = 'None';
 
         echo 'List of items owned by the ',$ownerType,', <b>',$ownerName,'</b><br />';
         $this->displayOwnedItemsSummary($ownerType, $ownerId);
@@ -67,7 +74,8 @@ class controller_owners {
     public function displayOwnedItems ($ownerType, $ownerId, $echo=true) {
         $ownerships = $this->model->readOwnedItems($ownerType, $ownerId);
         $output = $this->view->renderOwnedItems($ownerships);
-        if (!$echo) return $output;
+        if (!$echo)
+            return $output;
         echo $output;
     }
 
@@ -76,7 +84,8 @@ class controller_owners {
     public function displayOwnedItemsSummary ($ownerType, $ownerId, $echo=true) {
         $ownerships = $this->model->readOwnedItems($ownerType, $ownerId);
         $output = $this->view->renderOwnedItemsSummary($ownerships);
-        if (!$echo) return $output;
+        if (!$echo)
+            return $output;
         echo $output;
     }
 
@@ -85,7 +94,8 @@ class controller_owners {
     public function displayOwnerName ($ownershipId, $echo=true) {
         $owner = $this->model->readOwner($ownershipId);
         $name = $this->view->renderOwnerName($owner);
-        if (!$echo) return $name;
+        if (!$echo)
+            return $name;
         echo $name;
     }
 
@@ -101,9 +111,8 @@ class controller_owners {
         } else if (strtolower($ownerType) == 'department') {
             $c_departments = new controller_departments();
             $ownerName = $c_departments->displayDepartmentName($ownerId, false);
-        } else {
+        } else
             $ownerName = 'Unknown Owner';
-        }
 
         $fx = new myFunctions();
         $fx->pdfCreate(array(

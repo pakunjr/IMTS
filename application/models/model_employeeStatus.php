@@ -10,6 +10,12 @@ class model_employeeStatus {
 
 
 
+    public function __destruct () {
+
+    }
+
+
+
     public function readStatuses () {
         $rows = $this->db->statement(array(
             'q'=>"SELECT * FROM imts_persons_employment_status"));

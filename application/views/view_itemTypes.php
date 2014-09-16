@@ -2,6 +2,18 @@
 
 class view_itemTypes {
 
+    public function __construct () {
+
+    }
+
+
+
+    public function __destruct () {
+
+    }
+
+
+
     public function renderSelectForm ($types, $options=array()) {
         $f = new form(array(
             'auto_line_break'=>isset($options['auto_line_break']) ? $options['auto_line_break'] : true

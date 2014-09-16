@@ -2,6 +2,18 @@
 
 class view_owners {
 
+    public function __construct () {
+
+    }
+
+
+
+    public function __destruct () {
+
+    }
+
+
+
     public function renderTrackForm ($searchFor, $keyword) {
         $f = new form(array('auto_line_break'=>false, 'auto_label'=>true));
         $output = $f->openForm(array('id'=>'', 'method'=>'post', 'action'=>URL_BASE.'track/owner/', 'enctype'=>'multipart/form-data'))
@@ -192,10 +204,11 @@ class view_owners {
 
         $items = array();
         foreach ($datas as $d) {
-            if ($d['item_component_of'] == '0') {
-                $items[$d['item_id']] = $d;
-            } else {
-                $items[$d['item_component_of']]['components'][$d['item_id']] = $d;
+            if ($d != null) {
+                if ($d['item_component_of'] == '0')
+                    $items[$d['item_id']] = $d;
+                else
+                    $items[$d['item_component_of']]['components'][$d['item_id']] = $d;
             }
         }
 
@@ -208,53 +221,66 @@ class view_owners {
             .'<table><tr>'
             .'<th>No.</th>'
             .'<th>Name</th>'
-            .'<th>Dates<br />Owned - Released</th>'
-            .'<th>Components</th>';
+            .'<th style="text-align: left;">Date Owned<br />-----<br />Date Released</th>'
+            .'<th>Components</th>'
+            .'<th>Maintenance</th>';
         $output .= isset($_SESSION['user']) && !in_array($aLevel, array('Viewer')) && !$printable ? '<th>Actions</th>' : '';
         $output .= '</tr>';
         foreach ($items as $i) {
-            $btnUpdate = !in_array($aLevel, array('View')) ? '<a href="'.URL_BASE.'inventory/update_item/'.$i['item_id'].'/"><input class="btn-green" type="button" value="Update Item" /></a>' : '';
-            $btnArchive = in_array($aLevel, array('Administrator', 'Admin', 'Supervisor')) ? '<a href="'.URL_BASE.'inventory/archive_item/'.$i['item_id'].'/"><input class="btn-red" type="button" value="Archive Item" data-item-name="'.$i['item_name'].' (S/N: '.$i['item_serial_no'].' -- M/N: '.$i['item_model_no'].')" /></a>' : '';
+            $btnUpdate = !in_array($aLevel, array('View'))
+                ? '<a href="'.URL_BASE.'inventory/update_item/'.$i['item_id'].'/"><input class="btn-green" type="button" value="Update Item" /></a>'
+                : '';
+            $btnArchive = in_array($aLevel, array('Administrator', 'Admin', 'Supervisor'))
+                ? '<a href="'.URL_BASE.'inventory/archive_item/'.$i['item_id'].'/"><input class="btn-red" type="button" value="Archive Item" data-item-name="'.$i['item_name'].' (S/N: '.$i['item_serial_no'].' -- M/N: '.$i['item_model_no'].')" /></a>'
+                : '';
             $actionButtons = $btnUpdate.$btnArchive;
-            $actionButtons = $i['item_archive_state'] == '0' ? $actionButtons : 'This item is already archived.';
+            $actionButtons = $i['item_archive_state'] == '0'
+                ? $actionButtons
+                : 'This item is already archived.';
 
             $output .= '<tr class="';
                 $output .= isset($_SESSION['user']) ? 'data' : '';
                 $output .= '" '
                 .'data-url="'.URL_BASE.'inventory/read_item/'.$i['item_id'].'/">'
-                .'<td>'.$itemCount.'</td>'
-                .'<td>'
+                .'<td style="width: 1%;">'.$itemCount.'</td>'
+                .'<td style="width: 25%;">'
                     .'<b>'.$i['item_name'].'</b><br />'
                     .'Serial No.: '.$i['item_serial_no'].'<br />'
                     .'Model No.: '.$i['item_model_no']
-                    .'<br /><br />'
-                    .nl2br($i['item_description'])
+                    .'<br />-----<br />'
+                    .'<i>'.nl2br($i['item_description']).'</i>'
                 .'</td>'
-                .'<td>'
+                .'<td style="width: 8%;">'
                     .$fx->dateToWords($i['ownership_date_owned'])
-                    .' - '
+                    .'<br />-----<br />'
                     .$fx->dateToWords($i['ownership_date_released']).'</td>'
-                .'<td>';
-                if (isset($i['components'])
-                    && is_array($i['components'])) {
-                    $componentCount = 1;
-                    foreach ($i['components'] as $c) {
-                        $itemName = '<b>'.$c['item_name'].'</b><br />'
-                            .'Serial No.: '.$c['item_serial_no'].'<br />'
-                            .'Model No.: '.$c['item_model_no'];
-                        $output .= isset($_SESSION['user']) && !$printable
-                            ? '<a class="btn-blue" href="'.URL_BASE.'inventory/read_item/'.$c['item_id'].'/">'.$itemName.'</a><br />'
-                            : $itemName;
-                        $output .= (!isset($_SESSION['user']) 
-                                    && $componentCount != count($i['components']))
-                                || ($printable
-                                    && $componentCount != count($i['components']))
-                                ? '<br /><br />' : '';
-                        $componentCount++;
-                    }
-                } else $output .= 'This item do not have any components.';
-            $output .= '</td>';
-            $output .= isset($_SESSION['user']) && !in_array($aLevel, array('Viewer')) && !$printable ? '<td>'.$actionButtons.'</td>' : '';
+                .'<td style="width: 25%;">';
+                    if (isset($i['components'])
+                            && is_array($i['components'])) {
+                        $componentCount = 1;
+                        foreach ($i['components'] as $c) {
+                            $itemName = '<b>'.$c['item_name'].'</b><br />'
+                                .'Serial No.: '.$c['item_serial_no'].'<br />'
+                                .'Model No.: '.$c['item_model_no']
+                                .'<br />-----<br />'
+                                .'<i>'.nl2br($c['item_description']).'</i>';
+                            $output .= isset($_SESSION['user']) && !$printable
+                                ? '<a class="btn-blue" href="'.URL_BASE.'inventory/read_item/'.$c['item_id'].'/">'.$itemName.'</a><br />'
+                                : $itemName;
+                            $output .= (!isset($_SESSION['user']) 
+                                        && $componentCount != count($i['components']))
+                                    || ($printable
+                                        && $componentCount != count($i['components']))
+                                    ? '<br /><br />' : '';
+                            $componentCount++;
+                        }
+                    } else
+                        $output .= 'This item do not have any components.';
+            $output .= '</td>'
+                .'<td style="width: 15%;">Maintenance module is coming soon...</td>';
+            $output .= isset($_SESSION['user']) && !in_array($aLevel, array('Viewer')) && !$printable
+                ? '<td>'.$actionButtons.'</td>'
+                : '';
             $output .= '</tr>';
 
             $itemCount++;
@@ -281,9 +307,8 @@ class view_owners {
         } else if (strtolower($ownerType) == 'department') {
             $c_departments = new controller_departments();
             $ownerName = $c_departments->displayDepartmentName($datas[0]['ownership_owner'], false);
-        } else {
+        } else
             $ownerName = 'Unknown Owner';
-        }
 
         $content = 'This is a list of items owned by the '.$ownerType.', <b>'.$ownerName.'</b><br />'
             .$this->renderOwnedItemsSummary($datas, true);

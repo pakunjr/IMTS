@@ -2,6 +2,18 @@
 
 class view_itemStates {
 
+    public function __construct () {
+
+    }
+
+
+
+    public function __destruct () {
+
+    }
+
+
+
     public function renderSelectForm ($states, $options=array()) {
         $f = new form(array(
             'auto_line_break'=>isset($options['auto_line_break']) ? $options['auto_line_break'] : true

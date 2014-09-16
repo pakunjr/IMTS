@@ -10,6 +10,12 @@ class model_itemTypes {
 
 
 
+    public function __destruct () {
+
+    }
+
+
+
     public function readItemType ($typeId) {
         $rows = $this->db->statement(array(
             'q'=>"SELECT * FROM imts_items_type WHERE item_type_id = ? LIMIT 1"

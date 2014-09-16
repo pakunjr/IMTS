@@ -2,6 +2,18 @@
 
 class view_persons {
 
+    public function __construct () {
+
+    }
+
+
+
+    public function __destruct () {
+
+    }
+
+
+
     public function renderForm ($datas) {
         $d = $datas;
 

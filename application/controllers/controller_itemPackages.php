@@ -12,6 +12,12 @@ class controller_itemPackages {
 
 
 
+    public function __destruct () {
+
+    }
+
+
+
     public function createPackage () {
         if (!isset($_POST)) {
             header('location: '.URL_BASE.'inventory_packages/create_package/');

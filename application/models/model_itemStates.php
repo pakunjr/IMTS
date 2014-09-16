@@ -10,6 +10,12 @@ class model_itemStates {
 
 
 
+    public function __destruct () {
+
+    }
+
+
+
     public function readItemState ($stateId) {
         $rows = $this->db->statement(array(
             'q'=>"SELECT * FROM imts_items_state WHERE item_state_id = ? LIMIT 1"

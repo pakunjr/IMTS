@@ -12,6 +12,12 @@ class controller_itemStates {
 
 
 
+    public function __destruct () {
+
+    }
+
+
+
     public function displaySelectForm ($options=array(), $echo=true) {
         $states = $this->model->readItemStates();
         $form = $this->view->renderSelectForm($states, $options);
