@@ -14,31 +14,6 @@ class view_pages {
 
 
 
-    public function renderPage ($contents) {
-        $header_file = DIR_THEME.DS.'header.php';
-        $footer_file = DIR_THEME.DS.'footer.php';
-        if (file_exists($header_file)) {
-            ob_start();
-            require_once($header_file);
-            $output = ob_get_contents();
-            ob_end_clean();
-        } else
-            $output = '';
-
-        $output .= $contents;
-
-        if (file_exists($footer_file)) {
-            ob_start();
-            require_once($header_file);
-            $output .= ob_get_contents();
-            ob_end_clean();
-        }
-
-        return $output;
-    }
-
-
-
     public function renderNavigation ($type='default', $cModel=null) {
 
         $class = ' class="current-model"';

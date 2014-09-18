@@ -17,7 +17,7 @@ class model_items {
 
 
     public function createItem ($datas) {
-        $d = $datas;
+        $d = array_map('trim', $datas);
         $d['item-has-components'] = isset($d['item-has-components']) ? '1' : '0';
 
         $res = $this->db->statement(array(
@@ -54,13 +54,14 @@ class model_items {
             $d['item-id'] = $this->db->lastInsertId();
             $this->logAction($d['item-id'], 'Item Creation: SUCCESS');
             return $d;
-        } else return null;
+        } else
+            return null;
     }
 
 
 
     public function createItemOwnership ($datas) {
-        $d = $datas;
+        $d = array_map('trim', $datas);
         $ownership = $this->db->statement(array(
             'q'=>"INSERT INTO imts_ownership(
                     ownership_item
@@ -135,7 +136,7 @@ class model_items {
 
 
     public function updateItem ($datas) {
-        $d = $datas;
+        $d = array_map('trim', $datas);
         $d['item-has-components'] = isset($d['item-has-components']) ? '1' : '0';
         $r = $this->db->statement(array(
             'q'=>"UPDATE imts_items
@@ -181,7 +182,7 @@ class model_items {
 
 
     public function updateItemOwnership ($datas) {
-        $d = $datas;
+        $d = array_map('trim', $datas);
         $ownership = $this->db->statement(array(
             'q'=>"UPDATE imts_ownership
                 SET
@@ -301,8 +302,10 @@ class model_items {
             ,'v'=>array(
                 intval($itemId))));
         if (count($rows) > 0) {
-            if ($rows[0]['item_has_components'] == 1) return true;
-            else return false;
+            if ($rows[0]['item_has_components'] == 1)
+                return true;
+            else
+                return false;
         } else
             return null;
     }

@@ -250,10 +250,14 @@ class form {
         else if ( !$this->auto_label ) return false;
 
         $id = isset($o['id']) ? $o['id'] : '';
-        if ( isset($o['label']) ) $label = $o['label'];
-        else if ( isset($o['name']) ) $label = $o['name'];
-        else if ( isset($o['id']) ) $label = $o['id'];
-        else $label = '';
+        if ( isset($o['label']) )
+            $label = $o['label'];
+        else if ( isset($o['name']) )
+            $label = $o['name'];
+        else if ( isset($o['id']) )
+            $label = $o['id'];
+        else
+            $label = '';
         $output = '<label for="'.$id.'">'
                 .$label
                 .'</label>';
@@ -269,10 +273,14 @@ class form {
      */
     private function autoLineBreak ($o=array()) {
         if ( isset($o['auto_line_break']) ) {
-            if ( $o['auto_line_break'] ) return '<br />'.PHP_EOL;
-            else return '';
-        } else if ( $this->auto_line_break ) return '<br />'.PHP_EOL;
-        else return '';
+            if ( $o['auto_line_break'] )
+                return '<br />'.PHP_EOL;
+            else
+                return '';
+        } else if ( $this->auto_line_break )
+            return '<br />'.PHP_EOL;
+        else
+            return '';
     }
 
 

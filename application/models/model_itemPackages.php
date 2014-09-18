@@ -17,7 +17,7 @@ class model_itemPackages {
 
 
     public function createPackage ($datas) {
-        $d = $datas;
+        $d = array_map('trim', $datas);
         $res = $this->db->statement(array(
             'q'=>"INSERT INTO imts_items_package(
                     package_name
@@ -33,7 +33,8 @@ class model_itemPackages {
         if ($res) {
             $d['package-id'] = $this->db->lastInsertId();
             return $d;
-        } else return null;
+        } else
+            return null;
     }
 
 
@@ -57,7 +58,7 @@ class model_itemPackages {
 
 
     public function updatePackage ($datas) {
-        $d = $datas;
+        $d = array_map('trim', $datas);
         $res = $this->db->statement(array(
             'q'=>"UPDATE imts_items_package
                 SET

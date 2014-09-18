@@ -207,8 +207,11 @@ class view_owners {
             if ($d != null) {
                 if ($d['item_component_of'] == '0')
                     $items[$d['item_id']] = $d;
-                else
-                    $items[$d['item_component_of']]['components'][$d['item_id']] = $d;
+                else {
+                    $z = $d['item_component_of'];
+                    $x = $d['item_id'];
+                    $items[$z]['components'][$x] = $d;
+                }
             }
         }
 
@@ -226,17 +229,27 @@ class view_owners {
             .'<th>Maintenance</th>';
         $output .= isset($_SESSION['user']) && !in_array($aLevel, array('Viewer')) && !$printable ? '<th>Actions</th>' : '';
         $output .= '</tr>';
+
         foreach ($items as $i) {
-            $btnUpdate = !in_array($aLevel, array('View'))
+            $btnUpdate = !in_array($aLevel, array('Viewer'))
                 ? '<a href="'.URL_BASE.'inventory/update_item/'.$i['item_id'].'/"><input class="btn-green" type="button" value="Update Item" /></a>'
                 : '';
             $btnArchive = in_array($aLevel, array('Administrator', 'Admin', 'Supervisor'))
                 ? '<a href="'.URL_BASE.'inventory/archive_item/'.$i['item_id'].'/"><input class="btn-red" type="button" value="Archive Item" data-item-name="'.$i['item_name'].' (S/N: '.$i['item_serial_no'].' -- M/N: '.$i['item_model_no'].')" /></a>'
                 : '';
-            $actionButtons = $btnUpdate.$btnArchive;
+            $btnProfileCard = $fx->isAccessible('Content Provider')
+                ? '<a href="'.URL_BASE.'documents/profile_card/'.$i['item_id'].'/" target="_blank">
+                    <input type="button" value="Generate Profile Card" />
+                    </a>'
+                : '';
+            $actionButtons = $btnUpdate.$btnProfileCard.$btnArchive;
             $actionButtons = $i['item_archive_state'] == '0'
                 ? $actionButtons
-                : 'This item is already archived.';
+                : 'This item has been archived.';
+
+            $itemDescription = strlen(trim($i['item_description'])) > 0
+                ? '<br /><br /><i>'.nl2br(trim($i['item_description'])).'</i>'
+                : '';
 
             $output .= '<tr class="';
                 $output .= isset($_SESSION['user']) ? 'data' : '';
@@ -247,8 +260,7 @@ class view_owners {
                     .'<b>'.$i['item_name'].'</b><br />'
                     .'Serial No.: '.$i['item_serial_no'].'<br />'
                     .'Model No.: '.$i['item_model_no']
-                    .'<br />-----<br />'
-                    .'<i>'.nl2br($i['item_description']).'</i>'
+                    .$itemDescription
                 .'</td>'
                 .'<td style="width: 8%;">'
                     .$fx->dateToWords($i['ownership_date_owned'])
@@ -259,11 +271,14 @@ class view_owners {
                             && is_array($i['components'])) {
                         $componentCount = 1;
                         foreach ($i['components'] as $c) {
+                            $componentDescription = strlen(trim($c['item_description'])) > 0
+                                ? '<br /><i>'.nl2br(trim($c['item_description'])).'</i>'
+                                : '';
+
                             $itemName = '<b>'.$c['item_name'].'</b><br />'
                                 .'Serial No.: '.$c['item_serial_no'].'<br />'
                                 .'Model No.: '.$c['item_model_no']
-                                .'<br />-----<br />'
-                                .'<i>'.nl2br($c['item_description']).'</i>';
+                                .$componentDescription;
                             $output .= isset($_SESSION['user']) && !$printable
                                 ? '<a class="btn-blue" href="'.URL_BASE.'inventory/read_item/'.$c['item_id'].'/">'.$itemName.'</a><br />'
                                 : $itemName;
@@ -286,9 +301,6 @@ class view_owners {
             $itemCount++;
         }
         $output .= '</table><div class="hr-light"></div>';
-        $output .= !$printable
-            ? '<a href="'.URL_BASE.'track/owner/'.strtolower($datas[0]['ownership_owner_type']).'_printable/'.$datas[0]['ownership_owner'].'/" target="_blank"><input type="button" value="Generate PDF" /></a>'
-            : '';
         return $output;
     }
 

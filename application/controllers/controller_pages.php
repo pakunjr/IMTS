@@ -44,9 +44,9 @@ class controller_pages {
         $models_public = array('home', 'track');
         $models_admin = array('admin');
 
-        //Check authentication
+        // Check authentication
         if (in_array($model, $models_public)) {
-            //Route pages in public modules
+            // Route pages in public modules
             switch ($model) {
                 case 'track':
                     switch ($view) {
@@ -108,8 +108,41 @@ class controller_pages {
         $acc_al = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
         $acc_aid = isset($_SESSION['user']) ? $_SESSION['user']['accountId'] : null;
 
-        //Route pages
+        // Route pages
         switch ($model) {
+            case 'documents':
+                /**
+                 * These are printable documents
+                 */
+
+                $c_documents = new controller_documents();
+                switch ($view) {
+                    // Administrator documents
+
+                    case 'system_log_report':
+                        break;
+
+                    // Supervisor documents
+
+                    // Content Provider documents
+
+                    case 'profile_card':
+                        $c_documents->generateProfileCard($controller);
+                        break;
+
+                    case 'item_trace':
+                        $c_documents->generateItemTrace($controller);
+                        break;
+
+                    case 'inventory_report':
+                        $c_documents->generateInventoryReport($controller, $action);
+                        break;
+
+                    default:
+                        $this->haltAccess('404');
+                }
+                break;
+
             case 'accounts':
                 switch ($view) {
                     case 'login':
@@ -121,11 +154,7 @@ class controller_pages {
                         break;
 
                     case 'create_account':
-                        if (!in_array($acc_al, array('Administrator', 'Admin'))) {
-                            $this->haltAccess('403');
-                            return;
-                        }
-
+                        $this->restrictPage('Administrator');
                         switch ($controller) {
                             case 'save':
                                 $c_accounts->createAccount();
@@ -139,12 +168,8 @@ class controller_pages {
                         break;
 
                     case 'read_account':
-                        if ($acc_aid != $controller) {
-                            if (in_array($acc_al, array('Viewer', 'Content Provider'))) {
-                                $this->haltAccess('403');
-                                return;
-                            }
-                        }
+                        if ($acc_aid != $controller)
+                            $this->restrictPage('Supervisor');
 
                         $this->displayHeader();
                         $c_accounts->displayAccountInformations($controller);
@@ -194,20 +219,12 @@ class controller_pages {
                         break;
 
                     case 'activate_account':
-                        if (!in_array($acc_al, array('Administrator', 'Admin'))) {
-                            $this->haltAccess('403');
-                            return;
-                        }
-
+                        $this->restrictPage('Administrator');
                         $c_accounts->activateAccount($controller);
                         break;
 
                     case 'deactivate_account':
-                        if (!in_array($acc_al, array('Administrator', 'Admin'))) {
-                            $this->haltAccess('403');
-                            return;
-                        }
-
+                        $this->restrictPage('Administrator');
                         $c_accounts->deactivateAccount($controller);
                         break;
 
@@ -217,11 +234,7 @@ class controller_pages {
                 break;
 
             case 'admin':
-                if (!in_array($acc_al, array('Administrator', 'Admin'))) {
-                    $this->haltAccess('403');
-                    return;
-                }
-                
+                $this->restrictPage('Administrator');
                 switch ($view) {
                     case 'log':
                         switch ($controller) {
@@ -267,11 +280,7 @@ class controller_pages {
             case 'inventory':
                 switch ($view) {
                     case 'create_item':
-                        if (in_array($acc_al, array('Viewer'))) {
-                            $this->haltAccess('403');
-                            return;
-                        }
-
+                        $this->restrictPage('Content Provider');
                         switch ($controller) {
                             case 'save':
                                 $c_items->saveItem();
@@ -285,11 +294,7 @@ class controller_pages {
                         break;
 
                     case 'create_item_niboti':
-                        if (in_array($acc_al, array('Viewer'))) {
-                            $this->haltAccess('403');
-                            return;
-                        }
-
+                        $this->restrictPage('Content Provider');
                         switch ($controller) {
                             case 'save':
                                 $c_items->saveItem();
@@ -303,11 +308,7 @@ class controller_pages {
                         break;
 
                     case 'create_item_addComponent':
-                        if (in_array($acc_al, array('Viewer'))) {
-                            $this->haltAccess('403');
-                            return;
-                        }
-
+                        $this->restrictPage('Content Provider');
                         switch ($controller) {
                             case 'save':
                                 $c_items->saveItem();
@@ -327,11 +328,7 @@ class controller_pages {
                         break;
 
                     case 'update_item':
-                        if (in_array($acc_al, array('Viewer'))) {
-                            $this->haltAccess('403');
-                            return;
-                        }
-
+                        $this->restrictPage('Content Provider');
                         switch ($controller) {
                             case 'save':
                                 $c_items->updateItem();
@@ -345,11 +342,7 @@ class controller_pages {
                         break;
 
                     case 'archive_item':
-                        if (!in_array($acc_al, array('Administrator', 'Admin', 'Supervisor'))) {
-                            $this->haltAccess('403');
-                            return;
-                        }
-
+                        $this->restrictPage('Supervisor');
                         $c_items->archiveItem($controller);
                         break;
 
@@ -360,7 +353,6 @@ class controller_pages {
                         break;
 
                     case 'in_search_componentHost':
-
                         $c_items->displaySearchResults('componentHosts', $controller);
                         break;
 
@@ -372,11 +364,7 @@ class controller_pages {
             case 'inventory_packages':
                 switch ($view) {
                     case 'create_package':
-                        if (in_array($acc_al, array('Viewer'))) {
-                            $this->haltAccess('403');
-                            return;
-                        }
-
+                        $this->restrictPage('Content Provider');
                         switch ($controller) {
                             case 'save':
                                 $c_itemPackages->createPackage();
@@ -396,11 +384,7 @@ class controller_pages {
                         break;
 
                     case 'update_package':
-                        if (in_array($acc_al, array('Viewer'))) {
-                            $this->haltAccess('403');
-                            return;
-                        }
-
+                        $this->restrictPage('Content Provider');
                         switch ($controller) {
                             case 'save':
                                 $c_itemPackages->updatePackage();
@@ -431,11 +415,7 @@ class controller_pages {
             case 'persons':
                 switch ($view) {
                     case 'create_person':
-                        if (in_array($acc_al, array('Viewer'))) {
-                            $this->haltAccess('403');
-                            return;
-                        }
-
+                        $this->restrictPage('Content Provider');
                         switch ($controller) {
                             case 'save':
                                 $c_persons->createPerson();
@@ -455,11 +435,7 @@ class controller_pages {
                         break;
 
                     case 'update_person':
-                        if (in_array($acc_al, array('Viewer'))) {
-                            $this->haltAccess('403');
-                            return;
-                        }
-
+                        $this->restrictPage('Content Provider');
                         switch ($controller) {
                             case 'save':
                                 $c_persons->updatePerson();
@@ -486,11 +462,7 @@ class controller_pages {
             case 'employees':
                 switch ($view) {
                     case 'create_employment':
-                        if (!in_array($acc_al, array('Administrator', 'Admin', 'Supervisor'))) {
-                            $this->haltAccess('403');
-                            return;
-                        }
-
+                        $this->restrictPage('Supervisor');
                         switch ($action) {
                             case 'save':
                                 $c_employees->createEmployment();
@@ -504,11 +476,7 @@ class controller_pages {
                         break;
 
                     case 'create_job':
-                        if (!in_array($acc_al, array('Administrator', 'Admin', 'Supervisor'))) {
-                            $this->haltAccess('403');
-                            return;
-                        }
-
+                        $this->restrictPage('Supervisor');
                         switch ($controller) {
                             case 'save':
                                 $c_employees->createJob();
@@ -528,11 +496,7 @@ class controller_pages {
                         break;
 
                     case 'update_employment':
-                        if (!in_array($acc_al, array('Administrator', 'Admin', 'Supervisor'))) {
-                            $this->haltAccess('403');
-                            return;
-                        }
-
+                        $this->restrictPage('Supervisor');
                         switch ($action) {
                             case 'save':
                                 $c_employees->updateEmployment();
@@ -546,11 +510,7 @@ class controller_pages {
                         break;
 
                     case 'update_job':
-                        if (!in_array($acc_al, array('Administrator', 'Admin', 'Supervisor'))) {
-                            $this->haltAccess('403');
-                            return;
-                        }
-
+                        $this->restrictPage('Supervisor');
                         switch ($controller) {
                             case 'save':
                                 $c_employees->updateJob();
@@ -564,20 +524,12 @@ class controller_pages {
                         break;
 
                     case 'delete_job':
-                        if (!in_array($acc_al, array('Administrator', 'Admin'))) {
-                            $this->haltAccess('403');
-                            return;
-                        }
-
+                        $this->restrictPage('Administrator');
                         $c_employees->deleteJob($controller);
                         break;
 
                     case 'end_employment':
-                        if (!in_array($acc_al, array('Administrator', 'Admin', 'Supervisor'))) {
-                            $this->haltAccess('403');
-                            return;
-                        }
-
+                        $this->restrictPage('Supervisor');
                         $c_employees->endEmployment($controller);
                         break;
 
@@ -603,11 +555,7 @@ class controller_pages {
             case 'departments':
                 switch ($view) {
                     case 'create_department':
-                        if (in_array($acc_al, array('Viewer'))) {
-                            $this->haltAccess('403');
-                            return;
-                        }
-
+                        $this->restrictPage('Content Provider');
                         switch ($controller) {
                             case 'save':
                                 $c_departments->createDepartment();
@@ -627,11 +575,7 @@ class controller_pages {
                         break;
 
                     case 'update_department':
-                        if (in_array($acc_al, array('Viewer'))) {
-                            $this->haltAccess('403');
-                            return;
-                        }
-
+                        $this->restrictPage('Content Provider');
                         switch ($controller) {
                             case 'save':
                                 $c_departments->updateDepartment();
@@ -689,6 +633,12 @@ class controller_pages {
 
 
 
+    public function displayPage ($content, $type='complete') {
+        
+    }
+
+
+
     public function displayHeader () {
         $file = DIR_TEMPLATE.DS.'header.php';
         if (file_exists($file)) require_once($file);
@@ -732,6 +682,16 @@ class controller_pages {
         $this->displayHeader();
         $this->displayErrorPage($errorType, $echo);
         $this->displayFooter();
+    }
+
+
+
+    public function restrictPage ($leastAccessLevel=null) {
+        $fx = new myFunctions();
+        if (!$fx->isAccessible($leastAccessLevel)) {
+            $this->haltAccess('403');
+            exit();
+        }
     }
 
 }

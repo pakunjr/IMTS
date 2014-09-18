@@ -17,7 +17,7 @@ class model_departments {
 
 
     public function createDepartment ($datas) {
-        $d = $datas;
+        $d = array_map('trim', $datas);
         $res = $this->db->statement(array(
             'q'=>"INSERT INTO imts_departments(
                     department_head
@@ -51,12 +51,9 @@ class model_departments {
         $currentDate = date('Y-m-d');
         $rows = $this->db->statement(array(
             'q'=>"SELECT * FROM imts_persons_employment AS emp
-                LEFT JOIN imts_persons AS per
-                    ON emp.employee_person = per.person_id
-                LEFT JOIN imts_persons_employment_jobs AS job
-                    ON emp.employee_job = job.employee_job_id
-                LEFT JOIN imts_persons_employment_status AS sta
-                    ON emp.employee_status = sta.employee_status_id
+                LEFT JOIN imts_persons AS per ON emp.employee_person = per.person_id
+                LEFT JOIN imts_persons_employment_jobs AS job ON emp.employee_job = job.employee_job_id
+                LEFT JOIN imts_persons_employment_status AS sta ON emp.employee_status = sta.employee_status_id
                 WHERE emp.employee_department = ?
                     AND (emp.employee_resignation_date > '$currentDate'
                         OR emp.employee_resignation_date = '0000-00-00')"
@@ -87,7 +84,7 @@ class model_departments {
 
 
     public function updateDepartment ($datas) {
-        $d = $datas;
+        $d = array_map('trim', $datas);
         $res = $this->db->statement(array(
             'q'=>"UPDATE imts_departments
                 SET

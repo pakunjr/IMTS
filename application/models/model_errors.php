@@ -19,10 +19,8 @@ class model_errors {
     public function readErrors () {
         $rows = $this->db->statement(array(
             'q'=>"SELECT * FROM imts_logs_errors AS err
-                LEFT JOIN imts_accounts AS acc
-                    ON err.error_logged_account = acc.account_id
-                LEFT JOIN imts_persons AS per
-                    ON acc.account_owner = per.person_id
+                LEFT JOIN imts_accounts AS acc ON err.error_logged_account = acc.account_id
+                LEFT JOIN imts_persons AS per ON acc.account_owner = per.person_id
                 WHERE err.error_archived = 0
                 ORDER BY err.error_id DESC"));
         return count($rows) > 0 ? $rows : null;

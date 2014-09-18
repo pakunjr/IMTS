@@ -147,6 +147,8 @@ class controller_items {
 
 
     public function saveItem () {
+        $c_errors = new controller_errors();
+
         if (isset($_POST)) {
             $datas = $this->model->createItem($_POST);
             $d = $datas;
@@ -189,19 +191,25 @@ class controller_items {
                     }
                 }
                 header('location: '.URL_BASE.'inventory/read_item/'.$d['item-id'].'/');
-            } else
+            } else {
+                $c_errors->logError('System failed to save the new item.');
                 exit('<span style="display: inline-block; color: #f00;">SYSTEM ERROR: Failed to save the new item.'
                     .'<br />Exiting...<br /><br />'
                     .'<a href="'.URL_BASE.'inventory/create_item/"><input type="button" value="Back to New Item Form." /></a></span>');
-        } else
+            }
+        } else {
+            $c_errors->logError('Save new item is being accessed directly without using the form, thus not passing any data.');
             exit('<span style="display: inline-block; color: #f00;">USER ERROR: The system do not know how you got here but you are on the wrong page.'
                 .'<br />Exiting...<br /><br />'
                 .'<a href="'.URL_BASE.'inventory/create_item/"><input type="button" value="Back to New Item Form." /></a></span>');
+        }
     }
 
 
 
     public function updateItem () {
+        $c_errors = new controller_errors();
+
         if (isset($_POST)) {
             $datas = $this->model->updateItem($_POST);
             $d = $datas;
@@ -249,12 +257,16 @@ class controller_items {
                             $this->model->logAction($d['item-id'], 'Created new ownership for `'.$c_owners->displayOwnerName($niod['ownership-id'], false).'`');
                     }
                 }
-            }
+            } else
+                $c_errors->logError('System failed to update the item.');
+                
             header('location: '.URL_BASE.'inventory/read_item/'.$d['item-id'].'/');
-        } else
+        } else {
+            $c_errors->logError('Update item is being accessed directly without using the form, thus not passing any data.');
             exit('<span style="display: inline-block; color: #f00;">USER ERROR: The system do not know how you got here but you are on the wrong page.'
                 .'<br />Exiting...<br /><br />'
                 .'<a href="'.URL_BASE.'inventory/create_item/"><input type="button" value="Back to New Item Form." /></a></span>');
+        }
     }
 
 

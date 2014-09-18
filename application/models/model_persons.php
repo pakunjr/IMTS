@@ -17,7 +17,7 @@ class model_persons {
 
 
     public function createPerson ($datas) {
-        $d = $datas;
+        $d = array_map('trim', $datas);
         $res = $this->db->statement(array(
             'q'=>"INSERT INTO imts_persons(
                     person_firstname
@@ -47,7 +47,8 @@ class model_persons {
         if ($res) {
             $d['person-id'] = $this->db->lastInsertId();
             return $d;
-        } else return null;
+        } else
+            return null;
     }
 
 
@@ -71,7 +72,7 @@ class model_persons {
 
 
     public function updatePerson ($datas) {
-        $d = $datas;
+        $d = array_map('trim', $datas);
         $res = $this->db->statement(array(
             'q'=>"UPDATE imts_persons
                 SET

@@ -269,14 +269,17 @@ class view_items {
                         .$archiveButton
                     : 'This item has been archived.';
 
+                $componentDescription = strlen(trim($component['item_description'])) > 0
+                    ? '<br /><br /><i>'.nl2br(trim($component['item_description'])).'</i>'
+                    : '';
+
                 $output .= '<tr class="data" '
                     .'data-url="'.URL_BASE.'inventory/read_item/'.$component['item_id'].'/">'
                     .'<td>'
                         .$component['item_name'].'<br />'
                         .'<span style="color: #03f;">Serial</span>: '.$component['item_serial_no'].'<br />'
-                        .'<span style="color: #f00;">Model</span>: '.$component['item_model_no'].'<br />'
-                        .'<div class="hr-light"></div>'
-                        .'Description: '.nl2br($component['item_description'])
+                        .'<span style="color: #f00;">Model</span>: '.$component['item_model_no']
+                        .$componentDescription
                     .'</td>'
                     .'<td>'
                         .$c_itemStates->displayItemStateName($component['item_state'], false)

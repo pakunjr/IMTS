@@ -15,7 +15,7 @@ class myFunctions {
 
 
     public function dateToWords ($myDate) {
-        if ( $myDate == '0000-00-00' )
+        if ($myDate == '0000-00-00')
             return 'N/A';
 
         $months = array(
@@ -45,6 +45,37 @@ class myFunctions {
     public function isEmail ($emailAddress) {
         if (filter_var($emailAddress, FILTER_VALIDATE_EMAIL)) return true;
         else return false;
+    }
+
+
+
+    public function isAccessible ($leastAccessLevel) {
+        $userAccessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
+        $ual = $userAccessLevel;
+        $lal = $leastAccessLevel;
+
+        switch ($lal) {
+            case 'Administrator':
+                return in_array($ual, array('Administrator')) ? true : false;
+                break;
+
+            case 'Supervisor':
+                return in_array($ual, array('Administrator', 'Supervisor'))
+                    ? true : false;
+                break;
+
+            case 'Content Provider':
+                return in_array($ual, array('Administrator', 'Supervisor', 'Content Provider'))
+                    ? true : false;
+                break;
+
+            case 'Viewer':
+                return in_array($ual, array('Administrator', 'Supervisor', 'Content Provider', 'Viewer'))
+                    ? true : false;
+                break;
+
+            default:
+        }
     }
 
 

@@ -17,7 +17,7 @@ class model_employees {
 
 
     public function createEmployment ($datas) {
-        $d = $datas;
+        $d = array_map('trim', $datas);
         $res = $this->db->statement(array(
             'q'=>"INSERT INTO imts_persons_employment(
                     employee_no
@@ -39,13 +39,14 @@ class model_employees {
         if ($res) {
             $d['employee-id'] = $this->db->lastInsertId();
             return $d;
-        } else return null;
+        } else
+            return null;
     }
 
 
 
     public function createJob ($datas) {
-        $d = $datas;
+        $d = array_map('trim', $datas);
         $res = $this->db->statement(array(
             'q'=>"INSERT INTO imts_persons_employment_jobs(
                     employee_job_label
@@ -57,7 +58,8 @@ class model_employees {
         if ($res) {
             $d['employee-job-id'] = $this->db->lastInsertId();
             return $d;
-        } else return null;
+        } else
+            return null;
     }
 
 
@@ -65,10 +67,8 @@ class model_employees {
     public function readPersonEmployment ($personId) {
         $rows = $this->db->statement(array(
             'q'=>"SELECT * FROM imts_persons_employment AS emp
-                LEFT JOIN imts_persons_employment_jobs AS job
-                    ON emp.employee_job = job.employee_job_id
-                LEFT JOIN imts_persons_employment_status AS sta
-                    ON emp.employee_status = sta.employee_status_id
+                LEFT JOIN imts_persons_employment_jobs AS job ON emp.employee_job = job.employee_job_id
+                LEFT JOIN imts_persons_employment_status AS sta ON emp.employee_status = sta.employee_status_id
                 WHERE emp.employee_person = ?
                 ORDER BY
                     FIELD(emp.employee_resignation_date, '0000-00-00') DESC
@@ -83,10 +83,8 @@ class model_employees {
     public function readEmployee ($employeeId) {
         $rows = $this->db->statement(array(
             'q'=>"SELECT * FROM imts_persons_employment AS emp
-                LEFT JOIN imts_persons AS per
-                    ON emp.employee_person = per.person_id
-                LEFT JOIN imts_persons_employment_jobs AS emp_job
-                    ON emp.employee_job = emp_job.employee_job_id
+                LEFT JOIN imts_persons AS per ON emp.employee_person = per.person_id
+                LEFT JOIN imts_persons_employment_jobs AS emp_job ON emp.employee_job = emp_job.employee_job_id
                 WHERE employee_id = ? LIMIT 1"
             ,'v'=>array(
                 intval($employeeId))));
@@ -105,7 +103,7 @@ class model_employees {
 
 
     public function updateEmployment ($datas) {
-        $d = $datas;
+        $d = array_map('trim', $datas);
         $res = $this->db->statement(array(
             'q'=>"UPDATE imts_persons_employment
                 SET
@@ -133,7 +131,7 @@ class model_employees {
 
 
     public function updateJob ($datas) {
-        $d = $datas;
+        $d = array_map('trim', $datas);
         $res = $this->db->statement(array(
             'q'=>"UPDATE imts_persons_employment_jobs
                 SET
@@ -174,12 +172,9 @@ class model_employees {
         $currentDate = date('Y-m-d');
         $rows = $this->db->statement(array(
             'q'=>"SELECT * FROM imts_persons_employment AS emp
-                LEFT JOIN imts_persons AS per
-                    ON emp.employee_person = per.person_id
-                LEFT JOIN imts_persons_employment_status AS emp_stat
-                    ON emp.employee_status = emp_stat.employee_status_id
-                LEFT JOIN imts_persons_employment_jobs AS emp_job
-                    ON emp.employee_job = emp_job.employee_job_id
+                LEFT JOIN imts_persons AS per ON emp.employee_person = per.person_id
+                LEFT JOIN imts_persons_employment_status AS emp_stat ON emp.employee_status = emp_stat.employee_status_id
+                LEFT JOIN imts_persons_employment_jobs AS emp_job ON emp.employee_job = emp_job.employee_job_id
                 WHERE
                     (emp.employee_resignation_date > '$currentDate'
                     OR emp.employee_resignation_date = '0000-00-00')

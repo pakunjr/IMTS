@@ -14,11 +14,16 @@ $(document).ready(function () {
             });
 
             $trig.hover(function () {
-                $this.stop(true, true).slideDown(250);
+                $this.show(0);
+                // $this.stop(true, true).slideDown(250);
             }, function () {
-                if (!$this.is(':hover')) {
+                $this.hide(0);
+                /*
+                if (!$this.is(':hover'))
                     $this.stop(true, true).slideUp(150);
-                } else $this.stop(true, true).slideUp(150);
+                else
+                    $this.stop(true, true).slideUp(150);
+                */
             });
         });
     }
