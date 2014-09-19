@@ -1,5 +1,10 @@
 $(document).ready(function () {
 
+    /**
+     * Place a confirm alert popup on selected
+     * buttons under the employment / employee
+     * module
+     */
     if ($('input[value="End Employment"]').length > 0) {
         $('input[value="End Employment"]').each(function () {
             var $this = $(this)

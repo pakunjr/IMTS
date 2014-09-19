@@ -67,46 +67,74 @@ class view_departments {
 
         $c_departments = new controller_departments();
         $c_owners = new controller_owners();
+        $c_inventory = new controller_inventory();
         $c_persons = new controller_persons();
         $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
 
         $ownerName = '<h3>'.$d['department_name'].' - '.$d['department_name_short'].'</h3>';
-        $ownedItems = $c_owners->displayOwnedItemsSummary('Department', $d['department_id'], false);
 
         $headName = $c_persons->displayPersonName($d['department_head'], false);
         $headLink = !in_array($headName, array('Unknown Person', 'None'))
             ? '<a href="'.URL_BASE.'persons/read_person/'.$d['department_head'].'/"><input type="button" value="'.$headName.'" /></a>'
             : $headName;
 
-        $output = $ownerName.'<div class="hr-light"></div>'
-            .'<div class="accordion-title">Department Information</div><div class="accordion-content accordion-content-default">'
-            .'<table>'
-            .'<tr>'
-                .'<th>Name</th>'
-                .'<td>'.$d['department_name'].'</td>'
-                .'<th rowspan="3">Description</th>'
-                .'<td rowspan="3">'.nl2br($d['department_description']).'</td>'
-            .'</tr><tr>'
-                .'<th>Short</th>'
-                .'<td>'.$d['department_name_short'].'</td>'
-            .'</tr><tr>'
-                .'<th>Head</th>'
-                .'<td>'.$headLink.'</td>'
-            .'</tr>'
-            .'</table>'
-            .'</div>'
+        ob_start();
+        $c_inventory->displayInventory('Department', $d['department_id']);
+        $inventory = ob_get_clean();
 
-            .'<div class="accordion-title">Owned Items and History</div><div class="accordion-content">'.$ownedItems.'</div>'
+        ob_start();
+        $c_departments->displayDepartmentMembers($d['department_id']);
+        $dMembers = ob_get_clean();
 
-            .'<div class="accordion-title">Members</div><div class="accordion-content">'.$c_departments->displayDepartmentMembers($d['department_id'], false).'</div>'
+        ob_start();
+        $c_departments->displayDepartmentExMembers($d['department_id']);
+        $dMembersEx = ob_get_clean();
 
-            .'<div class="accordion-title">Ex-Members</div><div class="accordion-content">'.$c_departments->displayDepartmentExMembers($d['department_id'], false).'</div>'
+        $output = $ownerName.'<div class="hr-light"></div>
+            <div class="accordion-title">Department Information</div>
+            <div class="accordion-content accordion-content-default">
+            <table>
+            <tr>
+                <th>Name</th>
+                <td>'.$d['department_name'].'</td>
+                <th rowspan="3">Description</th>
+                <td rowspan="3">'.nl2br($d['department_description']).'</td>
+            </tr>
+            <tr>
+                <th>Short</th>
+                <td>'.$d['department_name_short'].'</td>
+            </tr>
+            <tr>
+                <th>Head</th>
+                <td>'.$headLink.'</td>
+            </tr>
+            </table>
+            </div>
 
-            .'<div class="hr-light"></div>';
+            <div class="accordion-title">Inventory</div>
+            <div class="accordion-content">'.$inventory.'</div>
+
+            <div class="accordion-title">Present Members</div>
+            <div class="accordion-content">'.$dMembers.'</div>
+
+            <div class="accordion-title">Members History</div>
+            <div class="accordion-content">'.$dMembersEx.'</div>
+
+            <div class="hr-light"></div>';
         $output .= !in_array($accessLevel, array('Viewer'))
                 ? '<a href="'.URL_BASE.'departments/update_department/'.$d['department_id'].'/"><input class="btn-green" type="button" value="Update Department" /></a>'
                 : '';
         return $output;
+    }
+
+
+
+    public function renderDepartmentHeadName ($datas) {
+        if ($datas == null)
+            return 'None';
+
+        $d = $datas;
+        return $d['person_lastname'].', '.$d['person_firstname'].' '.$d['person_middlename'].' '.$d['person_suffix'];
     }
 
 

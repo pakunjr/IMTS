@@ -65,6 +65,10 @@ class view_documents {
             ol li {
                 font-size: 0.95em;
             }
+
+            p {
+                text-align: justify;
+            }
         ';
         return $css;
     }
@@ -120,7 +124,7 @@ class view_documents {
                 <th>Package</th>
                 <td>'.$h['package_name'].'</td>
                 <th rowspan="3">Description / Notes</th>
-                <td rowspan="3">'.nl2br($h['item_description']).'</td>
+                <td rowspan="3"><p>'.nl2br($h['item_description']).'</p></td>
                 </tr>
                 <tr>
                 <th>Model No.</th>
@@ -179,17 +183,23 @@ class view_documents {
         unset($datas['ownership_id']);
 
         $items = array();
+        $itemCount = array(
+            'hosts'=>0
+            ,'components'=>0);
         foreach ($datas as $d) {
             if ($d['item_component_of'] == 0) {
                 $itemId = $d['item_id'];
                 $items[$itemId] = $d;
                 $items[$itemId]['components'] = array();
+                $itemCount['hosts']++;
             } else {
                 $hostId = $d['item_component_of'];
                 $itemId = $d['item_id'];
                 $items[$hostId]['components'][$itemId] = $d;
+                $itemCount['components']++;
             }
         }
+        $itemCountTotal = $itemCount['hosts'] + $itemCount['components'];
 
         $fx = new myFunctions();
         $c_owners = new controller_owners();
@@ -197,6 +207,13 @@ class view_documents {
         $ownerName = $c_owners->displayOwnerName($ownershipId, false);
         $output = '<div id="pdf-body">
             Inventory report of items owned by '.$ownerName.'
+            <div style="font-size: 0.7em;">
+                Main Item/s: '.$itemCount['hosts'].'
+                    &nbsp;&nbsp;&nbsp;&nbsp; <> &nbsp;&nbsp;&nbsp;&nbsp;
+                Item Component/s: '.$itemCount['components'].'
+                    &nbsp;&nbsp;&nbsp;&nbsp; <> &nbsp;&nbsp;&nbsp;&nbsp;
+                Total: '.$itemCountTotal.'
+            </div>
             <div class="hr-light"></div>
             <table>
             <tr>
@@ -205,7 +222,7 @@ class view_documents {
             </tr>';
         foreach ($items as $i) {
             $itemDescription = strlen($i['item_description']) > 0
-                ? '<br /><br />'.nl2br($i['item_description'])
+                ? '<br /><br /><p>'.nl2br($i['item_description']).'</p>'
                 : '';
 
             $rowspan = count($i['components']) + 1;
@@ -216,6 +233,8 @@ class view_documents {
                     Serial No.: '.$i['item_serial_no'].'<br />
                     Model No.: '.$i['item_model_no'].'<br />
                     State: '.$i['item_state_label'].'<br />
+                    Owned since: '.$fx->dateToWords($i['ownership_date_owned']).'<br />
+                    Released since: '.$fx->dateToWords($i['ownership_date_released']).'<br />
                     Cost: '.$i['item_cost'].'<br />
                     Depreciation: '.$i['item_depreciation'].'
                     '.$itemDescription.'
@@ -234,6 +253,8 @@ class view_documents {
                             Model No.: '.$c['item_model_no'].'<br />
                         </td>
                         <td>
+                            Owned since: '.$fx->dateToWords($c['ownership_date_owned']).'<br />
+                            Released since: '.$fx->dateToWords($c['ownership_date_released']).'<br />
                             State: '.$c['item_state_label'].'<br />
                             Cost: '.$c['item_cost'].'<br />
                             Depreciation: '.$c['item_depreciation'].'

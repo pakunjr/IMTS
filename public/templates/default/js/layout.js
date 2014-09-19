@@ -1,5 +1,9 @@
 $(document).ready(function () {
 
+    /**
+     * Resize content base on the width of the window,
+     * thus, creating a fluid layout
+     */
     if ($('#main-content').length > 0) {
         var $mc = $('#main-content');
 

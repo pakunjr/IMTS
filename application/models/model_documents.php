@@ -16,18 +16,10 @@ class model_documents {
 
 
 
-    public function readItem ($itemId) {
+    public function profileCard ($itemId) {
         /**
-         * This will be used for generating
-         * Profile Card of an Item
-         *
-         * Get basic information of the item
-         * including the components it have -
-         * include the definition or informations
-         * of the components
-         *
-         * Items fetched should be items that are
-         * still working
+         * Get informations for generating the
+         * item's profile card
          */
         $result = $this->db->statement(array(
             'q'=>"SELECT * FROM imts_items AS item
@@ -81,6 +73,11 @@ class model_documents {
                 $ownerType
                 ,intval($ownerId))));
         if (count($result) > 0) {
+            /**
+             * The sample ownership id will be used
+             * by the output renderer to identify the
+             * owner name
+             */
             $result['ownership_id'] = $result[0]['ownership_id'];
             return $result;
         } else

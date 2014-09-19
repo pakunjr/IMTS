@@ -102,4 +102,14 @@ class controller_departments {
         echo $output;
     }
 
+
+
+    public function displayDepartmentHeadName ($departmentId, $echo=true) {
+        $datas = $this->model->readDepartmentHead($departmentId);
+        $name = $this->view->renderDepartmentHeadName($datas);
+        if (!$echo)
+            return $name;
+        echo $name;
+    }
+
 }

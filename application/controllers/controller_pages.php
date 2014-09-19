@@ -45,6 +45,7 @@ class controller_pages {
         $models_admin = array('admin');
 
         // Check authentication
+        ob_start();
         if (in_array($model, $models_public)) {
             // Route pages in public modules
             switch ($model) {
@@ -54,9 +55,8 @@ class controller_pages {
                             switch ($controller) {
                                 case 'person':
                                 case 'department':
-                                    $this->displayHeader();
                                     $c_owners->displayTrackedItems(ucfirst($controller), $action);
-                                    $this->displayFooter();
+                                    $this->displayPage(ob_get_clean());
                                     break;
 
                                 case 'person_printable':
@@ -66,40 +66,38 @@ class controller_pages {
                                     break;
 
                                 default:
-                                    $this->displayHeader();
                                     $c_owners->displayTrackForm();
-                                    $this->displayFooter();
+                                    $this->displayPage(ob_get_clean());
                             }
                             break;
 
                         case 'item':
-                            $this->haltAccess('underconstruction');
+                            $this->displayPageError('underconstruction');
                             break;
 
                         default:
-                            $this->haltAccess('404');
+                            $this->displayPageError('404');
                     }
                     break;
 
                 case 'home':
-                    $this->displayHeader();
                     $this->displayHomepage();
-                    $this->displayFooter();
+                    $this->displayPage(ob_get_clean());
                     break;
 
                 default:
-                    $this->haltAccess('404');
+                    $this->displayPageError('404');
             }
             return;
         } else if (in_array($model, $models_authenticated)) {
             if (!isset($_SESSION['user'])) {
                 if ($model == 'accounts') {
                     if ($view != 'login') {
-                        $this->haltAccess('403');
+                        $this->displayPageError('403');
                         return;
                     }
                 } else {
-                    $this->haltAccess('403');
+                    $this->displayPageError('403');
                     return;
                 }
             }
@@ -109,22 +107,20 @@ class controller_pages {
         $acc_aid = isset($_SESSION['user']) ? $_SESSION['user']['accountId'] : null;
 
         // Route pages
+        ob_start();
         switch ($model) {
             case 'documents':
-                /**
-                 * These are printable documents
-                 */
-
+                // Printable media - Output file is in PDF format
                 $c_documents = new controller_documents();
                 switch ($view) {
-                    // Administrator documents
+                    /** Administrator documents **/
 
                     case 'system_log_report':
                         break;
 
-                    // Supervisor documents
+                    /** Supervisor documents **/
 
-                    // Content Provider documents
+                    /** Content Provider documents **/
 
                     case 'profile_card':
                         $c_documents->generateProfileCard($controller);
@@ -139,7 +135,7 @@ class controller_pages {
                         break;
 
                     default:
-                        $this->haltAccess('404');
+                        $this->displayPageError('404');
                 }
                 break;
 
@@ -161,9 +157,8 @@ class controller_pages {
                                 break;
 
                             default:
-                            $this->displayHeader();
                             $c_accounts->displayForm($controller);
-                            $this->displayFooter();
+                            $this->displayPage(ob_get_clean());
                         }
                         break;
 
@@ -171,15 +166,14 @@ class controller_pages {
                         if ($acc_aid != $controller)
                             $this->restrictPage('Supervisor');
 
-                        $this->displayHeader();
                         $c_accounts->displayAccountInformations($controller);
-                        $this->displayFooter();
+                        $this->displayPage(ob_get_clean());
                         break;
 
                     case 'update_account':
                         if (!in_array($acc_al, array('Administrator', 'Admin'))) {
                             if ($action != $acc_aid) {
-                                $this->haltAccess('403');
+                                $this->displayPageError('403');
                                 return;
                             }
                         }
@@ -190,9 +184,8 @@ class controller_pages {
                                 break;
 
                             default:
-                            $this->displayHeader();
                             $c_accounts->displayForm($controller, $action);
-                            $this->displayFooter();
+                            $this->displayPage(ob_get_clean());
                         }
                         break;
 
@@ -200,7 +193,7 @@ class controller_pages {
                         if (!in_array($acc_al, array('Administrator', 'Admin'))) {
                             if ($controller != 'save') {
                                 if ($controller != $acc_aid) {
-                                    $this->haltAccess('403');
+                                    $this->displayPageError('403');
                                     return;
                                 }
                             }
@@ -212,9 +205,8 @@ class controller_pages {
                                 break;
 
                             default:
-                                $this->displayHeader();
                                 $c_accounts->displayChangePasswordForm($controller);
-                                $this->displayFooter();
+                                $this->displayPage(ob_get_clean());
                         }
                         break;
 
@@ -229,7 +221,7 @@ class controller_pages {
                         break;
 
                     default:
-                        $this->haltAccess('underconstruction');
+                        $this->displayPageError('underconstruction');
                 }
                 break;
 
@@ -239,9 +231,8 @@ class controller_pages {
                     case 'log':
                         switch ($controller) {
                             case 'errors':
-                                $this->displayHeader();
                                 $c_errors->displayLogList();
-                                $this->displayFooter();
+                                $this->displayPage(ob_get_clean());
                                 break;
 
                             case 'database_errors':
@@ -252,9 +243,8 @@ class controller_pages {
                                         break;
 
                                     default:
-                                        $this->displayHeader();
                                         $db->displayDatabaseErrors();
-                                        $this->displayFooter();
+                                        $this->displayPage(ob_get_clean());
                                 }
                                 break;
 
@@ -262,18 +252,17 @@ class controller_pages {
                                 break;
 
                             default:
-                                $this->haltAccess('underconstruction');
+                                $this->displayPageError('underconstruction');
                         }
                         break;
 
                     case 'phpinfo':
-                        $this->displayHeader();
                         phpinfo();
-                        $this->displayFooter();
+                        $this->displayPage(ob_get_clean());
                         break;
 
                     default:
-                        $this->haltAccess('underconstruction');
+                        $this->displayPageError('underconstruction');
                 }
                 break;
 
@@ -287,9 +276,8 @@ class controller_pages {
                                 break;
 
                             default:
-                                $this->displayHeader();
                                 $c_items->displayForm();
-                                $this->displayFooter();
+                                $this->displayPage(ob_get_clean());
                         }
                         break;
 
@@ -301,9 +289,8 @@ class controller_pages {
                                 break;
 
                             default:
-                                $this->displayHeader();
                                 $c_items->displayForm(null, $controller);
-                                $this->displayFooter();
+                                $this->displayPage(ob_get_clean());
                         }
                         break;
 
@@ -315,16 +302,14 @@ class controller_pages {
                                 break;
 
                             default:
-                                $this->displayHeader();
                                 $c_items->displayForm(null, null, $controller);
-                                $this->displayFooter();
+                                $this->displayPage(ob_get_clean());
                         }
                         break;
 
                     case 'read_item':
-                        $this->displayHeader();
                         $c_items->displayItem($controller);
-                        $this->displayFooter();
+                        $this->displayPage(ob_get_clean());
                         break;
 
                     case 'update_item':
@@ -335,9 +320,8 @@ class controller_pages {
                                 break;
 
                             default:
-                                $this->displayHeader();
                                 $c_items->displayForm($controller);
-                                $this->displayFooter();
+                                $this->displayPage(ob_get_clean());
                         }
                         break;
 
@@ -347,9 +331,8 @@ class controller_pages {
                         break;
 
                     case 'search_item':
-                        $this->displayHeader();
                         $c_items->displaySearchForm();
-                        $this->displayFooter();
+                        $this->displayPage(ob_get_clean());
                         break;
 
                     case 'in_search_componentHost':
@@ -357,7 +340,7 @@ class controller_pages {
                         break;
 
                     default:
-                        $this->haltAccess('underconstruction');
+                        $this->displayPageError('underconstruction');
                 }
                 break;
 
@@ -371,16 +354,14 @@ class controller_pages {
                                 break;
 
                             default:
-                                $this->displayHeader();
                                 $c_itemPackages->displayForm();
-                                $this->displayFooter();
+                                $this->displayPage(ob_get_clean());
                         }
                         break;
 
                     case 'read_package':
-                        $this->displayHeader();
                         $c_itemPackages->displayPackageInformations($controller);
-                        $this->displayFooter();
+                        $this->displayPage(ob_get_clean());
                         break;
 
                     case 'update_package':
@@ -391,16 +372,14 @@ class controller_pages {
                                 break;
 
                             default:
-                                $this->displayHeader();
                                 $c_itemPackages->displayForm($controller);
-                                $this->displayFooter();
+                                $this->displayPage(ob_get_clean());
                         }
                         break;
 
                     case 'search_package':
-                        $this->displayHeader();
                         $c_itemPackages->displaySearchForm();
-                        $this->displayFooter();
+                        $this->displayPage(ob_get_clean());
                         break;
 
                     case 'in_search':
@@ -408,7 +387,7 @@ class controller_pages {
                         break;
 
                     default:
-                        $this->haltAccess('underconstruction');
+                        $this->displayPageError('underconstruction');
                 }
                 break;
 
@@ -422,16 +401,14 @@ class controller_pages {
                                 break;
 
                             default:
-                                $this->displayHeader();
                                 $c_persons->displayForm();
-                                $this->displayFooter();
+                                $this->displayPage(ob_get_clean());
                         }
                         break;
 
                     case 'read_person':
-                        $this->displayHeader();
                         $c_persons->displayPersonInformations($controller);
-                        $this->displayFooter();
+                        $this->displayPage(ob_get_clean());
                         break;
 
                     case 'update_person':
@@ -442,20 +419,18 @@ class controller_pages {
                                 break;
 
                             default:
-                                $this->displayHeader();
                                 $c_persons->displayForm($controller);
-                                $this->displayFooter();
+                                $this->displayPage(ob_get_clean());
                         }
                         break;
 
                     case 'search_person':
-                        $this->displayHeader();
                         $c_persons->displaySearchForm();
-                        $this->displayFooter();
+                        $this->displayPage(ob_get_clean());
                         break;
 
                     default:
-                        $this->haltAccess('underconstruction');
+                        $this->displayPageError('underconstruction');
                 }
                 break;
 
@@ -469,9 +444,8 @@ class controller_pages {
                                 break;
 
                             default:
-                                $this->displayHeader();
                                 $c_employees->displayForm($controller);
-                                $this->displayFooter();
+                                $this->displayPage(ob_get_clean());
                         }
                         break;
 
@@ -483,16 +457,14 @@ class controller_pages {
                                 break;
 
                             default:
-                                $this->displayHeader();
                                 $c_employees->displayFormJob();
-                                $this->displayFooter();
+                                $this->displayPage(ob_get_clean());
                         }
                         break;
 
                     case 'read_job':
-                        $this->displayHeader();
                         $c_employees->displayJobInformations($controller);
-                        $this->displayFooter();
+                        $this->displayPage(ob_get_clean());
                         break;
 
                     case 'update_employment':
@@ -503,9 +475,8 @@ class controller_pages {
                                 break;
 
                             default:
-                                $this->displayHeader();
                                 $c_employees->displayForm($controller, $action);
-                                $this->displayFooter();
+                                $this->displayPage(ob_get_clean());
                         }
                         break;
 
@@ -517,9 +488,8 @@ class controller_pages {
                                 break;
 
                             default:
-                                $this->displayHeader();
                                 $c_employees->displayFormJob($controller);
-                                $this->displayFooter();
+                                $this->displayPage(ob_get_clean());
                         }
                         break;
 
@@ -534,9 +504,8 @@ class controller_pages {
                         break;
 
                     case 'search_job':
-                        $this->displayHeader();
                         $c_employees->displaySearchFormJob();
-                        $this->displayFooter();
+                        $this->displayPage(ob_get_clean());
                         break;
 
                     case 'in_search':
@@ -548,7 +517,7 @@ class controller_pages {
                         break;
 
                     default:
-                        $this->haltAccess('underconstruction');
+                        $this->displayPageError('underconstruction');
                 }
                 break;
 
@@ -562,16 +531,14 @@ class controller_pages {
                                 break;
 
                             default:
-                                $this->displayHeader();
                                 $c_departments->displayForm();
-                                $this->displayFooter();
+                                $this->displayPage(ob_get_clean());
                         }
                         break;
 
                     case 'read_department':
-                        $this->displayHeader();
                         $c_departments->displayDepartmentInformations($controller);
-                        $this->displayFooter();
+                        $this->displayPage(ob_get_clean());
                         break;
 
                     case 'update_department':
@@ -582,16 +549,14 @@ class controller_pages {
                                 break;
 
                             default:
-                                $this->displayHeader();
                                 $c_departments->displayForm($controller);
-                                $this->displayFooter();
+                                $this->displayPage(ob_get_clean());
                         }
                         break;
 
                     case 'search_department':
-                        $this->displayHeader();
                         $c_departments->displaySearchForm();
-                        $this->displayFooter();
+                        $this->displayPage(ob_get_clean());
                         break;
 
                     case 'in_search':
@@ -599,7 +564,7 @@ class controller_pages {
                         break;
 
                     default:
-                        $this->haltAccess('underconstruction');
+                        $this->displayPageError('underconstruction');
                 }
                 break;
 
@@ -610,18 +575,17 @@ class controller_pages {
                         break;
 
                     default:
-                        $this->haltAccess('underconstruction');
+                        $this->displayPageError('underconstruction');
                 }
                 break;
 
             case 'home':
-                $this->displayHeader();
                 $this->displayHomepage();
-                $this->displayFooter();
+                $this->displayPage(ob_get_clean());
                 break;
 
             default:
-                $this->haltAccess('404');
+                $this->displayPageError('404');
         }
     }
 
@@ -633,32 +597,70 @@ class controller_pages {
 
 
 
-    public function displayPage ($content, $type='complete') {
-        
+    public function displayPage ($content, $complete=true) {
+        $fileHeader = DIR_TEMPLATE.DS.'header.php';
+        $fileFooter = DIR_TEMPLATE.DS.'footer.php';
+
+        if ($complete) {
+            ob_start();
+            if (file_exists($fileHeader))
+                require_once($fileHeader);
+            else
+                echo '<!-- TEMPLATE ERROR: Header, header.php file is missing. -->';
+
+            ob_end_flush();
+            ob_start();
+
+            echo $content;
+
+            if (file_exists($fileFooter))
+                require_once($fileFooter);
+            else
+                echo '<!-- TEMPLATE ERROR: Footer, footer.php file is missing. -->';
+
+            $output = ob_get_clean();
+            echo $output;
+        } else
+            echo $content;
+    }
+
+
+
+    public function displayPageError ($type='unknown', $customErrorMsg='', $echo=true) {
+        $output = $this->view->renderPageError($type, $customErrorMsg);
+        if (!$echo)
+            return $output;
+        echo $output;
     }
 
 
 
     public function displayHeader () {
         $file = DIR_TEMPLATE.DS.'header.php';
-        if (file_exists($file)) require_once($file);
-        else echo 'Your header file is missing.';
+        if (file_exists($file))
+            require_once($file);
+        else
+            echo 'Your header file is missing.';
     }
 
 
 
     public function displayFooter () {
         $file = DIR_TEMPLATE.DS.'footer.php';
-        if (file_exists($file)) require_once($file);
-        else echo 'Your footer file is missing.';
+        if (file_exists($file))
+            require_once($file);
+        else
+            echo 'Your footer file is missing.';
     }
 
 
 
     public function displayHomepage () {
         $file = DIR_TEMPLATE.DS.'home.php';
-        if (file_exists($file)) require_once($file);
-        else echo 'Your homepage file is missing.';
+        if (file_exists($file))
+            require_once($file);
+        else
+            echo 'Your homepage file is missing.';
     }
 
 
@@ -670,26 +672,10 @@ class controller_pages {
 
 
 
-    public function displayErrorPage ($type='unknown', $echo=true) {
-        $output = $this->view->renderErrorPage($type);
-        if (!$echo) return $output;
-        echo $output;
-    }
-
-
-
-    public function haltAccess ($errorType='unknown', $echo=true) {
-        $this->displayHeader();
-        $this->displayErrorPage($errorType, $echo);
-        $this->displayFooter();
-    }
-
-
-
     public function restrictPage ($leastAccessLevel=null) {
         $fx = new myFunctions();
         if (!$fx->isAccessible($leastAccessLevel)) {
-            $this->haltAccess('403');
+            $this->displayPageError('403');
             exit();
         }
     }

@@ -139,27 +139,47 @@ class view_pages {
 
 
 
-    public function renderErrorPage ($type='unknown') {
-        $output = '<div id="error-page">';
+    public function renderPageError ($type='unknown', $customErrorMsg='') {
+        $fileHeader = DIR_TEMPLATE.DS.'header.php';
+        $fileFooter = DIR_TEMPLATE.DS.'footer.php';
+
+        ob_start();
+
+        if (file_exists($fileHeader))
+            require_once($fileHeader);
+        else
+            echo '<!-- THEME ERROR: Header, header.php file is missing. -->';
+
         switch ($type) {
             case '404':
-                $output .= '<div class="error-404"></div>';
+                echo '<div class="error-404"></div>';
                 break;
 
             case '403':
-                $output .= '<div class="error-403"></div>';
+                echo '<div class="error-403"></div>';
                 break;
 
             case 'underconstruction':
             case 'maintenance':
-                $output .= '<div class="error-maintenance"></div>';
+                echo '<div class="error-maintenance"></div>';
+                break;
+
+            case 'custom':
+                echo $customErrorMsg;
                 break;
 
             default:
-                $output .= 'Unknown Error: You have encountered an unknown error, please try again.';
+                echo 'Unknown Error: You have encountered an unknown error, please try again.';
         }
-        $output .= '</div>';
-        return $output;
+
+        if (file_exists($fileFooter))
+            require_once($fileFooter);
+        else
+            echo '<!-- THEME ERROR: Footer, footer.php file is missing. -->';
+
+        $contents = ob_get_contents();
+        ob_end_clean();
+        return $contents;
     }
 
 }

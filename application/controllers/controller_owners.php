@@ -83,6 +83,10 @@ class controller_owners {
 
     public function displayOwnedItemsSummary ($ownerType, $ownerId, $echo=true) {
         $ownerships = $this->model->readOwnedItems($ownerType, $ownerId);
+        if ($ownerships != null) {
+            $ownerships['owner_type'] = $ownerType;
+            $ownerships['owner_id'] = $ownerId;
+        }
         $output = $this->view->renderOwnedItemsSummary($ownerships);
         if (!$echo)
             return $output;

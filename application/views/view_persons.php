@@ -159,8 +159,10 @@ class view_persons {
         if ($personDatas == null) return 'Error: This person do not exists in our system.';
 
         $pd = $personDatas;
+        $p = $pd;
 
         $fx = new myFunctions();
+        $c_inventory = new controller_inventory();
         $c_owners = new controller_owners();
         $c_employees = new controller_employees();
         $c_accounts = new controller_accounts();
@@ -237,6 +239,32 @@ class view_persons {
             ? '<a href="'.URL_BASE.'employees/create_employment/'.$pd['person_id'].'/"><input class="btn-green" type="button" value="Add Employment" /></a>'
                 .$createAccountButton
             : '';
+
+        ob_start();
+        $c_inventory->displayInventory('Person', $p['person_id']);
+        $inventory = ob_get_clean();
+
+        $buttons = '';
+
+        $output = $personName.'<div class="hr-light"></div>
+            <div class="accordion-title">Biodata</div>
+            <div class="accordion-content accordion-content-default">
+            <table>
+            
+            </table>
+            </div>
+
+            <div class="accordion-title">Inventory</div>
+            <div class="accordion-content">'.$inventory.'</div>
+
+            <div class="accordion-title"></div>
+            <div class="accordion-content"></div>
+
+            <div class="accordion-title"></div>
+            <div class="accordion-content"></div>
+
+            <div class="hr-light"></div>
+            '.$buttons;
         return $output;
     }
 

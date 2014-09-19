@@ -40,8 +40,6 @@ $(document).ready(function () {
                 else
                     $hours.html(hours);
             }
-
-
         }, 1000);
     }
 

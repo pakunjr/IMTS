@@ -47,6 +47,19 @@ class model_departments {
 
 
 
+    public function readDepartmentHead ($departmentId) {
+        $datas = $this->db->statement(array(
+            'q'=>"SELECT * FROM imts_departments AS dept
+                LEFT JOIN imts_persons AS pers ON dept.department_head = pers.person_id
+                WHERE dept.department_id = ?
+                LIMIT 1"
+            ,'v'=>array(
+                intval($departmentId))));
+        return count($datas) > 0 ? $datas[0] : null;
+    }
+
+
+
     public function readDepartmentMembers ($departmentId) {
         $currentDate = date('Y-m-d');
         $rows = $this->db->statement(array(

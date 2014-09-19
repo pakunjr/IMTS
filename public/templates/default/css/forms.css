@@ -163,12 +163,14 @@ input[disabled="disabled"]:active {
 
 
 
-.column {
+form .column {
     display: inline-block;
     padding: 4px;
     vertical-align: top;
     text-align: right;
 }
+
+
 
 input.search-elements,
 input.search-elements:hover,

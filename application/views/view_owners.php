@@ -199,43 +199,72 @@ class view_owners {
     public function renderOwnedItemsSummary ($datas, $printable=false) {
         if ($datas == null) return 'There are no items.';
 
+        $ownerType = $datas['owner_type'];
+        $ownerId = $datas['owner_id'];
+        unset($datas['owner_type']);
+        unset($datas['owner_id']);
+
         $fx = new myFunctions();
         $aLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
 
         $items = array();
+        $itemsCount = array(
+            'hosts'=>0
+            ,'components'=>0);
         foreach ($datas as $d) {
             if ($d != null) {
-                if ($d['item_component_of'] == '0')
+                if ($d['item_component_of'] == '0') {
                     $items[$d['item_id']] = $d;
-                else {
+                    $itemsCount['hosts']++;
+                } else {
                     $z = $d['item_component_of'];
                     $x = $d['item_id'];
                     $items[$z]['components'][$x] = $d;
+                    $itemsCount['components']++;
                 }
             }
         }
+        $itemsCountTotal = $itemsCount['hosts'] + $itemsCount['components'];
+
+        if ($itemsCountTotal < 1)
+            return 'No items to display.';
+
+        $generateInventoryReportButton = '<a href="'.URL_BASE.'documents/inventory_report/'.strtolower($ownerType).'/'.$ownerId.'/" target="_blank">
+            <input type="button" value="Generate Inventory Report" />
+            </a>';
 
         $itemCount = 1;
-        $output = '<span style="'; $output.=$printable ? 'font-size: 8pt;' : 'font-size: 0.85em;'; $output.='">'
-                .'Total no. of items: '.count($items).'<br />'
-                .'Total no. of items including components: '.count($datas)
-            .'</span><br />'
-            .'<div class="hr-light"></div>'
-            .'<table><tr>'
-            .'<th>No.</th>'
-            .'<th>Name</th>'
-            .'<th style="text-align: left;">Date Owned<br />-----<br />Date Released</th>'
-            .'<th>Components</th>'
-            .'<th>Maintenance</th>';
+        $output = '<span style="'; $output.=$printable ? 'font-size: 8pt;' : 'font-size: 0.85em;'; $output.='">
+                Main items: '.$itemsCount['hosts'].'<br />
+                Components: '.$itemsCount['components'].'<br />
+                Total: '.$itemsCountTotal.'<br />
+                '.$generateInventoryReportButton.'
+            </span><br />
+            <div class="hr-light"></div>
+            <table><tr>
+            <th>No.</th>
+            <th>Name</th>
+            <th style="text-align: left;">Date Owned<br />-----<br />Date Released</th>
+            <th>Components</th>
+            <th>Maintenance</th>';
         $output .= isset($_SESSION['user']) && !in_array($aLevel, array('Viewer')) && !$printable ? '<th>Actions</th>' : '';
         $output .= '</tr>';
 
         foreach ($items as $i) {
+            $itemName = $i['item_name'].' (S/N: '.$i['item_serial_no'].' -- M/N: '.$i['item_model_no'];
+            $itemDescription = strlen(trim($i['item_description'])) > 0
+                ? '<br /><br /><i>'.nl2br(trim($i['item_description'])).'</i>'
+                : '';
+
             $btnUpdate = !in_array($aLevel, array('Viewer'))
-                ? '<a href="'.URL_BASE.'inventory/update_item/'.$i['item_id'].'/"><input class="btn-green" type="button" value="Update Item" /></a>'
+                ? '<a href="'.URL_BASE.'inventory/update_item/'.$i['item_id'].'/">
+                    <input class="btn-green" type="button" value="Update Item" />
+                    </a>'
                 : '';
             $btnArchive = in_array($aLevel, array('Administrator', 'Admin', 'Supervisor'))
-                ? '<a href="'.URL_BASE.'inventory/archive_item/'.$i['item_id'].'/"><input class="btn-red" type="button" value="Archive Item" data-item-name="'.$i['item_name'].' (S/N: '.$i['item_serial_no'].' -- M/N: '.$i['item_model_no'].')" /></a>'
+                ? '<a href="'.URL_BASE.'inventory/archive_item/'.$i['item_id'].'/">
+                    <input class="btn-red" type="button" value="Archive Item" data-item-name="'.$itemName.')" />
+                    </a>'
                 : '';
             $btnProfileCard = $fx->isAccessible('Content Provider')
                 ? '<a href="'.URL_BASE.'documents/profile_card/'.$i['item_id'].'/" target="_blank">
@@ -246,10 +275,6 @@ class view_owners {
             $actionButtons = $i['item_archive_state'] == '0'
                 ? $actionButtons
                 : 'This item has been archived.';
-
-            $itemDescription = strlen(trim($i['item_description'])) > 0
-                ? '<br /><br /><i>'.nl2br(trim($i['item_description'])).'</i>'
-                : '';
 
             $output .= '<tr class="';
                 $output .= isset($_SESSION['user']) ? 'data' : '';
@@ -300,7 +325,8 @@ class view_owners {
 
             $itemCount++;
         }
-        $output .= '</table><div class="hr-light"></div>';
+        $output .= '</table><div class="hr-light"></div>
+            '.$generateInventoryReportButton;
         return $output;
     }
 

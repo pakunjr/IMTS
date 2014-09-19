@@ -1,5 +1,9 @@
 $(document).ready(function () {
 
+    /**
+     * Place confirm alert popups on selected
+     * buttons under the account module
+     */
     if ($('input[value="Deactivate Account"]').length > 0) {
         $('input[value="Deactivate Account"]').each(function () {
             var $this = $(this)
