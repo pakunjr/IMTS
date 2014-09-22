@@ -95,10 +95,20 @@ class controller_items {
 
 
 
+    public function displayItemButtons ($itemId, $echo=true) {
+        $output = $this->view->renderItemButtons($itemId);
+        if (!$echo)
+            return $output;
+        echo $output;
+    }
+
+
+
     public function displayItemName ($itemId=null, $echo=true) {
         $item = $this->model->readItem($itemId);
         $itemName = $this->view->renderItemName($item);
-        if (!$echo) return $itemName;
+        if (!$echo)
+            return $itemName;
         echo $itemName;
     }
 
@@ -107,7 +117,8 @@ class controller_items {
     public function displayItemCurrentOwner ($itemId, $echo=true) {
         $currentOwner = $this->model->readItemOwner($itemId);
         $output = $this->view->renderItemCurrentOwner($currentOwner);
-        if (!$echo) return $output;
+        if (!$echo)
+            return $output;
         echo $output;
     }
 

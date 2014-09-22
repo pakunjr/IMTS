@@ -73,7 +73,8 @@ class controller_documents {
             exit();
         }
 
-        $pdfContents = $this->view->renderInventoryReport($datas);
+        $statisticContents = $this->view->renderInventoryStatistics($datas);
+        $inventoryContents = $this->view->renderInventoryReport($datas);
         $this->mPDF->SetHTMLHeader('<div id="pdf-header">
             INVENTORY REPORT of '.SYSTEM_NAME.' '.SYSTEM_VERSION.' &copy; '.SYSTEM_YEAR_START.' - '.date('Y').'
             <div class="hr"></div>
@@ -85,7 +86,8 @@ class controller_documents {
             Page {PAGENO} of {nbpg}, items owned by '.$c_owners->displayOwnerName($datas['ownership_id'], false).$headedBy.'<br />
             </div>');
         $this->mPDF->WriteHTML($stylesheet, 1);
-        $this->mPDF->WriteHTML($pdfContents);
+        $this->mPDF->WriteHTML($statisticContents);
+        $this->mPDF->WriteHTML($inventoryContents);
         $this->mPDF->Output();
         exit();
     }

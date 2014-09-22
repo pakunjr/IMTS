@@ -27,6 +27,12 @@ class view_documents {
                 font-size: 7pt;
             }
 
+            .title {
+                font-family: Times New Roman;
+                font-size: 14pt;
+                font-weight: bold;
+            }
+
             .hr,
             .hr-light,
             .hr-heavy {
@@ -179,6 +185,9 @@ class view_documents {
 
 
     public function renderInventoryReport ($datas) {
+        if ($datas == null)
+            return 'There is no data available to produce inventory report.';
+
         $ownershipId = $datas['ownership_id'];
         unset($datas['ownership_id']);
 
@@ -204,20 +213,10 @@ class view_documents {
         $fx = new myFunctions();
         $c_owners = new controller_owners();
 
-        $ownerName = $c_owners->displayOwnerName($ownershipId, false);
         $output = '<div id="pdf-body">
-            Inventory report of items owned by '.$ownerName.'
-            <div style="font-size: 0.7em;">
-                Main Item/s: '.$itemCount['hosts'].'
-                    &nbsp;&nbsp;&nbsp;&nbsp; <> &nbsp;&nbsp;&nbsp;&nbsp;
-                Item Component/s: '.$itemCount['components'].'
-                    &nbsp;&nbsp;&nbsp;&nbsp; <> &nbsp;&nbsp;&nbsp;&nbsp;
-                Total: '.$itemCountTotal.'
-            </div>
-            <div class="hr-light"></div>
             <table>
             <tr>
-            <th>Name</th>
+            <th>Item</th>
             <th colspan="2">Component/s</th>
             </tr>';
         foreach ($items as $i) {
@@ -246,6 +245,9 @@ class view_documents {
                     && is_array($i['components'])
                     && count($i['components']) > 0) {
                 foreach ($i['components'] as $c) {
+                    $componentDescription = strlen($c['item_description']) > 0
+                        ? '<br />'.nl2br($c['item_description'])
+                        : '';
                     $output .= '<tr>
                         <td>
                             <div style="font-weight: bold;">'.$c['item_name'].'</div>
@@ -258,7 +260,7 @@ class view_documents {
                             State: '.$c['item_state_label'].'<br />
                             Cost: '.$c['item_cost'].'<br />
                             Depreciation: '.$c['item_depreciation'].'
-                            '.nl2br($c['item_description']).'
+                            '.$componentDescription.'
                         </td>
                         </tr>';
                 }
@@ -266,6 +268,64 @@ class view_documents {
         }
         $output .= '</table>
             </div>';
+        return $output;
+    }
+
+
+
+    public function renderInventoryStatistics ($datas) {
+        if ($datas == null)
+            return 'There is no data available to produce inventory statistical report.';
+
+        $ownershipId = $datas['ownership_id'];
+        unset($datas['ownership_id']);
+
+        $fx = new myFunctions();
+        $c_owners = new controller_owners();
+
+        $itemCounts = array(
+            'hosts'=>0
+            ,'components'=>0);
+        $items = array();
+        $itemCountsTotal = 0;
+
+        foreach ($datas as $d) {
+            if ($d['item_component_of'] == 0) {
+                $itemId = $d['item_id'];
+                $items[$itemId] = $d;
+                $itemCounts['hosts']++;
+            } else {
+                $itemId = $d['item_id'];
+                $hostId = $d['item_component_of'];
+                $items[$hostId][$itemId] = $d;
+                $itemCounts['components']++;
+            }
+            $itemCountsTotal++;
+        }
+
+        $ownerName = $c_owners->displayOwnerName($ownershipId, false);
+        $output = '<div class="title">Inventory Report</div>
+            <div class="hr-light"></div>
+            <div id="pdf-body">
+                <table>
+                <tr>
+                    <th colspan="2">'.$ownerName.'</th>
+                </tr>
+                <tr>
+                    <th>No. of Item/s</th>
+                    <td>'.$itemCountsTotal.'</td>
+                </tr>
+                <tr>
+                    <th>Main Item/s</th>
+                    <td>'.$itemCounts['hosts'].'</td>
+                </tr>
+                <tr>
+                    <th>Component/s</th>
+                    <td>'.$itemCounts['components'].'</td>
+                </tr>
+                </table>
+            </div>
+            <pagebreak />';
         return $output;
     }
     

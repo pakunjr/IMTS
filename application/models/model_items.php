@@ -98,14 +98,18 @@ class model_items {
 
     public function readItemComponents ($itemId) {
         $r = $this->db->statement(array(
-            'q'=>"SELECT * FROM imts_items WHERE item_component_of = ? 
+            'q'=>"SELECT * FROM imts_items AS item
+                LEFT JOIN imts_items_type AS iType ON item.item_type = iType.item_type_id
+                LEFT JOIN imts_items_state AS iState ON item.item_state = iState.item_state_id
+                WHERE item.item_component_of = ? 
                 ORDER BY
-                    item_archive_state ASC
-                    ,item_type ASC
-                    ,item_state ASC
-                    ,item_name ASC
-                    ,item_serial_no ASC
-                    ,item_model_no ASC"
+                    item.item_archive_state ASC
+                    ,item.item_type ASC
+                    ,item.item_state ASC
+                    ,item.item_component_of ASC
+                    ,item.item_name ASC
+                    ,item.item_serial_no ASC
+                    ,item.item_model_no ASC"
             ,'v'=>array(intval($itemId))));
         return count($r) > 0 ? $r : null;
     }

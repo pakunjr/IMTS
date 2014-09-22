@@ -98,10 +98,94 @@ $(document).ready(function () {
                      * window and redirecting the parent or
                      * current window
                      */
-                    if ($('a:hover').length < 1)
+                    if ($('a:hover').length < 1
+                        && $('.data-more-details:hover').length < 1)
                         window.location = url;
                 });
             }
+        });
+    }
+
+
+
+    /**
+     * Shows more information / datas regarding
+     * the concerned identity upon mouse hover
+     */
+    if ($('.data-more-details').length > 0) {
+        $('.data-more-details').each(function () {
+            var $this = $(this)
+                ,$parent = $this.closest('tr');
+
+            $this.prepend('<span class="btn-close">x</span>');
+            $this.after('<div class="blacksheet"></div>');
+            var $btnClose = $this.find('.btn-close')
+                ,$blackSheet = $this.next('.blacksheet');
+
+            $this.css({
+                'display': 'block'
+                ,'max-width': '350px'
+                ,'margin': '3px 0px 0px -18px'
+                ,'padding': '13px 18px'
+                ,'position': 'absolute'
+                ,'z-index': '2'
+                ,'border': '1px solid #ccc'
+                ,'border-radius': '4px'
+                ,'background': '#fff'
+                ,'box-shadow': '2px 2px 3px rgba(0, 0, 0, 0.3)'
+            }).hide(0);
+
+            $blackSheet.css({
+                'display': 'block'
+                ,'width': $(window).width() + 'px'
+                ,'height': $(window).height() + 'px'
+                ,'position': 'fixed'
+                ,'top': '0px'
+                ,'left': '0px'
+                ,'z-index': '1'
+                ,'background-color': 'rgba(0, 0, 0, 0.4)'
+            }).hide(0);
+
+            $btnClose.css({
+                'display': 'inline-block'
+                ,'width': '15px'
+                ,'height': '15px'
+                ,'padding': '5px'
+                ,'float': 'right'
+                ,'border': '1px solid #b3b3b3'
+                ,'border-radius': '20px'
+                ,'background-color': '#ccc'
+                ,'text-align': 'center'
+            });
+
+            $btnClose.hover(function () {
+                $btnClose.css({'background-color': '#f98e1b'});
+            }, function () {
+                $btnClose.css({'background-color': '#ccc'});
+            });
+
+            $parent.hover(function () {
+                $this.show(0, function () {
+                    $btnClose.click(function () {
+                        $this.hide(0);
+                    });
+
+                    $this.hover(function () {
+                        $blackSheet.show(0);
+                    }, function () {
+                        $blackSheet.hide(0);
+                    });
+                });
+            }, function () {
+                $this.hide(0);
+            });
+
+            $(window).on('resize', function () {
+                $blackSheet.css({
+                    'width': $(window).width() + 'px'
+                    ,'height': $(window).height() + 'px'
+                });
+            });
         });
     }
 

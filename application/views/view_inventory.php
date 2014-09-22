@@ -19,6 +19,7 @@ class view_inventory {
             return 'There are no items in this inventory.';
 
         $fx = new myFunctions();
+        $c_items = new controller_items();
 
         $items = array();
         $itemsCount = array(
@@ -43,7 +44,7 @@ class view_inventory {
             }
         }
 
-        $btnGenerateReport = '<a href="'.URL_BASE.'documents/inventory_report/'.$ownerType.'/'.$ownerId.'/">
+        $btnGenerateReport = '<a href="'.URL_BASE.'documents/inventory_report/'.$ownerType.'/'.$ownerId.'/" target="_blank">
             <input type="button" value="Generate Report" />
             </a>';
         $buttons = $btnGenerateReport;
@@ -53,7 +54,7 @@ class view_inventory {
             <table>
             <tr>
             <th>Item</th>
-            <th>Component/s</th>
+            <th colspan="3">Component/s</th>
             </tr>';
         foreach ($items as $i) {
             if (isset($i['components']) && is_array($i['components'])) {
@@ -62,36 +63,48 @@ class view_inventory {
                     $componentDescription = strlen($c['item_description']) > 0
                         ? '<br />'.nl2br($c['item_description'])
                         : '';
+
+                    $componentButtons = $c_items->displayItemButtons($c['item_id'], false);
+                    $componentButtons = strlen($componentButtons) > 0 ? '<div class="hr-light"></div>'.$componentButtons : '';
                     $components .= '<tr class="data" data-url="'.URL_BASE.'inventory/read_item/'.$c['item_id'].'/">
                         <td>
-                            <b>'.$c['item_name'].'</b><br />
-                            Serial No.: '.$c['item_serial_no'].'<br />
-                            Model No.: '.$c['item_model_no'].'<br />
-                            State: '.$c['item_state_label'].'<br />
-                            Owned since: '.$fx->dateToWords($c['ownership_date_owned']).'<br />
-                            Released since: '.$fx->dateToWords($c['ownership_date_released']).'
-                            '.$componentDescription.'
+                            <b>'.$c['item_name'].'</b>
+                            <div class="data-more-details">
+                                State: '.$c['item_state_label'].'<br />
+                                Owned since: '.$fx->dateToWords($c['ownership_date_owned']).'<br />
+                                Released since: '.$fx->dateToWords($c['ownership_date_released']).'
+                                '.$componentDescription.'
+                                '.$componentButtons.'
+                            </div>
                         </td>
+                        <td>S/N: '.$c['item_serial_no'].'</td>
+                        <td>M/N: '.$c['item_model_no'].'</td>
                         </tr>';
                 }
                 $rowspan = count($i['components']) + 1;
             } else {
-                $components = '<td>This item has no components</td></tr>';
+                $components = '<td colspan="3">This item has no components</td></tr>';
                 $rowspan = 1;
             }
 
             $itemDescription = strlen($i['item_description']) > 0
                 ? '<br />'.nl2br($i['item_description'])
                 : '';
+
+            $itemButtons = $c_items->displayItemButtons($i['item_id'], false);
+            $itemButtons = strlen($itemButtons) > 0 ? '<div class="hr-light"></div>'.$itemButtons : '';
             $output .= '<tr class="data" data-url="'.URL_BASE.'inventory/read_item/'.$i['item_id'].'/">
                 <td rowspan="'.$rowspan.'">
                     <b>'.$i['item_name'].'</b><br />
                     Serial No.: '.$i['item_serial_no'].'<br />
-                    Model No.: '.$i['item_model_no'].'<br />
-                    State: '.$i['item_state_label'].'<br />
-                    Owned since: '.$fx->dateToWords($i['ownership_date_owned']).'<br />
-                    Released since: '.$fx->dateToWords($i['ownership_date_released']).'
-                    '.$itemDescription.'
+                    Model No.: '.$i['item_model_no'].'
+                    <div class="data-more-details">
+                        State: '.$i['item_state_label'].'<br />
+                        Owned since: '.$fx->dateToWords($i['ownership_date_owned']).'<br />
+                        Released since: '.$fx->dateToWords($i['ownership_date_released']).'
+                        '.$itemDescription.'
+                        '.$itemButtons.'
+                    </div>
                 </td>
                 '.$components;
         }

@@ -146,25 +146,25 @@ class view_accounts {
 
         $accountOwnerName = $d['person_lastname'].', '.$d['person_firstname'].' '.$d['person_middlename'].' '.$d['person_suffix'];
         $accountOwnerNameLink = '<a href="'.URL_BASE.'persons/read_person/'.$d['person_id'].'/"><input type="button" value="'.$accountOwnerName.'" /></a>';
-        $output = '<h3>'.$d['account_username'].' -- '.$d['person_lastname'].', '.$d['person_firstname'].' '.$d['person_middlename'].' '.$d['person_suffix'].'</h3>'
-            .'<div class="hr-light"></div>'
-            .'<div class="accordion-title">Account Information</div><div class="accordion-content accordion-content-default">'
-            .'<table>'
-            .'<tr>'
-                .'<th>Owner</th>'
-                .'<td>'.$accountOwnerNameLink.'</td>'
-                .'<th>Access Level</th>'
-                .'<td>'.$d['access_level_label'].'</td>'
-            .'</tr>'
-            .'<tr>'
-                .'<th>Status</th>'
-                .'<td>'.$accountStatus.'</td>'
-                .'<th>Is Employee</th>'
-                .'<td>'.$c_employees->isEmployee($d['person_id'], false).'</td>'
-            .'</tr>'
-            .'</table>'
-            .'</div>'
-            .'<div class="hr-light"></div>';
+        $output = '<h3>'.$d['account_username'].' -- '.$d['person_lastname'].', '.$d['person_firstname'].' '.$d['person_middlename'].' '.$d['person_suffix'].'</h3>
+            <div class="hr-light"></div>
+            <div class="accordion-title">Account Information</div><div class="accordion-content accordion-content-default">
+            <table>
+            <tr>
+                <th>Owner</th>
+                <td>'.$accountOwnerNameLink.'</td>
+                <th>Access Level</th>
+                <td>'.$d['access_level_label'].'</td>
+            </tr>
+            <tr>
+                <th>Status</th>
+                <td>'.$accountStatus.'</td>
+                <th>Is Employee</th>
+                <td>'.$c_employees->isEmployee($d['person_id'], false).'</td>
+            </tr>
+            </table>
+            </div>
+            <div class="hr-light"></div>';
         $output .= in_array($accessLevel, array('Administrator', 'Admin'))
             ? '<a href="'.URL_BASE.'accounts/update_account/'.$d['person_id'].'/'.$d['account_id'].'/"><input class="btn-green" type="button" value="Update Account" /></a>'
             : '';
@@ -178,38 +178,72 @@ class view_accounts {
 
 
     public function renderPersonAccounts ($datas) {
-        if ($datas == null) return 'This person do not have any accounts.';
+        if ($datas == null)
+            return 'This person do not have any accounts.';
 
-        $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
+        $fx = new myFunctions();
+        $c_employees = new controller_employees();
 
-        $output = '<table><tr>'
-            .'<th>Username</th>'
-            .'<th>Access Level</th>'
-            .'<th>Account Status</th>'
-            .'<th>Actions</th>'
-            .'</tr>';
+        $output = '<table><tr>
+            <th>Username</th>
+            <th>Access Level</th>
+            <th>Account Status</th>
+            </tr>';
         foreach ($datas as $d) {
             $accountStatus = $d['account_deactivated'] == '0' ? 'Activated' : 'Deactivated';
-            $activationButton = $d['account_deactivated'] == '0'
-                ? '<a href="'.URL_BASE.'accounts/deactivate_account/'.$d['account_id'].'/"><input class="btn-red" type="button" value="Deactivate Account" /></a>'
-                : '<a href="'.URL_BASE.'accounts/activate_account/'.$d['account_id'].'/"><input class="btn-green" type="button" value="Activate Account" /></a>';
-            $activationButton = in_array($accessLevel, array('Administrator', 'Admin'))
-                ? $activationButton : '';
-            $output .= '<tr class="data" data-url="'.URL_BASE.'accounts/read_account/'.$d['account_id'].'/">'
-                .'<td>'.$d['account_username'].'</td>'
-                .'<td>'.$d['access_level_label'].'</td>'
-                .'<td>'.$accountStatus.'</td>'
-                .'<td>';
-            $output .= in_array($accessLevel, array('Administrator', 'Admin'))
-                ? '<a href="'.URL_BASE.'accounts/update_account/'.$d['account_owner'].'/'.$d['account_id'].'/"><input class="btn-green" type="button" value="Update Account" /></a>'
+            $buttons = $this->renderAccountButtons($d);
+            $buttons = strlen($buttons) > 0
+                ? '<div class="hr-light"></div>'.$buttons
                 : '';
-            $output .= '<a href="'.URL_BASE.'accounts/update_password/'.$d['account_id'].'/"><input type="button" value="Change Password" /></a>'
-                    .$activationButton
-                .'</td>'
-                .'</tr>';
+            $output .= '<tr class="data" data-url="'.URL_BASE.'accounts/read_account/'.$d['account_id'].'/">
+                <td>
+                    '.$d['account_username'].'
+                    <div class="data-more-details">
+                    Date Created: '.$fx->dateToWords($d['account_date_created']).'<br />
+                    An active Employee?: '.$c_employees->isEmployee($d['account_owner'], false).'
+                    '.$buttons.'
+                    </div>
+                </td>
+                <td>'.$d['access_level_label'].'</td>
+                <td>'.$accountStatus.'</td>
+                </tr>';
         }
         $output .= '</table>';
         return $output;
+    }
+
+
+
+    public function renderAccountButtons ($datas) {
+        if ($datas == null)
+            return null;
+
+        $d = $datas;
+        $fx = new myFunctions();
+
+        $btnUpdate = $fx->isAccessible('Administrator')
+            ? '<a href="'.URL_BASE.'accounts/update_account/'.$d['account_owner'].'/'.$d['account_id'].'/">
+                <input class="btn-green" type="button" value="Update Account" />
+                </a>'
+            : '';
+        $btnChangePassword = '<a href="'.URL_BASE.'accounts/update_password/'.$d['account_id'].'/">
+            <input type="button" value="Change Password" />
+            </a>';
+        $btnActivation = $d['account_deactivated'] == '0'
+            ? '<a href="'.URL_BASE.'accounts/deactivate_account/'.$d['account_id'].'/">
+                <input class="btn-red" type="button" value="Deactivate Account" />
+                </a>'
+            : '<a href="'.URL_BASE.'accounts/activate_account/'.$d['account_id'].'/">
+                <input class="btn-green" type="button" value="Activate Account" />
+                </a>';
+        $btnActivation = $fx->isAccessible('Administrator')
+            ? $btnActivation
+            : '';
+
+        $buttons = $btnUpdate
+            .$btnChangePassword
+            .$btnActivation;
+        return $buttons;
     }
 
 

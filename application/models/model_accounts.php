@@ -26,6 +26,7 @@ class model_accounts {
             return null;
 
         $passwordHash = $this->passwordEncrypt($d['account-password']);
+        $currentDate = date('Y-m-d');
         $res = $this->db->statement(array(
             'q'=>"INSERT INTO imts_accounts(
                     account_username
@@ -33,13 +34,15 @@ class model_accounts {
                     ,account_owner
                     ,account_access_level
                     ,account_deactivated
-                ) VALUES(?,?,?,?,?)"
+                    ,account_date_created
+                ) VALUES(?,?,?,?,?,?)"
             ,'v'=>array(
                 $d['account-username']
                 ,$passwordHash
                 ,intval($d['account-owner'])
                 ,intval($d['account-access-level'])
-                ,intval(1))));
+                ,intval(1)
+                ,$currentDate)));
         if ($res) {
             $d['account-id'] = $this->db->lastInsertId();
 
@@ -68,7 +71,6 @@ class model_accounts {
                     mail($to, $subject, $message, $headers);
                 }
             }
-
             return $d;
         } else {
             $c_errors = new controller_errors();
@@ -96,6 +98,7 @@ class model_accounts {
         $adminId = $adminId[0]['access_level_id'];
 
         $password = $this->passwordEncrypt('admin');
+        $currentDate = date('Y-m-d');
         $accountRes = $this->db->statement(array(
             'q'=>"INSERT INTO imts_accounts(
                     account_username
@@ -103,12 +106,14 @@ class model_accounts {
                     ,account_owner
                     ,account_access_level
                     ,account_deactivated
+                    ,account_date_created
                 ) VALUES(
                     'admin'
                     ,'$password'
                     ,$personId
                     ,$adminId
                     ,0
+                    ,'$currentDate'
                 )"));
         if (!$accountRes) {
             $c_errors = new controller_errors();

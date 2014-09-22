@@ -31,6 +31,7 @@ class controller_pages {
         $extra = $this->model->get('extra');
 
         $db = new database();
+        $fx = new myFunctions();
         $c_accounts = new controller_accounts();
         $c_items = new controller_items();
         $c_itemPackages = new controller_itemPackages();
@@ -44,42 +45,16 @@ class controller_pages {
         $models_public = array('home', 'track');
         $models_admin = array('admin');
 
-        // Check authentication
+        /**
+         * Check authentication and
+         * start preliminary routing
+         * base on the result of the
+         * checking
+         */
         ob_start();
         if (in_array($model, $models_public)) {
             // Route pages in public modules
             switch ($model) {
-                case 'track':
-                    switch ($view) {
-                        case 'owner':
-                            switch ($controller) {
-                                case 'person':
-                                case 'department':
-                                    $c_owners->displayTrackedItems(ucfirst($controller), $action);
-                                    $this->displayPage(ob_get_clean());
-                                    break;
-
-                                case 'person_printable':
-                                case 'department_printable':
-                                    $ownerType = $controller == 'person_printable' ? 'Person' : 'Department';
-                                    $c_owners->pdfOwnedItems($ownerType, $action);
-                                    break;
-
-                                default:
-                                    $c_owners->displayTrackForm();
-                                    $this->displayPage(ob_get_clean());
-                            }
-                            break;
-
-                        case 'item':
-                            $this->displayPageError('underconstruction');
-                            break;
-
-                        default:
-                            $this->displayPageError('404');
-                    }
-                    break;
-
                 case 'home':
                     $this->displayHomepage();
                     $this->displayPage(ob_get_clean());
@@ -92,21 +67,20 @@ class controller_pages {
         } else if (in_array($model, $models_authenticated)) {
             if (!isset($_SESSION['user'])) {
                 if ($model == 'accounts') {
-                    if ($view != 'login') {
+                    if ($view != 'login')
                         $this->displayPageError('403');
-                        return;
-                    }
-                } else {
+                } else
                     $this->displayPageError('403');
-                    return;
-                }
             }
         }
+        ob_end_clean();
 
         $acc_al = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
         $acc_aid = isset($_SESSION['user']) ? $_SESSION['user']['accountId'] : null;
 
-        // Route pages
+        /**
+         * Route pages
+         */
         ob_start();
         switch ($model) {
             case 'documents':
@@ -116,6 +90,9 @@ class controller_pages {
                     /** Administrator documents **/
 
                     case 'system_log_report':
+                        if ($fx->isAccessible('Administrator')) {
+
+                        }
                         break;
 
                     /** Supervisor documents **/
@@ -123,15 +100,18 @@ class controller_pages {
                     /** Content Provider documents **/
 
                     case 'profile_card':
-                        $c_documents->generateProfileCard($controller);
+                        if ($fx->isAccessible('Content Provider'))
+                            $c_documents->generateProfileCard($controller);
                         break;
 
                     case 'item_trace':
-                        $c_documents->generateItemTrace($controller);
+                        if ($fx->isAccessible('Content Provider'))
+                            $c_documents->generateItemTrace($controller);
                         break;
 
                     case 'inventory_report':
-                        $c_documents->generateInventoryReport($controller, $action);
+                        if ($fx->isAccessible('Content Provider'))
+                            $c_documents->generateInventoryReport($controller, $action);
                         break;
 
                     default:
@@ -171,11 +151,9 @@ class controller_pages {
                         break;
 
                     case 'update_account':
-                        if (!in_array($acc_al, array('Administrator', 'Admin'))) {
-                            if ($action != $acc_aid) {
+                        if (!$fx->isAccessible('Administrator')) {
+                            if ($action != $acc_aid)
                                 $this->displayPageError('403');
-                                return;
-                            }
                         }
 
                         switch ($controller) {
@@ -190,12 +168,10 @@ class controller_pages {
                         break;
 
                     case 'update_password':
-                        if (!in_array($acc_al, array('Administrator', 'Admin'))) {
+                        if (!$fx->isAccessible('Administrator')) {
                             if ($controller != 'save') {
-                                if ($controller != $acc_aid) {
+                                if ($controller != $acc_aid)
                                     $this->displayPageError('403');
-                                    return;
-                                }
                             }
                         }
 
@@ -336,6 +312,7 @@ class controller_pages {
                         break;
 
                     case 'in_search_componentHost':
+                        $this->restrictPage('Content Provider');
                         $c_items->displaySearchResults('componentHosts', $controller);
                         break;
 
@@ -560,6 +537,7 @@ class controller_pages {
                         break;
 
                     case 'in_search':
+                        $this->restrictPage('Content Provider');
                         $c_departments->displaySearchResults($controller);
                         break;
 
@@ -571,6 +549,7 @@ class controller_pages {
             case 'owners':
                 switch ($view) {
                     case 'in_search':
+                        $this->restrictPage('Content Provider');
                         $c_owners->displaySearchResults($controller, $action);
                         break;
 
@@ -587,6 +566,7 @@ class controller_pages {
             default:
                 $this->displayPageError('404');
         }
+        ob_end_clean();
     }
 
 
@@ -618,10 +598,11 @@ class controller_pages {
             else
                 echo '<!-- TEMPLATE ERROR: Footer, footer.php file is missing. -->';
 
-            $output = ob_get_clean();
-            echo $output;
+            ob_end_flush();
         } else
             echo $content;
+
+        exit();
     }
 
 
@@ -631,6 +612,7 @@ class controller_pages {
         if (!$echo)
             return $output;
         echo $output;
+        exit();
     }
 
 
@@ -674,10 +656,8 @@ class controller_pages {
 
     public function restrictPage ($leastAccessLevel=null) {
         $fx = new myFunctions();
-        if (!$fx->isAccessible($leastAccessLevel)) {
+        if (!$fx->isAccessible($leastAccessLevel))
             $this->displayPageError('403');
-            exit();
-        }
     }
 
 }

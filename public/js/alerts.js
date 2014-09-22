@@ -52,6 +52,7 @@ var myPopup = function (type, message, myAction) {
         ,'position': 'fixed'
         ,'top': '0px'
         ,'left': '0px'
+        ,'z-index': '1000'
         ,'background': 'rgba(89, 111, 128, 0.75)'
         ,'text-align': 'center'
     });

@@ -163,8 +163,15 @@ class controller_employees {
     public function isEmployee ($personId, $echo=true) {
         $result = $this->model->isEmployee($personId);
         $output = $this->view->renderIsEmployee($result);
-        if (!$echo) return $output;
+        if (!$echo)
+            return $output;
         echo $output;
+    }
+
+
+
+    public function getEmployeeDetails ($employeeId) {
+        return $this->model->readEmployee($employeeId);
     }
 
 }

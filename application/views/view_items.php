@@ -32,8 +32,9 @@ class view_items {
             $itemName .= '</h3>';
             $actionLink = URL_BASE.'inventory/update_item/save/';
             $submitBtn = $f->submit(array('value'=>'Save Changes','auto_line_break'=>false));
-            $cancelBtn = $f->button(array('value'=>'Cancel'));
-            $cancelBtn = '<a href="'.URL_BASE.'inventory/read_item/'.$i['item']['item_id'].'/">'.$cancelBtn.'</a>';
+            $cancelBtn = '<a href="'.URL_BASE.'inventory/read_item/'.$i['item']['item_id'].'/">
+                '.$f->button(array('value'=>'Cancel')).'
+                </a>';
         } else {
             $itemName = '<h3>New Item</h3>';
             $actionLink = URL_BASE.'inventory/create_item/save/';
@@ -234,67 +235,72 @@ class view_items {
 
 
     public function renderItemComponents ($components) {
-        if ($components != null) {
-            $c_itemStates = new controller_itemStates();
-            $c_itemTypes = new controller_itemTypes();
-            $c_owners = new controller_owners();
-            $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
+        if ($components == null)
+            return 'This item has no components.';
 
-            $output = '<table><tr>'
-                .'<th>Name</th>'
-                .'<th>State<div class="hr-light"></div>Type</th>'
-                .'<th>Quantity</th>'
-                .'<th>Price<div class="hr-light"></div>Depreciation</th>'
-                .'<th>Current Owner</th>';
-            $output .= !in_array($accessLevel, array('Viewer')) ? '<th>Action</th>' : '';
-            $output .= '</tr>';
-            foreach ($components as $component) {
-                if ($component['ownership'] != null) {
-                    $cOwnership = $component['ownership'];
-                    $coName = $c_owners->displayOwnerName($cOwnership['ownership_id'], false);
-                    $coLink = $cOwnership['ownership_owner_type'] == 'Person'
-                        ? URL_BASE.'persons/read_person/'.$cOwnership['ownership_owner'].'/'
-                        : URL_BASE.'departments/read_department/'.$cOwnership['ownership_owner'].'/';
-                    $coLink = '<a href="'.$coLink.'"><input type="button" value="'.$coName.'" /></a>';
-                } else {
-                    $coName = 'None';
-                    $coLink = $coName;
-                }
+        $fx = new myFunctions();
+        $c_items = new controller_items();
 
-                $archiveButton = in_array($accessLevel, array('Administrator', 'Admin', 'Supervisor'))
-                        ? '<a href="'.URL_BASE.'inventory/archive_item/'.$component['item_id'].'/"><input data-item-name="'.$component['item_name'].' (S/N: '.$component['item_serial_no'].' -- M/N: '.$component['item_model_no'].')" class="btn-red" type="button" value="Archive Item" /></a>'
-                        : '';
-                $actionButtons = $component['item_archive_state'] == '0'
-                    ? '<a href="'.URL_BASE.'inventory/update_item/'.$component['item_id'].'/"><input class="btn-green" type="button" value="Update Item" /></a>'
-                        .$archiveButton
-                    : 'This item has been archived.';
+        $output = '<table><tr>
+            <th>Name</th>
+            <th>Serial No.</th>
+            <th>Model No.</th></tr>';
+        foreach ($components as $c) {
+            $componentDescription = strlen($c['item_description']) > 0
+                ? '<br />'.nl2br($c['item_description'])
+                : '';
 
-                $componentDescription = strlen(trim($component['item_description'])) > 0
-                    ? '<br /><br /><i>'.nl2br(trim($component['item_description'])).'</i>'
-                    : '';
+            $componentButtons = $this->renderItemButtons($c['item_id']);
+            $componentButtons = strlen($componentButtons) > 0 ? '<div class="hr-light"></div>'.$componentButtons : '';
 
-                $output .= '<tr class="data" '
-                    .'data-url="'.URL_BASE.'inventory/read_item/'.$component['item_id'].'/">'
-                    .'<td>'
-                        .$component['item_name'].'<br />'
-                        .'<span style="color: #03f;">Serial</span>: '.$component['item_serial_no'].'<br />'
-                        .'<span style="color: #f00;">Model</span>: '.$component['item_model_no']
-                        .$componentDescription
-                    .'</td>'
-                    .'<td>'
-                        .$c_itemStates->displayItemStateName($component['item_state'], false)
-                        .'<div class="hr-light"></div>'
-                        .$c_itemTypes->displayItemTypeName($component['item_type'], false)
-                    .'</td>'
-                    .'<td>'.$component['item_quantity'].'</td>'
-                    .'<td>'.$component['item_cost'].'<div class="hr-light"></div>'.$component['item_depreciation'].'</td>'
-                    .'<td>'.$coLink.'</td>';
-                $output .= !in_array($accessLevel, array('Viewer')) ? '<td>'.$actionButtons.'</td>' : '';
-                $output .= '</tr>';
-            }
-            $output .= '</table>';
-        } else $output = 'There are no component/s for this item.';
+            $output .= '<tr class="data" data-url="'.URL_BASE.'inventory/read_item/'.$c['item_id'].'/">
+                <td>
+                    <b>'.$c['item_name'].'</b>
+                    <div class="data-more-details">
+                        Type: '.$c['item_type_label'].'<br />
+                        Status: '.$c['item_state_label'].'<br />
+                        Date of Purchase: '.$fx->dateToWords($c['item_date_of_purchase']).'<br />
+                        Cost: '.$c['item_cost'].'<br />
+                        Depreciation: '.$c['item_depreciation'].'<br />
+                        Currently owned by '.$c_items->displayItemCurrentOwner($c['item_id'], false).'<br />
+                        '.$componentDescription.'
+                        '.$componentButtons.'
+                    </div>
+                </td>
+                <td>'.$c['item_serial_no'].'</td>
+                <td>'.$c['item_model_no'].'</td>
+                </tr>';
+        }
+        $output .= '</table>';
+
         return $output;
+    }
+
+
+
+    public function renderItemButtons ($itemId) {
+        $fx = new myFunctions();
+
+        $btnUpdate = $fx->isAccessible('Content Provider')
+            ? '<a href="'.URL_BASE.'inventory/update_item/'.$itemId.'/">
+                <input class="btn-green" type="button" value="Update Item" />
+                </a>'
+            : '';
+
+        $btnArchive = $fx->isAccessible('Supervisor')
+            ? '<a href="'.URL_BASE.'inventory/archive_item/'.$itemId.'/">
+                <input class="btn-red" type="button" value="Archive Item" />
+                </a>'
+            : '';
+
+        $btnTrace = $fx->isAccessible('Administrator')
+            ? '<a href="#'.URL_BASE.'inventory/trace_item/'.$itemId.'/">
+                <input type="button" value="Trace Item" />
+                </a>'
+            : '';
+
+        $buttons = $btnUpdate.$btnArchive.$btnTrace;
+        return $buttons;
     }
 
 
@@ -379,14 +385,19 @@ class view_items {
 
 
     public function renderItemCurrentOwner ($datas) {
+        if ($datas == null)
+            return 'None';
+
         $d = $datas;
-        if ($d == null) return 'None';
 
         $c_owners = new controller_owners();
         $ownerName = $c_owners->displayOwnerName($d['ownership_id'], false);
-        $link = $d['ownership_owner_type'] == 'Person' ? URL_BASE.'persons/read_person/'.$d['ownership_owner'].'/' : URL_BASE.'departments/read_department/'.$d['ownership_owner'].'/';
-        $link = '<a href="'.$link.'"><input type="button" value="'.$ownerName.'" /></a>';
-        return $link;
+        $link = $d['ownership_owner_type'] == 'Person'
+            ? URL_BASE.'persons/read_person/'.$d['ownership_owner'].'/'
+            : URL_BASE.'departments/read_department/'.$d['ownership_owner'].'/';
+        return '<a class="btn-blue" href="'.$link.'">
+            '.$ownerName.'
+            </a>';
     }
 
 

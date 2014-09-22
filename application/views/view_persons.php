@@ -158,8 +158,7 @@ class view_persons {
     public function renderPersonInformations ($personDatas) {
         if ($personDatas == null) return 'Error: This person do not exists in our system.';
 
-        $pd = $personDatas;
-        $p = $pd;
+        $p = $personDatas;
 
         $fx = new myFunctions();
         $c_inventory = new controller_inventory();
@@ -168,100 +167,99 @@ class view_persons {
         $c_accounts = new controller_accounts();
         $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
 
-        $personName = '<h3>'.$pd['person_lastname'].', '.$pd['person_firstname'].' '.$pd['person_middlename'].' '.$pd['person_suffix'].'</h3>';
-        $ownedItems = $c_owners->displayOwnedItemsSummary('Person', $pd['person_id'], false);
+        $personName = '<h3>'.$p['person_lastname'].', '.$p['person_firstname'].' '.$p['person_middlename'].' '.$p['person_suffix'].'</h3>';
+        $ownedItems = $c_owners->displayOwnedItemsSummary('Person', $p['person_id'], false);
 
-        if ($pd['person_head_departments'] != null) {
+        if ($p['person_head_departments'] != null) {
             $departmentHeadOf = '';
-            foreach ($pd['person_head_departments'] as $pdDept) {
-                $departmentHeadOf .= '<a href="'.URL_BASE.'departments/read_department/'.$pdDept['department_id'].'/"><input type="button" value="'.$pdDept['department_name'].' ('.$pdDept['department_name_short'].')" /></a>';
+            foreach ($p['person_head_departments'] as $pdDept) {
+                $departmentHeadOf .= '<a href="'.URL_BASE.'departments/read_department/'.$pdDept['department_id'].'/">
+                    <input type="button" value="'.$pdDept['department_name'].' ('.$pdDept['department_name_short'].')" />
+                    </a>';
             }
-        } else $departmentHeadOf = 'None';
-
-        $createAccountButton = in_array($accessLevel, array('Administrator', 'Admin'))
-                ? '<a href="'.URL_BASE.'accounts/create_account/'.$pd['person_id'].'/"><input class="btn-green" type="button" value="Create an Account for this Person" /></a>'
-                : '';
-
-        $personGender = $pd['person_gender'] == 'm' ? 'Male' : 'Female';
-        $personIsEmployee = $pd['person_is_employee'] ? 'Yes' : 'No';
-        $output = $personName.'<div class="hr-light"></div>'
-            .'<div class="accordion-title">Person Information</div><div class="accordion-content accordion-content-default">'
-            .'<table>'
-            .'<tr>'
-                .'<th>Firstname</th>'
-                .'<td>'.$pd['person_firstname'].'</td>'
-                .'<th>Birthdate</th>'
-                .'<td>'.$fx->dateToWords($pd['person_birthdate']).'</td>'
-                .'<th>Head Of</th>'
-                .'<td>'.$departmentHeadOf.'</td>'
-            .'</tr>'
-            .'<tr>'
-                .'<th>Middlename</th>'
-                .'<td>'.$pd['person_middlename'].'</td>'
-                .'<th>Is Employee?</th>'
-                .'<td>'.$personIsEmployee.'</td>'
-                .'<th rowspan="4">Address</th>'
-                .'<td rowspan="2">'.$pd['person_address_a'].'</td>'
-            .'</tr>'
-            .'<tr>'
-                .'<th>Lastname</th>'
-                .'<td>'.$pd['person_lastname'].'</td>'
-                .'<th rowspan="3">Contact</th>'
-                .'<td>'.$pd['person_contact_a'].'</td>'
-            .'</tr>'
-            .'<tr>'
-                .'<th>Suffix</th>'
-                .'<td>'.$pd['person_suffix'].'</td>'
-                .'<td>'.$pd['person_contact_b'].'</td>'
-                .'<td rowspan="2">'.$pd['person_address_b'].'</td>'
-            .'</tr>'
-            .'<tr>'
-                .'<th>Gender</th>'
-                .'<td>'.$personGender.'</td>'
-                .'<td>'.$pd['person_email'].'</td>'
-            .'</tr>'
-            .'<tr>'
-            .'</tr>'
-            .'</table>'
-            .'</div>'
-
-            .'<div class="accordion-title">Owned Items and History</div><div class="accordion-content">'.$ownedItems.'</div>'
-
-            .'<div class="accordion-title">Employment History</div><div class="accordion-content">'.$c_employees->displayEmploymentHistory($pd['person_id'], false).'</div>'
-
-            .'<div class="accordion-title">Accounts on the System</div><div class="accordion-content">'.$c_accounts->displayPersonAccounts($pd['person_id'], false).'</div>'
-
-            .'<div class="hr-light"></div>';
-        $output .= !in_array($accessLevel, array('Viewer'))
-            ? '<a href="'.URL_BASE.'persons/update_person/'.$pd['person_id'].'/"><input class="btn-green" type="button" value="Update Person" /></a>'
-            : '';
-        $output .= in_array($accessLevel, array('Administrator', 'Admin', 'Supervisor'))
-            ? '<a href="'.URL_BASE.'employees/create_employment/'.$pd['person_id'].'/"><input class="btn-green" type="button" value="Add Employment" /></a>'
-                .$createAccountButton
-            : '';
+        } else
+            $departmentHeadOf = 'None';
 
         ob_start();
         $c_inventory->displayInventory('Person', $p['person_id']);
         $inventory = ob_get_clean();
 
-        $buttons = '';
+        ob_start();
+        $c_employees->displayEmploymentHistory($p['person_id']);
+        $employmentHistory = ob_get_clean();
+
+        ob_start();
+        $c_accounts->displayPersonAccounts($p['person_id']);
+        $systemAccounts = ob_get_clean();
+
+        $btnUpdate = $fx->isAccessible('Viewer')
+            ? '<a href="'.URL_BASE.'persons/update_person/'.$p['person_id'].'/">
+                <input class="btn-green" type="button" value="Update Person" />
+                </a>'
+            : '';
+        $btnAddEmployment = $fx->isAccessible('Supervisor')
+            ? '<a href="'.URL_BASE.'employees/create_employment/'.$p['person_id'].'/">
+                <input class="btn-green" type="button" value="Add Employment" />
+                </a>'
+            : '';
+        $btnCreateAccount = $fx->isAccessible('Administrator')
+            ? '<a href="'.URL_BASE.'accounts/create_account/'.$p['person_id'].'/">
+                <input class="btn-green" type="button" value="Create an Account for this Person" />
+                </a>'
+            : '';
+        $buttons = $btnUpdate.$btnAddEmployment.$btnCreateAccount;
+
+        $personGender = $p['person_gender'] == 'm' ? 'Male' : 'Female';
+        $personIsEmployee = $p['person_is_employee'] ? 'Yes' : 'No';
 
         $output = $personName.'<div class="hr-light"></div>
             <div class="accordion-title">Biodata</div>
             <div class="accordion-content accordion-content-default">
             <table>
-            
+            <tr>
+                <th>Firstname</th>
+                <td>'.$p['person_firstname'].'</td>
+                <th>Birthdate</th>
+                <td>'.$fx->dateToWords($p['person_birthdate']).'</td>
+                <th>Head Of</th>
+                <td>'.$departmentHeadOf.'</td>
+            </tr>
+            <tr>
+                <th>Middlename</th>
+                <td>'.$p['person_middlename'].'</td>
+                <th>Is Employee?</th>
+                <td>'.$personIsEmployee.'</td>
+                <th rowspan="4">Address</th>
+                <td rowspan="2">'.$p['person_address_a'].'</td>
+            </tr>
+            <tr>
+                <th>Lastname</th>
+                <td>'.$p['person_lastname'].'</td>
+                <th rowspan="3">Contact</th>
+                <td>'.$p['person_contact_a'].'</td>
+            </tr>
+            <tr>
+                <th>Suffix</th>
+                <td>'.$p['person_suffix'].'</td>
+                <td>'.$p['person_contact_b'].'</td>
+                <td rowspan="2">'.$p['person_address_b'].'</td>
+            </tr>
+            <tr>
+                <th>Gender</th>
+                <td>'.$personGender.'</td>
+                <td>'.$p['person_email'].'</td>
+            </tr>
             </table>
             </div>
 
             <div class="accordion-title">Inventory</div>
             <div class="accordion-content">'.$inventory.'</div>
 
-            <div class="accordion-title"></div>
-            <div class="accordion-content"></div>
+            <div class="accordion-title">Employment History</div>
+            <div class="accordion-content">'.$employmentHistory.'</div>
 
-            <div class="accordion-title"></div>
-            <div class="accordion-content"></div>
+            <div class="accordion-title">Available Accounts on the System</div>
+            <div class="accordion-content">'.$systemAccounts.'</div>
 
             <div class="hr-light"></div>
             '.$buttons;

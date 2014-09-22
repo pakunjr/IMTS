@@ -85,7 +85,8 @@ class model_employees {
             'q'=>"SELECT * FROM imts_persons_employment AS emp
                 LEFT JOIN imts_persons AS per ON emp.employee_person = per.person_id
                 LEFT JOIN imts_persons_employment_jobs AS emp_job ON emp.employee_job = emp_job.employee_job_id
-                WHERE employee_id = ? LIMIT 1"
+                WHERE employee_id = ?
+                LIMIT 1"
             ,'v'=>array(
                 intval($employeeId))));
         return count($rows) > 0 ? $rows[0] : null;
@@ -95,7 +96,9 @@ class model_employees {
 
     public function readJob ($jobId) {
         $rows = $this->db->statement(array(
-            'q'=>"SELECT * FROM imts_persons_employment_jobs WHERE employee_job_id = ? LIMIT 1"
+            'q'=>"SELECT * FROM imts_persons_employment_jobs
+                WHERE employee_job_id = ?
+                LIMIT 1"
             ,'v'=>array(intval($jobId))));
         return count($rows) > 0 ? $rows[0] : null;
     }

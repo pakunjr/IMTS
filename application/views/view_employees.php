@@ -96,50 +96,79 @@ class view_employees {
 
 
     public function renderEmploymentHistory ($datas) {
-        if ($datas == null) return 'This person has no employment history.';
+        if ($datas == null)
+            return 'This person has no employment history.';
 
         $d = $datas;
         $fx = new myFunctions();
         $c_departments = new controller_departments();
-        $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
 
         $currentDate = date('Y-m-d');
 
-        $output = '<table><tr>'
-            .'<th>Employee No</th>'
-            .'<th>Status</th>'
-            .'<th>Job Label -- Definition</th>'
-            .'<th>Department Short -- Name</th>'
-            .'<th>Employment Date</th>'
-            .'<th>Resignation / End of Contract Date</th>';
-        $output .= in_array($accessLevel, array('Administrator', 'Admin', 'Supervisor'))
-                ? '<th>Actions</th>' : '';
-        $output .= '</tr>';
+        $output = '<table><tr>
+            <th>Job Definition</th>
+            <th>Status</th>
+            <th>Employment Date</th>
+            <th>Resignation / End of Contract Date</th>
+            </tr>';
         foreach ($datas as $d) {
-            $deptName = $c_departments->displayDepartmentName($d['employee_department'], false);
-            $deptLink = $deptName != 'None'
-                ? '<a href="'.URL_BASE.'departments/read_department/'.$d['employee_department'].'/"><input type="button" value="'.$deptName.'" /></a>'
-                : $deptName;
+            $departmentName = $c_departments->displayDepartmentName($d['employee_department'], false);
+            $departmentLink = $departmentName != 'None'
+                ? '<a class="btn-blue" href="'.URL_BASE.'departments/read_department/'.$d['employee_department'].'/">
+                    '.$departmentName.'
+                    </a>'
+                : $departmentName;
 
-            $actionButtons = $d['employee_resignation_date'] > $currentDate
-                || $d['employee_resignation_date'] == '0000-00-00'
-                    ? '<a href="'.URL_BASE.'employees/update_employment/'.$d['employee_person'].'/'.$d['employee_id'].'/"><input class="btn-green" type="button" value="Update Employment" /></a>'
-                        .'<a href="'.URL_BASE.'employees/end_employment/'.$d['employee_id'].'/"><input class="btn-red" type="button" value="End Employment" /></a>'
-                    : 'N/A';
+            $jobDefinition = strlen($d['employee_job_description'])
+                ? '<br />Job Definition:<br />
+                    '.nl2br($d['employee_job_description'])
+                : '';
 
-            $output .= '<tr>'
-                .'<td>'.$d['employee_no'].'</td>'
-                .'<td>'.$d['employee_status_label'].'</td>'
-                .'<td>'.$d['employee_job_label'].' -- '.nl2br($d['employee_job_description']).'</td>'
-                .'<td>'.$deptLink.'</td>'
-                .'<td>'.$fx->dateToWords($d['employee_employment_date']).'</td>'
-                .'<td>'.$fx->dateToWords($d['employee_resignation_date']).'</td>';
-            $output .= in_array($accessLevel, array('Administrator', 'Admin', 'Supervisor'))
-                ? '<td>'.$actionButtons.'</td>' : '';
-            $output .= '</tr>';
+            $buttons = $this->renderEmploymentButtons($d['employee_id'], $d['employee_person']);
+            $buttons = strlen($buttons) > 0
+                ? '<div class="hr-light"></div>'.$buttons
+                : '';
+
+            $output .= '<tr>
+                <td>
+                    '.$d['employee_job_label'].'
+                    <div class="data-more-details">
+                        Employee No.: '.$d['employee_no'].'<br />
+                        Designated Department: '.$departmentLink.'
+                        '.$jobDefinition.'
+                        '.$buttons.'
+                    </div>
+                </td>
+                <td>'.$d['employee_status_label'].'</td>
+                <td>'.$fx->dateToWords($d['employee_employment_date']).'</td>
+                <td>'.$fx->dateToWords($d['employee_resignation_date']).'</td>
+                </tr>';
         }
         $output .= '</table>';
         return $output;
+    }
+
+
+
+    public function renderEmploymentButtons ($employeeId, $personId) {
+        $fx = new myFunctions();
+        $c_employees = new controller_employees();
+        $currentDate = date('Y-m-d');
+        $datas = $c_employees->getEmployeeDetails($employeeId);
+
+        $btnUpdate = '<a href="'.URL_BASE.'employees/update_employment/'.$personId.'/'.$employeeId.'/">
+                        <input class="btn-green" type="button" value="Update Employment" />
+                        </a>';
+
+        $btnEndEmployment = '<a href="'.URL_BASE.'employees/end_employment/'.$employeeId.'/">
+                        <input class="btn-red" type="button" value="End Employment" />
+                        </a>';
+
+        $buttons = $datas['employee_resignation_date'] > $currentDate
+                || $datas['employee_resignation_date'] == '0000-00-00'
+            ? $btnUpdate.$btnEndEmployment
+            : 'N/A';
+        return $buttons;
     }
 
 
