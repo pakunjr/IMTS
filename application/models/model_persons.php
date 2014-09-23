@@ -31,7 +31,9 @@ class model_persons {
                     ,person_contact_a
                     ,person_contact_b
                     ,person_email
-                ) VALUES(?,?,?,?,?,?,?,?,?,?,?)"
+                    ,person_educational_degree
+                    ,person_educational_background
+                ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)"
             ,'v'=>array(
                 $d['person-firstname']
                 ,$d['person-middlename']
@@ -43,7 +45,9 @@ class model_persons {
                 ,$d['person-address-b']
                 ,$d['person-contact-a']
                 ,$d['person-contact-b']
-                ,$d['person-email'])));
+                ,$d['person-email']
+                ,$d['person-educational-degree']
+                ,$d['person-educational-background'])));
         if ($res) {
             $d['person-id'] = $this->db->lastInsertId();
             return $d;
@@ -64,7 +68,11 @@ class model_persons {
 
     public function readPersonHeadDepartments ($personId) {
         $rows = $this->db->statement(array(
-            'q'=>"SELECT * FROM imts_departments WHERE department_head = ?"
+            'q'=>"SELECT * FROM imts_departments
+                WHERE department_head = ?
+                ORDER BY
+                    department_name ASC
+                    ,department_name_short ASC"
             ,'v'=>array(intval($personId))));
         return count($rows) > 0 ? $rows : null;
     }
@@ -87,6 +95,8 @@ class model_persons {
                     ,person_contact_a = ?
                     ,person_contact_b = ?
                     ,person_email = ?
+                    ,person_educational_degree = ?
+                    ,person_educational_background = ?
                 WHERE person_id = ?"
             ,'v'=>array(
                     $d['person-firstname']
@@ -100,6 +110,8 @@ class model_persons {
                     ,$d['person-contact-a']
                     ,$d['person-contact-b']
                     ,$d['person-email']
+                    ,$d['person-educational-degree']
+                    ,$d['person-educational-background']
                     ,intval($d['person-id']))));
         return $res ? $d : null;
     }
@@ -113,7 +125,12 @@ class model_persons {
                     person_firstname LIKE ?
                     OR person_middlename LIKE ?
                     OR person_lastname LIKE ?
-                    OR person_email LIKE ?"
+                    OR person_email LIKE ?
+                ORDER BY
+                    person_lastname ASC
+                    ,person_firstname ASC
+                    ,person_middlename ASC
+                    ,person_suffix ASC"
             ,'v'=>array(
                 "%$keyword%"
                 ,"%$keyword%"

@@ -71,6 +71,11 @@ class view_persons {
             .'</span>'
             .$f->closeFieldset()
 
+            .$f->openFieldset(array('class'=>'column', 'legend'=>'Education'))
+            .$f->text(array('id'=>'person-educational-degree', 'label'=>'Degree', 'value'=>$d != null ? $d['person_educational_degree'] : ''))
+            .$f->textarea(array('id'=>'person-educational-background', 'label'=>'Background', 'value'=>$d != null ? $d['person_educational_background'] : ''))
+            .$f->closeFieldset()
+
             .$employmentFieldset
 
             .'<div class="hr-light"></div>'
@@ -106,44 +111,45 @@ class view_persons {
 
         $fx = new myFunctions();
 
-        $output = '<table><tr>'
-            .'<th>Lastname</th>'
-            .'<th>Firstname</th>'
-            .'<th>Middlename</th>'
-            .'<th>Suffix</th>'
-            .'<th>Gender</th>'
-            .'<th>Birthdate</th>'
-            .'<th colspan="2">Address</th>'
-            .'<th colspan="3">Contact</th>';
-        if (isset($_POST['search-keyword'])) {
-            $output .= !in_array($accessLevel, array('Viewer'))
-                ? '<th>Actions</th>' : '';
-        }
-        $output .= '</tr>';
-        foreach ($datas as $d) {
-            $personGender = $d['person_gender'] == 'm' ? 'Male' : 'Female';
+        $output = '<table><tr>
+            <th>Lastname</th>
+            <th>Firstname</th>
+            <th>Middlename</th>
+            <th>Suffix</th>
+            </tr>';
 
-            $output .= '<tr class="data" '
-                .'data-id="'.$d['person_id'].'" '
-                .'data-label="'.$d['person_lastname'].', '.$d['person_firstname'].' '.$d['person_middlename'].' '.$d['person_suffix'].'" '
-                .'data-url="'.URL_BASE.'persons/read_person/'.$d['person_id'].'/">'
-                .'<td>'.$d['person_lastname'].'</td>'
-                .'<td>'.$d['person_firstname'].'</td>'
-                .'<td>'.$d['person_middlename'].'</td>'
-                .'<td>'.$d['person_suffix'].'</td>'
-                .'<td>'.$personGender.'</td>'
-                .'<td>'.$fx->dateToWords($d['person_birthdate']).'</td>'
-                .'<td>'.$d['person_address_a'].'</td>'
-                .'<td>'.$d['person_address_b'].'</td>'
-                .'<td>'.$d['person_contact_a'].'</td>'
-                .'<td>'.$d['person_contact_b'].'</td>'
-                .'<td>'.$d['person_email'].'</td>';
-            if (isset($_POST['search-keyword'])) {
-                $output .= !in_array($accessLevel, array('Viewer'))
-                    ? '<td><a href="'.URL_BASE.'persons/update_person/'.$d['person_id'].'/"><input class="btn-green" type="button" value="Update Person" /></a></td>'
-                    : '';
-            }
-            $output .= '</tr>';
+        foreach ($datas as $d) {
+            $personGender = $d['person_gender'] == 'm'
+                ? 'Male'
+                : 'Female';
+            $personButtons = $this->renderPersonButtons($d);
+            $personButtons = strlen($personButtons) > 0
+                ? '<div class="hr-light"></div>'.$personButtons
+                : $personButtons;
+
+            $dId = $d['person_id'];
+            $dLabel = $d['person_lastname'].', '.$d['person_firstname'].' '.$d['person_middlename'].' '.$d['person_suffix'];
+            $dUrl = URL_BASE.'persons/read_person/'.$d['person_id'];
+            $output .= '<tr class="data"  data-id="'.$dId.'"  data-label="'.$dLabel.'"  data-url="'.$dUrl.'/">
+                <td>
+                    '.$d['person_lastname'].'
+                    <div class="data-more-details">
+                    <b>'.$d['person_lastname'].', '.$d['person_firstname'].' '.$d['person_middlename'].' '.$d['person_suffix'].'</b>
+                    <div class="hr-light"></div>
+                    Gender: '.$personGender.'<br />
+                    Birthdate: '.$fx->dateToWords($d['person_birthdate']).'<br />
+                    Address A: '.$d['person_address_a'].'<br />
+                    Address B: '.$d['person_address_b'].'<br />
+                    Contact No. 1: '.$d['person_contact_a'].'<br />
+                    Contact No. 2: '.$d['person_contact_b'].'<br />
+                    Email Address: '.$d['person_email'].'
+                    '.$personButtons.'
+                    </div>
+                </td>
+                <td>'.$d['person_firstname'].'</td>
+                <td>'.$d['person_middlename'].'</td>
+                <td>'.$d['person_suffix'].'</td>
+                </tr>';
         }
         $output .= '</table>'
             .'<div class="hr-light"></div>';
@@ -173,8 +179,8 @@ class view_persons {
         if ($p['person_head_departments'] != null) {
             $departmentHeadOf = '';
             foreach ($p['person_head_departments'] as $pdDept) {
-                $departmentHeadOf .= '<a href="'.URL_BASE.'departments/read_department/'.$pdDept['department_id'].'/">
-                    <input type="button" value="'.$pdDept['department_name'].' ('.$pdDept['department_name_short'].')" />
+                $departmentHeadOf .= '<a class="btn-blue" href="'.URL_BASE.'departments/read_department/'.$pdDept['department_id'].'/">
+                    '.$pdDept['department_name'].' ('.$pdDept['department_name_short'].')
                     </a>';
             }
         } else
@@ -264,6 +270,39 @@ class view_persons {
             <div class="hr-light"></div>
             '.$buttons;
         return $output;
+    }
+
+
+
+    public function renderPersonButtons ($datas) {
+        if ($datas == null)
+            return '';
+
+        $p = $datas;
+        $fx = new myFunctions();
+
+        $btnUpdate = $fx->isAccessible('Viewer')
+            ? '<a href="'.URL_BASE.'persons/update_person/'.$p['person_id'].'/">
+                <input class="btn-green" type="button" value="Update Person" />
+                </a>'
+            : '';
+        $btnDelete = $fx->isAccessible('Administrator')
+            ? '<a href="'.URL_BASE.'persons/delete_person/'.$p['person_id'].'/">
+                <input class="btn-red" type="button" value="Delete Person" />
+                </a>'
+            : '';
+        $btnAddEmployment = $fx->isAccessible('Supervisor')
+            ? '<a href="'.URL_BASE.'employees/create_employment/'.$p['person_id'].'/">
+                <input class="btn-green" type="button" value="Add Employment" />
+                </a>'
+            : '';
+        $btnCreateAccount = $fx->isAccessible('Administrator')
+            ? '<a href="'.URL_BASE.'accounts/create_account/'.$p['person_id'].'/">
+                <input class="btn-green" type="button" value="Create an Account for this Person" />
+                </a>'
+            : '';
+        $buttons = $btnUpdate.$btnDelete.$btnAddEmployment.$btnCreateAccount;
+        return $buttons;
     }
 
 

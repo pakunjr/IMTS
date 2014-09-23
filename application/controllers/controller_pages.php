@@ -313,6 +313,7 @@ class controller_pages {
 
                     case 'in_search_componentHost':
                         $this->restrictPage('Content Provider');
+                        ob_end_clean();
                         $c_items->displaySearchResults('componentHosts', $controller);
                         break;
 
@@ -360,6 +361,7 @@ class controller_pages {
                         break;
 
                     case 'in_search':
+                        ob_end_clean();
                         $c_itemPackages->displaySearchResults($controller);
                         break;
 
@@ -486,10 +488,12 @@ class controller_pages {
                         break;
 
                     case 'in_search':
+                        ob_end_clean();
                         $c_employees->displaySearchResults($controller);
                         break;
 
                     case 'in_search_job':
+                        ob_end_clean();
                         $c_employees->displaySearchResultsJob($controller);
                         break;
 
@@ -538,6 +542,7 @@ class controller_pages {
 
                     case 'in_search':
                         $this->restrictPage('Content Provider');
+                        ob_end_clean();
                         $c_departments->displaySearchResults($controller);
                         break;
 
@@ -550,6 +555,7 @@ class controller_pages {
                 switch ($view) {
                     case 'in_search':
                         $this->restrictPage('Content Provider');
+                        ob_end_clean();
                         $c_owners->displaySearchResults($controller, $action);
                         break;
 
@@ -566,7 +572,8 @@ class controller_pages {
             default:
                 $this->displayPageError('404');
         }
-        ob_end_clean();
+        ob_end_flush();
+        exit();
     }
 
 

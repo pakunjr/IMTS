@@ -74,8 +74,8 @@ class database {
             if ( !$stmt )
                 throw new PDOException('PDOException: Failed to prepare the query.');
         } catch ( PDOException $e ) {
-            $this->logDatabaseError($e->getMessage().PHP_EOL.PHP_EOL
-                .'SQL Query: '.$q);
+            $this->logDatabaseError($e->getMessage().PHP_EOL.PHP_EOL.'
+                SQL Query: '.$q);
         }
 
         /**
@@ -93,9 +93,9 @@ class database {
                     ? true : false;
 
                 if ( !$status ) {
-                    $this->logDatabaseError('Failed to bind parameter.'.PHP_EOL
-                        .'Placeholder: '.$ph.PHP_EOL
-                        .'Value: '.$value);
+                    $this->logDatabaseError('Failed to bind parameter.'.PHP_EOL.'
+                        Placeholder: '.$ph.PHP_EOL.'
+                        Value: '.$value);
                 }
             }
         }
@@ -112,19 +112,17 @@ class database {
                 while ( $row = $stmt->fetch() ) {
                     array_push($array, $row);
                 }
-
                 return $array;
             } else if ( strpos($q, 'INSERT') !== false
                     || strpos($q, 'UPDATE') !== false
                     || strpos($q, 'DELETE') !== false ) {
                 return $stmt->execute();
-            } else {
+            } else
                 $this->logDatabaseError('Unknown type of SQL statement.');
-            }
         } catch ( PDOException $e ) {
-            $this->logDatabaseError('Failed in executing the statement.'.PHP_EOL.PHP_EOL
-                .'SQL Query: '.$q.PHP_EOL.PHP_EOL
-                .'Reason: '.$e->getMessage());
+            $this->logDatabaseError('Failed in executing the statement.'.PHP_EOL.PHP_EOL.'
+                SQL Query: '.$q.PHP_EOL.PHP_EOL.'
+                Reason: '.$e->getMessage());
         }
     }
 

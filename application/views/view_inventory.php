@@ -70,6 +70,12 @@ class view_inventory {
                         <td>
                             <b>'.$c['item_name'].'</b>
                             <div class="data-more-details">
+                                <b>'.$c['item_name'].'</b><br />
+                                <small>
+                                S/N: '.$c['item_serial_no'].'<br />
+                                M/N: '.$c['item_model_no'].'
+                                </small>
+                                <div class="hr-light"></div>
                                 State: '.$c['item_state_label'].'<br />
                                 Owned since: '.$fx->dateToWords($c['ownership_date_owned']).'<br />
                                 Released since: '.$fx->dateToWords($c['ownership_date_released']).'
@@ -99,6 +105,12 @@ class view_inventory {
                     Serial No.: '.$i['item_serial_no'].'<br />
                     Model No.: '.$i['item_model_no'].'
                     <div class="data-more-details">
+                        <b>'.$i['item_name'].'</b><br />
+                        <small>
+                        S/N: '.$i['item_serial_no'].'<br />
+                        M/N: '.$i['item_model_no'].'
+                        </small>
+                        <div class="hr-light"></div>
                         State: '.$i['item_state_label'].'<br />
                         Owned since: '.$fx->dateToWords($i['ownership_date_owned']).'<br />
                         Released since: '.$fx->dateToWords($i['ownership_date_released']).'

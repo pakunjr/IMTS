@@ -227,19 +227,19 @@ class model_items {
 
 
     public function searchItems ($searchType='items', $keyword) {
-        $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
+        $fx = new myFunctions();
 
         switch ($searchType) {
             case 'items':
+                $addCondArchiveState = !$fx->isAccessible('Supervisor')
+                    ? "AND item_archive_state = 0"
+                    : '';
                 $query = "SELECT * FROM imts_items
                     WHERE
                         (item_name LIKE ?
-                        OR item_serial_no LIKE ?
-                        OR item_model_no LIKE ?)";
-                $query .= !in_array($accessLevel, array('Administrator', 'Admin', 'Supervisor'))
-                    ? " AND item_archive_state = 0"
-                    : "";
-                $query .= "
+                            OR item_serial_no LIKE ?
+                            OR item_model_no LIKE ?)
+                        $addCondArchiveState
                     ORDER BY
                         item_name ASC
                         ,item_serial_no ASC
@@ -255,17 +255,19 @@ class model_items {
 
             case 'componentHosts':
                 $rows = $this->db->statement(array(
-                    'q'=>"SELECT * FROM imts_items
+                    'q'=>"SELECT * FROM imts_items AS item
+                        LEFT JOIN imts_items_type AS iType ON item.item_type = iType.item_type_id
+                        LEFT JOIN imts_items_state AS iState ON item.item_state = iState.item_state_id
+                        LEFT JOIN imts_items_package AS package ON item.item_package = package.package_id
                         WHERE
-                            item_has_components = 1
-                            AND item_archive_state = 0
+                            item.item_has_components = 1
+                            AND item.item_archive_state = 0
                             AND (
-                                item_name LIKE ?
-                                OR item_serial_no LIKE ?
-                                OR item_model_no LIKE ?)
+                                item.item_name LIKE ?
+                                OR item.item_serial_no LIKE ?
+                                OR item.item_model_no LIKE ?)
                         ORDER BY
-                            LENGTH(item_name) ASC
-                            ,item_name ASC"
+                            item.item_name ASC"
                     ,'v'=>array(
                         "%$keyword%"
                         ,"%$keyword%"
@@ -282,8 +284,7 @@ class model_items {
 
     public function logAction ($itemId, $logContent) {
         $item = $this->readItem($itemId);
-        $log = $item['item_log'];
-        $log = unserialize($log);
+        $log = unserialize($item['item_log']);
         $log = is_array($log) ? $log : array();
 
         array_push($log, array(

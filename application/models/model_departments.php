@@ -67,9 +67,15 @@ class model_departments {
                 LEFT JOIN imts_persons AS per ON emp.employee_person = per.person_id
                 LEFT JOIN imts_persons_employment_jobs AS job ON emp.employee_job = job.employee_job_id
                 LEFT JOIN imts_persons_employment_status AS sta ON emp.employee_status = sta.employee_status_id
-                WHERE emp.employee_department = ?
+                WHERE
+                    emp.employee_department = ?
                     AND (emp.employee_resignation_date > '$currentDate'
-                        OR emp.employee_resignation_date = '0000-00-00')"
+                        OR emp.employee_resignation_date = '0000-00-00')
+                ORDER BY
+                    per.person_lastname ASC
+                    ,per.person_firstname ASC
+                    ,per.person_middlename ASC
+                    ,per.person_suffix ASC"
             ,'v'=>array(
                 intval($departmentId))));
         return count($rows) > 0 ? $rows : null;
@@ -119,7 +125,13 @@ class model_departments {
 
     public function searchDepartments ($keyword) {
         $rows = $this->db->statement(array(
-            'q'=>"SELECT * FROM imts_departments WHERE department_name LIKE ? OR department_name_short LIKE ?"
+            'q'=>"SELECT * FROM imts_departments
+                WHERE
+                    department_name LIKE ?
+                    OR department_name_short LIKE ?
+                ORDER BY
+                    department_name ASC
+                    ,department_name_short ASC"
             ,'v'=>array(
                 "%$keyword%"
                 ,"%$keyword%")));

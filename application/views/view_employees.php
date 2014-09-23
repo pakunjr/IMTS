@@ -119,8 +119,8 @@ class view_employees {
                     </a>'
                 : $departmentName;
 
-            $jobDefinition = strlen($d['employee_job_description'])
-                ? '<br />Job Definition:<br />
+            $jobDescription = strlen($d['employee_job_description'])
+                ? '<br />Job Description:<br />
                     '.nl2br($d['employee_job_description'])
                 : '';
 
@@ -135,7 +135,7 @@ class view_employees {
                     <div class="data-more-details">
                         Employee No.: '.$d['employee_no'].'<br />
                         Designated Department: '.$departmentLink.'
-                        '.$jobDefinition.'
+                        '.$jobDescription.'
                         '.$buttons.'
                     </div>
                 </td>

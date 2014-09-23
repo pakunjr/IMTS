@@ -92,4 +92,14 @@ class controller_persons {
         echo $personName;
     }
 
+
+
+    public function displayPersonButtons ($personId, $echo=true) {
+        $datas = $this->model->readPerson($personId);
+        $output = $this->view->renderPersonButtons($datas);
+        if (!$echo)
+            return $output;
+        echo $output;
+    }
+
 }

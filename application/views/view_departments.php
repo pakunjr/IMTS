@@ -140,31 +140,40 @@ class view_departments {
 
 
     public function renderDepartmentMembers ($datas) {
-        if ($datas == null) return 'There are no members for this department.';
+        if ($datas == null)
+            return 'There are no members for this department.';
 
         $fx = new myFunctions();
-        $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
+        $c_persons = new controller_persons();
 
-        $output = '<table><tr>'
-            .'<th>Name</th>'
-            .'<th>Position</th>'
-            .'<th>Status</th>'
-            .'<th>Employment Date</th>'
-            .'<th>Resignation / End of Contract Date</th>';
-        $output .= !in_array($accessLevel, array('Viewer'))
-                ? '<th>Actions</th>' : '';
-        $output .= '</tr>';
+        $output = '<table><tr>
+            <th>Lastname</th>
+            <th>Firstname</th>
+            <th>Middlename</th>
+            <th>Suffix</th>
+            </tr>';
         foreach ($datas as $d) {
-            $output .= '<tr class="data" data-url="'.URL_BASE.'persons/read_person/'.$d['person_id'].'/">'
-                .'<td>'.$d['person_lastname'].', '.$d['person_firstname'].' '.$d['person_middlename'].' '.$d['person_suffix'].'</td>'
-                .'<td>'.$d['employee_job_label'].'</td>'
-                .'<td>'.$d['employee_status_label'].'</td>'
-                .'<td>'.$fx->dateToWords($d['employee_employment_date']).'</td>'
-                .'<td>'.$fx->dateToWords($d['employee_resignation_date']).'</td>';
-            $output .= !in_array($accessLevel, array('Viewer'))
-                    ? '<td><a href="'.URL_BASE.'persons/update_person/'.$d['person_id'].'/"><input class="btn-green" type="button" value="Update Person" /></a></td>'
-                    : '';
-            $output .= '</tr>';
+            $personButtons = $c_persons->displayPersonButtons($d['person_id'], false);
+            $personButtons = strlen($personButtons) > 0
+                ? '<div class="hr-light"></div>'.$personButtons
+                : $personButtons;
+            $output .= '<tr class="data" data-url="'.URL_BASE.'persons/read_person/'.$d['person_id'].'/">
+                <td>
+                    '.$d['person_lastname'].'
+                    <div class="data-more-details">
+                    <b>'.$d['person_lastname'].', '.$d['person_firstname'].' '.$d['person_middlename'].' '.$d['person_suffix'].'</b>
+                    <div class="hr-light"></div>
+                    Position: '.$d['employee_job_label'].'<br />
+                    Status: '.$d['employee_status_label'].'<br />
+                    Employed Date: '.$fx->dateToWords($d['employee_employment_date']).'<br />
+                    Resigned / End of Contract Date: '.$fx->dateToWords($d['employee_resignation_date']).'
+                    '.$personButtons.'
+                    </div>
+                </td>
+                <td>'.$d['person_firstname'].'</td>
+                <td>'.$d['person_middlename'].'</td>
+                <td>'.$d['person_suffix'].'</td>
+                </tr>';
         }
         $output .= '</table>';
         return $output;
@@ -173,31 +182,40 @@ class view_departments {
 
 
     public function renderDepartmentExMembers ($datas) {
-        if ($datas == null) return 'There are no ex-members for this department.';
+        if ($datas == null)
+            return 'There are no ex-members for this department.';
 
         $fx = new myFunctions();
-        $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
+        $c_persons = new controller_persons();
 
-        $output = '<table><tr>'
-            .'<th>Name</th>'
-            .'<th>Position</th>'
-            .'<th>Status</th>'
-            .'<th>Employment Date</th>'
-            .'<th>Resignation / End of Contract Date</th>';
-        $output .= !in_array($accessLevel, array('Viewer'))
-                ? '<th>Actions</th>' : '';
-        $output .= '</tr>';
+        $output = '<table><tr>
+            <th>Lastname</th>
+            <th>Firstname</th>
+            <th>Middlename</th>
+            <th>Suffix</th>
+            </tr>';
         foreach ($datas as $d) {
-            $output .= '<tr class="data" data-url="'.URL_BASE.'persons/read_person/'.$d['person_id'].'/">'
-                .'<td>'.$d['person_lastname'].', '.$d['person_firstname'].' '.$d['person_middlename'].' '.$d['person_suffix'].'</td>'
-                .'<td>'.$d['employee_job_label'].'</td>'
-                .'<td>'.$d['employee_status_label'].'</td>'
-                .'<td>'.$fx->dateToWords($d['employee_employment_date']).'</td>'
-                .'<td>'.$fx->dateToWords($d['employee_resignation_date']).'</td>';
-            $output .= !in_array($accessLevel, array('Viewer'))
-                    ? '<td><a href="'.URL_BASE.'persons/update_person/'.$d['person_id'].'/"><input class="btn-green" type="button" value="Update Person" /></a></td>'
-                    : '';
-            $output .= '</tr>';
+            $personButtons = $c_persons->displayPersonButtons($d['person_id'], false);
+            $personButtons = strlen($personButtons) > 0
+                ? '<div class="hr-light"></div>'.$personButtons
+                : $personButtons;
+            $output .= '<tr class="data" data-url="'.URL_BASE.'persons/read_person/'.$d['person_id'].'/">
+                <td>
+                    '.$d['person_lastname'].'
+                    <div class="data-more-details">
+                    <b>'.$d['person_lastname'].', '.$d['person_firstname'].' '.$d['person_middlename'].' '.$d['person_suffix'].'</b>
+                    <div class="hr-light"></div>
+                    Position: '.$d['employee_job_label'].'<br />
+                    Status: '.$d['employee_status_label'].'<br />
+                    Employed Date: '.$fx->dateToWords($d['employee_employment_date']).'<br />
+                    Resigned / End of Contract Date: '.$fx->dateToWords($d['employee_resignation_date']).'
+                    '.$personButtons.'
+                    </div>
+                </td>
+                <td>'.$d['person_firstname'].'</td>
+                <td>'.$d['person_middlename'].'</td>
+                <td>'.$d['person_suffix'].'</td>
+                </tr>';
         }
         $output .= '</table>';
         return $output;
@@ -222,46 +240,85 @@ class view_departments {
 
 
     public function renderSearchResults ($datas) {
-        if ($datas == null) return 'Your keyword did not match any department name.<div class="hr-light"></div><a href="'.URL_BASE.'departments/create_department/" target="_blank"><input class="btn-green" type="button" value="Add a Department" /></a>';
+        if ($datas == null)
+            return 'Your keyword did not match any department name.
+                <div class="hr-light"></div>
+                <a href="'.URL_BASE.'departments/create_department/" target="_blank">
+                <input class="btn-green" type="button" value="Add a Department" />
+                </a>';
 
+        $fx = new myFunctions();
         $c_persons = new controller_persons();
-        $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
 
-        $output = '<table><tr>'
-            .'<th>Name -- Short</th>'
-            .'<th>Description</th>'
-            .'<th>Head</th>';
-        if (isset($_POST['search-keyword'])) {
-            $output .= !in_array($accessLevel, array('Viewer'))
-                ? '<th>Actions</th>' : '';
-        }
-        $output .= '</tr>';
+        $output = '<table>
+            <tr>
+                <th>Short</th>
+                <th>Name</th>
+            </tr>';
         foreach ($datas as $d) {
-            $headName = $c_persons->displayPersonName($d['department_head'], false);
-            $headLink = isset($_POST['search-keyword']) && $headName != 'None'
-                ? '<a href="'.URL_BASE.'persons/read_person/'.$d['department_head'].'/"><input type="button" value="'.$headName.'" /></a>'
-                : $headName;
+            $departmentHead = $c_persons->displayPersonName($d['department_head'], false);
+            $departmentHead = $departmentHead != 'None'
+                ? '<a class="btn-blue" href="'.URL_BASE.'persons/read_person/'.$d['department_head'].'/">
+                    '.$departmentHead.'
+                    </a>'
+                : $departmentHead;
+            $departmentDescription = strlen($d['department_description']) > 0
+                ? 'Description:<br />'.nl2br($d['department_description'])
+                : '';
+            $departmentButtons = $this->renderDepartmentButtons($d);
+            $departmentButtons = strlen($departmentButtons) > 0
+                ? '<div class="hr-light"></div>'.$departmentButtons
+                : '';
 
-            $output .= '<tr class="data" '
-                .'data-id="'.$d['department_id'].'" '
-                .'data-label="'.$d['department_name_short'].' -- '.$d['department_name'].'" '
-                .'data-url="'.URL_BASE.'departments/read_department/'.$d['department_id'].'/">'
-                .'<td>'.$d['department_name'].' -- '.$d['department_name_short'].'</td>'
-                .'<td>'.nl2br($d['department_description']).'</td>'
-                .'<td>'.$headLink.'</td>';
-            if (isset($_POST['search-keyword'])) {
-                $output .= !in_array($accessLevel, array('Viewer'))
-                    ? '<td><a href="'.URL_BASE.'departments/update_department/'.$d['department_id'].'/"><input class="btn-green" type="button" value="Update Department" /></a></td>'
-                    : '';
-            }
-            $output .= '</tr>';
+            $dId = $d['department_id'];
+            $dLabel = '('.$d['department_name_short'].') '.$d['department_name'];
+            $dUrl = URL_BASE.'departments/read_department/'.$d['department_id'].'/';
+            $output .= '<tr class="data" data-id="'.$dId.'" data-label="'.$dLabel.'" data-url="'.$dUrl.'">
+                <td>
+                    '.$d['department_name_short'].'
+                    <div class="data-more-details">
+                    <b>('.$d['department_name_short'].') '.$d['department_name'].'</b>
+                    <div class="hr-light"></div>
+                    Department Head: '.$departmentHead.'<br />
+                    '.$departmentDescription.'
+                    '.$departmentButtons.'
+                    </div>
+                </td>
+                <td>'.$d['department_name'].'</td>
+                </tr>';
         }
-        $output .= '</table>'
-            .'<div class="hr-light"></div>';
-        $output .= !in_array($accessLevel, array('Viewer'))
-            ? '<a href="'.URL_BASE.'departments/create_department/" target="_blank"><input class="btn-green" type="button" value="Add a Department" /></a>'
+        $output .= '</table>';
+        $output .= $fx->isAccessible('Content Provider')
+            ? '<div class="hr-light"></div>
+                <a href="'.URL_BASE.'departments/create_department/" target="_blank">
+                <input class="btn-green" type="button" value="Add a Department" />
+                </a>'
             : '';
         return $output;
+    }
+
+
+
+    public function renderDepartmentButtons ($datas) {
+        if ($datas == null)
+            return null;
+
+        $fx = new myFunctions();
+        $d = $datas;
+
+        $btnUpdate = $fx->isAccessible('Content Provider')
+            ? '<a href="'.URL_BASE.'departments/update_department/'.$d['department_id'].'/">
+                <input class="btn-green" type="button" value="Update Department" />
+                </a>'
+            : '';
+        $btnDelete = $fx->isAccessible('Administrator')
+            ? '<a href="'.URL_BASE.'departments/delete_department/'.$d['department_id'].'/">
+                <input class="btn-red" type="button" value="Delete Department" />
+                </a>'
+            : '';
+
+        $buttons = $btnUpdate.$btnDelete;
+        return $buttons;
     }
 
 }

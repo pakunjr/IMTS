@@ -287,6 +287,12 @@ class view_items {
                 </a>'
             : '';
 
+        $btnDelete = $fx->isAccessible('Administrator')
+            ? '<a href="'.URL_BASE.'inventory/delete_item/'.$itemId.'/">
+                <input class="btn-red" type="button" value="Delete Item" />
+                </a>'
+            : '';
+
         $btnArchive = $fx->isAccessible('Supervisor')
             ? '<a href="'.URL_BASE.'inventory/archive_item/'.$itemId.'/">
                 <input class="btn-red" type="button" value="Archive Item" />
@@ -411,7 +417,58 @@ class view_items {
 
 
 
-    public function renderSearchResults ($results) {
+    public function renderSearchResults ($datas) {
+        if ($datas == null)
+            return 'There are no items matching your keywords.
+                <div class="hr-light"></div>';
+
+        $fx = new myFunctions();
+        $c_items = new controller_items();
+
+        $output = '<table>
+            <tr>
+            <th>Item</th>
+            <th>Serial No.</th>
+            <th>Model No.</th>
+            </tr>';
+        foreach ($datas as $d) {
+            $itemDescription = strlen($d['item_description']) > 0
+                ? '<br />'.nl2br($d['item_description'])
+                : '';
+            $itemButtons = $this->renderItemButtons($d);
+            $itemButtons = strlen($itemButtons) > 0
+                ? '<div class="hr-light"></div>'.$itemButtons
+                : '';
+
+            $dId = $d['item_id'];
+            $dLabel = $d['item_name'].' (S/N: '.$d['item_serial_no'].' :: M/N: '.$d['item_model_no'].')';
+            $dUrl = URL_BASE.'inventory/read_item/'.$d['item_id'].'/';
+            $output .= '<tr class="data" data-id="'.$dId.'" data-label="'.$dLabel.'" data-url="'.$dUrl.'">
+                <td>
+                    '.$d['item_name'].'
+                    <div class="data-more-details">
+                    <b>'.$d['item_name'].'</b><br />
+                    <small>
+                    S/N: '.$d['item_serial_no'].'<br />
+                    M/N: '.$d['item_model_no'].'
+                    </small>
+                    <div class="hr-light"></div>
+                    Type: '.$d['item_type_label'].'<br />
+                    State: '.$d['item_state_label'].'<br />
+                    Package: '.$d['package_name'].' (S/N: '.$d['package_serial_no'].')<br />
+                    Component Of: '.$c_items->displayItemName($d['item_component_of'], false).'
+                    '.$itemDescription.'
+                    '.$itemButtons.'
+                    </div>
+                </td>
+                <td>'.$d['item_serial_no'].'</td>
+                <td>'.$d['item_model_no'].'</td>
+                </tr>';
+        }
+        $output .= '</table>';
+        return $output;
+        // End here
+
         $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
         
         if ($results != null) {
@@ -420,11 +477,11 @@ class view_items {
             $c_itemStates = new controller_itemStates();
             $c_itemPackages = new controller_itemPackages();
 
-            $output = '<table><tr>'
-                .'<th>Name</th>'
-                .'<th>Type</th>'
-                .'<th>State</th>'
-                .'<th>Description</th>';
+            $output = '<table><tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>State</th>
+                <th>Description</th>';
             if (isset($_POST['search-keyword'])) {
                 $output .= '<th>Current Owner</th>'
                     .'<th>Package</th>'
@@ -482,7 +539,9 @@ class view_items {
         } else {
             $output = 'There are no items matching your keywords.<div class="hr-light"></div>';
             $output .= !in_array($accessLevel, array('Viewer'))
-                ? '<a href="'.URL_BASE.'inventory/create_item/" target="_blank"><input class="btn-green" type="button" value="Add an Item" /></a>'
+                ? '<a href="'.URL_BASE.'inventory/create_item/" target="_blank">
+                    <input class="btn-green" type="button" value="Add an Item" />
+                    </a>'
                 : '';
         }
         return $output;
