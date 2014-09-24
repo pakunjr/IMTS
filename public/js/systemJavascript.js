@@ -433,7 +433,7 @@ $(document).ready(function () {
                 ,'top': '0px'
                 ,'left': '0px'
                 ,'z-index': '1'
-                ,'background-color': 'rgba(0, 0, 0, 0.15)'
+                ,'background-color': 'rgba(20, 58, 102, 0.3)'
             }).hide(0);
 
             $btnClose.css({
@@ -490,10 +490,11 @@ $(document).ready(function () {
                 .css({
                     'display': 'block'
                     ,'padding': '8px 13px'
-                    ,'border': '1px solid #ccc'
-                    ,'background': '#d9d9d9'
-                    ,'text-shadow': '2px 2px 0px rgba(255, 255, 255, 0.8)'
+                    ,'border': '1px solid #143a66'
+                    ,'background': '#265080'
+                    ,'text-shadow': '2px 2px 0px rgba(0, 0, 0, 0.3)'
                     ,'font-size': '1em'
+                    ,'color': '#fff'
                     ,'cursor': 'pointer'
                 });
 
@@ -503,7 +504,7 @@ $(document).ready(function () {
                 $content.css({
                     'padding': '8px 13px'
                     ,'overflow': 'auto'
-                    ,'border': '1px solid #ccc'
+                    ,'border': '1px solid #143a66'
                 });
 
                 if (!$content.hasClass('accordion-content-default')) {
@@ -511,17 +512,17 @@ $(document).ready(function () {
                         $symbol.html('+');
                     });
                 } else {
-                    $title.css('background-color', '#f2f2f2');
+                    $title.css('background-color', '#5983b3');
                     $symbol.html('-');
                 }
 
                 $title.on('click', function () {
                     $content.slideToggle(0, function () {
                         if ($content.is(':visible')) {
-                            $title.css('background-color', '#f2f2f2');
+                            $title.css('background-color', '#5983b3');
                             $symbol.html('-');
                         } else {
-                            $title.css('background-color', '#d9d9d9');
+                            $title.css('background-color', '#265080');
                             $symbol.html('+');
                         }
                     });
@@ -631,6 +632,60 @@ $(document).ready(function () {
                 ,value = $this.val();
 
             $this.val(value.replace(/<br \/>/g, ''));
+        });
+    }
+
+    // Set special features of the multiple
+    // items input form, the form will not
+    // work properly without these scripts
+    if ($('#form-multiple-items').length > 0) {
+        var $form = $('#form-multiple-items');
+        $form.find('.item-type').each(function () {
+            var $this = $(this)
+                ,dataType = $this.attr('data-type');
+            $this.hover(function () {
+                $this.css({
+                    'background': '#d9efff'
+                    ,'text-shadow': '2px 2px 3px rgba(0, 0, 0, 0.2)'
+                });
+            }, function () {
+                $this.css({
+                    'background': 'transparent'
+                    ,'text-shadow': '0px 0px 0px transparent'
+                });
+            }).css({
+                'cursor': 'pointer'
+            }).on('click', function () {
+                // Duplicate the row related
+                // to this type
+                var rowspan = parseInt($this.attr('rowspan'))
+                    ,htmlContents = ''
+                    ,colFirst = $this.parent('tr').children('td:nth-child(2)').html()
+                    ,colSecond = $this.parent('tr').children('td:nth-child(3)').html();
+
+                rowspan++;
+                $this.parent('tr').find('input, textarea, select').each(function () {
+                    var $element = $(this)
+                        ,dataCount = $element.attr('data-count')
+                        ,dataType = $element.attr('data-type')
+                        ,dataCategory = $element.attr('data-category')
+                        ,currentId = dataCategory+'-'+dataType+'-'+dataCount
+                        ,newId = dataCategory+'-'+dataType+'-'+rowspan
+                        ,regFirst = new RegExp(currentId, 'g')
+                        ,regSecond = new RegExp(currentId, 'g');
+
+                    colFirst = colFirst.replace(regFirst, newId);
+                    colSecond = colSecond.replace(regSecond, newId);
+                });
+
+                htmlContents = '<tr>'
+                    +'<td>'+colFirst+'</td>'
+                    +'<td>'+colSecond+'</td>'
+                    +'</tr>';
+                $this.parent('tr').after(htmlContents);
+                $this.find('input, textarea, select').attr('data-count', rowspan);
+                $this.prop('rowspan', rowspan);
+            });
         });
     }
 

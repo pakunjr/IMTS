@@ -64,6 +64,140 @@ class view_items {
 
 
 
+    public function renderFormMultipleItems () {
+        // Input multiple items at once
+        // This is only possible for computer
+        // type items and on new item category
+
+        $f = new form(array(
+            'auto_line_break'=>true
+            ,'auto_label'=>true));
+        $fx = new myFunctions();
+
+        $itemTypes = array(
+            'Processor'
+            ,'Motherboard'
+            ,'Storage Drives'
+            ,'Memory'
+            ,'Video Card'
+            ,'Monitor'
+            ,'Casing'
+            ,'Keyboard'
+            ,'Mouse'
+            ,'Speaker'
+            ,'Modem'
+            ,'AVR'
+            ,'Printer'
+            ,'CD-ROM'
+            ,'LAN');
+
+        $output = $f->openForm(array(
+                'id'=>'form-multiple-items'
+                ,'method'=>'post'
+                ,'action'=>URL_BASE.'inventory/create_multiple_items/save/'
+                ,'enctype'=>'multipart/form-data'))
+            .$this->renderFormItem(null)
+            .$this->renderFormOwner(null)
+            .$f->openFieldset(array('legend'=>'Components')).'
+            <table>
+            <tr>
+            <th>Type</th>
+            <th>Identity</th>
+            <th>Additional Information</th>
+            </tr>';
+        foreach ($itemTypes as $i) {
+            $tweakNameType = str_replace(' ', '-', strtolower($i));
+            $output .= '<tr>
+                <td class="item-type" rowspan="1" data-type="'.$tweakNameType.'">'.$i.'</td>
+                <td>
+                    <span class="column">
+                    '.$f->text(array(
+                        'id'=>'item-name-'.$tweakNameType.'-1'
+                        ,'class'=>'item-data'
+                        ,'label'=>'Name'
+                        ,'data-count'=>'1'
+                        ,'data-type'=>$tweakNameType
+                        ,'data-category'=>'item-name')).'
+                    '.$f->text(array(
+                        'id'=>'item-serial-no-'.$tweakNameType.'-1'
+                        ,'class'=>'item-data'
+                        ,'label'=>'S/N'
+                        ,'data-count'=>'1'
+                        ,'data-type'=>$tweakNameType
+                        ,'data-category'=>'item-serial-no')).'
+                    '.$f->text(array(
+                        'id'=>'item-model-no-'.$tweakNameType.'-1'
+                        ,'class'=>'item-data'
+                        ,'label'=>'M/N'
+                        ,'data-count'=>'1'
+                        ,'data-type'=>$tweakNameType
+                        ,'data-category'=>'item-model-no')).'
+                    </span>
+                </td>
+                <td>
+                    <span class="column">
+                    '.$f->textarea(array(
+                        'id'=>'item-description-'.$tweakNameType.'-1'
+                        ,'class'=>'item-data'
+                        ,'label'=>'Description'
+                        ,'data-count'=>'1'
+                        ,'data-type'=>$tweakNameType
+                        ,'data-category'=>'item-description')).'
+                    '.$f->text(array(
+                        'id'=>'item-quantity-'.$tweakNameType.'-1'
+                        ,'class'=>'item-data'
+                        ,'label'=>'Quantity'
+                        ,'value'=>'1 pc.'
+                        ,'data-count'=>'1'
+                        ,'data-type'=>$tweakNameType
+                        ,'data-category'=>'item-quantity')).'
+                    </span>
+                    <span class="column">
+                    '.$f->text(array(
+                        'id'=>'item-date-of-purchase-'.$tweakNameType.'-1'
+                        ,'class'=>'datepicker'
+                        ,'label'=>'Purchased'
+                        ,'value'=>date('Y-m-d')
+                        ,'data-count'=>'1'
+                        ,'data-type'=>$tweakNameType
+                        ,'data-category'=>'item-date-of-purchase')).'
+                    '.$f->select(array(
+                        'id'=>'item-state-'.$tweakNameType.'-1'
+                        ,'class'=>'item-data'
+                        ,'label'=>'State'
+                        ,'data-count'=>'1'
+                        ,'data-type'=>$tweakNameType
+                        ,'data-category'=>'item-state')).'
+                    </span>
+                    <span class="column">
+                    '.$f->text(array(
+                        'id'=>'item-cost-'.$tweakNameType.'-1'
+                        ,'class'=>'item-data'
+                        ,'label'=>'Cost'
+                        ,'value'=>'0.00 PHP'
+                        ,'data-count'=>'1'
+                        ,'data-type'=>$tweakNameType
+                        ,'data-category'=>'item-cost')).'
+                    '.$f->text(array(
+                        'id'=>'item-depreciation-'.$tweakNameType.'-1'
+                        ,'class'=>'item-data'
+                        ,'label'=>'Depreciation'
+                        ,'data-count'=>'1'
+                        ,'data-type'=>$tweakNameType
+                        ,'data-category'=>'item-depreciation')).'
+                    </span>
+                </td>
+                </tr>';
+        }
+        $output .= '</table>
+            '.$f->closeFieldset()
+            .$f->submit(array('value'=>'Save Items'))
+            .$f->closeForm();
+        return $output;
+    }
+
+
+
     public function renderFormItem ($itemInfo) {
         $i = $itemInfo;
         $f = new form(array('auto_line_break'=>true,'auto_label'=>true));
@@ -76,8 +210,11 @@ class view_items {
         $itemIdHolder = $i != null ? $f->hidden(array('id'=>'item-id','value'=>$i['item_id'])) : '';
 
         if ($i != null) {
-            $hasComponentsCheck = $i['item_has_components'] == '1' ? true : false;
-        } else $hasComponentsCheck = false;
+            $hasComponentsCheck = $i['item_has_components'] == '1'
+                ? true
+                : false;
+        } else
+            $hasComponentsCheck = false;
 
         $output = $f->openFieldset(array('legend'=>'Item Information'))
             .$itemIdHolder
@@ -167,6 +304,9 @@ class view_items {
 
         $hasComponents = $it['item_has_components'] == '1' ? 'Yes' : 'No';
 
+        $btnGenerateProfileCard = '<a href="'.URL_BASE.'documents/profile_card/'.$it['item_id'].'/" target="_blank">
+            <input type="button" value="Generate Profile Card" />
+            </a>';
         $btnAddComponent = $it['item_has_components'] == '1'
             ? '<a href="'.URL_BASE.'inventory/create_item_addComponent/'.$it['item_id'].'/"><input class="btn-green" type="button" value="Add Component" /></a>'
             : '';
@@ -176,6 +316,7 @@ class view_items {
             : '';
         $actionButtons = $i['item']['item_archive_state'] == '0'
             ? '<div class="hr-light"></div><a href="'.URL_BASE.'inventory/update_item/'.$i['item']['item_id'].'/"><input class="btn-green" type="button" value="Update Informations" /></a>'
+                .$btnGenerateProfileCard
                 .$btnAddComponent
                 .$btnNiboti
                 .$btnArchive
@@ -299,13 +440,19 @@ class view_items {
                 </a>'
             : '';
 
+        $btnProfileCard = $fx->isAccessible('Content Provider')
+            ? '<a href="'.URL_BASE.'documents/profile_card/'.$itemId.'/" target="_blank">
+                <input type="button" value="Generate Profile Card" />
+                </a>'
+            : '';
+
         $btnTrace = $fx->isAccessible('Administrator')
             ? '<a href="#'.URL_BASE.'inventory/trace_item/'.$itemId.'/">
                 <input type="button" value="Trace Item" />
                 </a>'
             : '';
 
-        $buttons = $btnUpdate.$btnArchive.$btnTrace;
+        $buttons = $btnUpdate.$btnArchive.$btnProfileCard.$btnTrace;
         return $buttons;
     }
 
@@ -411,7 +558,14 @@ class view_items {
     public function renderSearchForm ($keyword) {
         $f = new form(array('auto_line_break'=>false, 'auto_label'=>true));
 
-        $output = $f->openForm(array('method'=>'post', 'action'=>URL_BASE.'inventory/search_item/', 'enctype'=>'multipart/form-data')).$f->text(array('id'=>'search-keyword', 'label'=>'Search', 'value'=>$keyword)).$f->submit(array('value'=>'Search')).$f->closeForm().'<div class="hr-light"></div>';
+        $output = $f->openForm(array(
+                'method'=>'post'
+                ,'action'=>URL_BASE.'inventory/search_item/'
+                ,'enctype'=>'multipart/form-data'))
+            .$f->text(array('id'=>'search-keyword', 'label'=>'Search', 'value'=>$keyword))
+            .$f->submit(array('value'=>'Search'))
+            .$f->closeForm().'
+                <div class="hr-light"></div>';
         return $output;
     }
 

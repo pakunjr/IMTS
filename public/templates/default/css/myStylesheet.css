@@ -54,6 +54,7 @@ body {
 
 #page {
     display: none;
+    overflow: hidden;
 }
 
 #footer {
@@ -396,8 +397,8 @@ td {
     text-shadow: 2px 2px 0px rgba(255, 255, 255, 0.7);
 }
 th {
-    background: #ebffeb;
-    font-weight: normal;
+    background: #f2fff2;
+    font-weight: bold;
     text-align: center;
 }
 td {
@@ -425,6 +426,10 @@ tr.disabled:hover {
     color: #b3b3b3;
 }
 
+tr {
+    /*display: none;*/
+}
+
 
 
 /* Typography */
@@ -446,4 +451,13 @@ a {
 }
 a:hover {
     /*text-decoration: underline;*/
+}
+
+
+
+/* Initial style that is to be modified
+ * by javascripts later on */
+
+.data-more-details {
+    display: none;
 }

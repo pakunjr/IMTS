@@ -232,51 +232,46 @@ class model_items {
         switch ($searchType) {
             case 'items':
                 $addCondArchiveState = !$fx->isAccessible('Supervisor')
-                    ? "AND item_archive_state = 0"
+                    ? "AND item.item_archive_state = 0"
                     : '';
-                $query = "SELECT * FROM imts_items
-                    WHERE
-                        (item_name LIKE ?
-                            OR item_serial_no LIKE ?
-                            OR item_model_no LIKE ?)
-                        $addCondArchiveState
-                    ORDER BY
-                        item_name ASC
-                        ,item_serial_no ASC
-                        ,item_model_no ASC";
-
-                $rows = $this->db->statement(array(
-                    'q'=>$query
-                    ,'v'=>array(
-                        "%$keyword%"
-                        ,"%$keyword%"
-                        ,"%$keyword%")));
+                $whereClause = "WHERE
+                    (item.item_name LIKE ?
+                        OR item.item_serial_no LIKE ?
+                        OR item.item_model_no LIKE ?)
+                    $addCondArchiveState";
                 break;
 
             case 'componentHosts':
-                $rows = $this->db->statement(array(
-                    'q'=>"SELECT * FROM imts_items AS item
-                        LEFT JOIN imts_items_type AS iType ON item.item_type = iType.item_type_id
-                        LEFT JOIN imts_items_state AS iState ON item.item_state = iState.item_state_id
-                        LEFT JOIN imts_items_package AS package ON item.item_package = package.package_id
-                        WHERE
-                            item.item_has_components = 1
-                            AND item.item_archive_state = 0
-                            AND (
-                                item.item_name LIKE ?
-                                OR item.item_serial_no LIKE ?
-                                OR item.item_model_no LIKE ?)
-                        ORDER BY
-                            item.item_name ASC"
-                    ,'v'=>array(
-                        "%$keyword%"
-                        ,"%$keyword%"
-                        ,"%$keyword%")));
+                $whereClause = "WHERE
+                    item.item_has_components = 1
+                    AND item.item_archive_state = 0
+                    AND (item.item_name LIKE ?
+                        OR item.item_serial_no LIKE ?
+                        OR item.item_model_no LIKE ?)";
                 break;
 
             default:
-                $rows = array();
+                $whereClause = null;
         }
+
+        if ($whereClause != null) {
+            $rows = $this->db->statement(array(
+                'q'=>"SELECT * FROM imts_items AS item
+                    LEFT JOIN imts_items_type AS iType ON item.item_type = iType.item_type_id
+                    LEFT JOIN imts_items_state AS iState ON item.item_state = iState.item_state_id
+                    LEFT JOIN imts_items_package AS package ON item.item_package = package.package_id
+                    $whereClause
+                    ORDER BY
+                        item.item_component_of ASC
+                        ,item.item_name ASC
+                        ,item.item_serial_no ASC
+                        ,item.item_model_no ASC"
+                ,'v'=>array(
+                    "%$keyword%"
+                    ,"%$keyword%"
+                    ,"%$keyword%")));
+        } else
+            $rows = array();
         return count($rows) > 0 ? $rows : null;
     }
 

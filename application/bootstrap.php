@@ -1,6 +1,13 @@
 <?php session_start(); date_default_timezone_set('Asia/Manila');
 
+// Values for ENVIRONMENT should be either
+// DEVELOPMENT for development purposes or
+// PRODUCTION otherwise if for deployment
+//
+// This should be useful for declaring whether
+// the system is under maintenance or update
 define('ENVIRONMENT', 'DEVELOPMENT');
+
 define('DS', DIRECTORY_SEPARATOR);
 define('DIR_ROOT', dirname(dirname(__FILE__)));
 define('DIR_APPLICATION', DIR_ROOT.DS.'application');

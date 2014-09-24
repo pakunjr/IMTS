@@ -114,7 +114,7 @@ class view_documents {
                 You cannot generate an Item Profile Card for this item.<br />
                 Item requirements to be able to generate a Profile Card:<br />
                 <ol>
-                <li>It must be a host item that can have item components.</li>
+                <li>It must be an item that can have item components.</li>
                 </ol>
                 </div>';
 
@@ -152,8 +152,12 @@ class view_documents {
                     <th>Name</th>
                     <th>Serial &amp; Model No.</th>
                     <th>Purchased</th>
+                    <th>Additional Note/s</th>
                     </tr>';
                 foreach ($components as $c) {
+                    $componentDescription = strlen($c['item_description']) > 0
+                        ? '<br />'.nl2br($c['item_description'])
+                        : '';
                     $output .= '<tr>
                         <td><div>'.$c['item_name'].'</div></td>
                         <td>
@@ -161,6 +165,10 @@ class view_documents {
                         Model No: '.$c['item_model_no'].'
                         </td>
                         <td>'.$fx->dateToWords($c['item_date_of_purchase']).'</td>
+                        <td>
+                            Quantity: '.$c['item_quantity'].'
+                            '.$componentDescription.'
+                        </td>
                         </tr>';
                 }
                 $output .= '</table>

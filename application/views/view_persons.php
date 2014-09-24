@@ -162,7 +162,8 @@ class view_persons {
 
 
     public function renderPersonInformations ($personDatas) {
-        if ($personDatas == null) return 'Error: This person do not exists in our system.';
+        if ($personDatas == null)
+            return 'Error: This person do not exists in our system.';
 
         $p = $personDatas;
 
@@ -198,22 +199,7 @@ class view_persons {
         $c_accounts->displayPersonAccounts($p['person_id']);
         $systemAccounts = ob_get_clean();
 
-        $btnUpdate = $fx->isAccessible('Viewer')
-            ? '<a href="'.URL_BASE.'persons/update_person/'.$p['person_id'].'/">
-                <input class="btn-green" type="button" value="Update Person" />
-                </a>'
-            : '';
-        $btnAddEmployment = $fx->isAccessible('Supervisor')
-            ? '<a href="'.URL_BASE.'employees/create_employment/'.$p['person_id'].'/">
-                <input class="btn-green" type="button" value="Add Employment" />
-                </a>'
-            : '';
-        $btnCreateAccount = $fx->isAccessible('Administrator')
-            ? '<a href="'.URL_BASE.'accounts/create_account/'.$p['person_id'].'/">
-                <input class="btn-green" type="button" value="Create an Account for this Person" />
-                </a>'
-            : '';
-        $buttons = $btnUpdate.$btnAddEmployment.$btnCreateAccount;
+        $buttons = $this->renderPersonButtons($p);
 
         $personGender = $p['person_gender'] == 'm' ? 'Male' : 'Female';
         $personIsEmployee = $p['person_is_employee'] ? 'Yes' : 'No';
@@ -301,7 +287,10 @@ class view_persons {
                 <input class="btn-green" type="button" value="Create an Account for this Person" />
                 </a>'
             : '';
-        $buttons = $btnUpdate.$btnDelete.$btnAddEmployment.$btnCreateAccount;
+        $buttons = $btnUpdate
+            .$btnDelete
+            .$btnAddEmployment
+            .$btnCreateAccount;
         return $buttons;
     }
 

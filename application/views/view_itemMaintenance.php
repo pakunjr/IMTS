@@ -1,6 +1,6 @@
 <?php
 
-class view_maintenance {
+class view_itemMaintenance {
 
     public function __construct () {
 

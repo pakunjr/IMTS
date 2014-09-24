@@ -378,6 +378,17 @@ var buttonsConfirmFx = function () {
 
 
 $(document).ready(function () {
+    // Slowly show the table rows
+    /*
+    if ($('table').length > 0) {
+        $('table').each(function () {
+            var $this = $(this)
+                ,trCount = $(this).children('tr').length;
+
+        });
+    }
+    */
+
     bootstrapJs();
 
     // Show the page contents after all html

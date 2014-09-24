@@ -35,6 +35,7 @@ class controller_pages {
         $c_accounts = new controller_accounts();
         $c_items = new controller_items();
         $c_itemPackages = new controller_itemPackages();
+        $c_itemMaintenance = new controller_itemMaintenance();
         $c_owners = new controller_owners();
         $c_persons = new controller_persons();
         $c_employees = new controller_employees();
@@ -283,6 +284,20 @@ class controller_pages {
                         }
                         break;
 
+                    case 'create_multiple_items':
+                        $this->restrictPage('Content Provider');
+                        switch ($controller) {
+                            case 'save':
+                                $c_items->saveMultipleItems();
+                                break;
+
+                            default:
+                                $c_items->displayFormMultipleItems();
+                                $this->displayPage(ob_get_clean());
+
+                        }
+                        break;
+
                     case 'read_item':
                         $c_items->displayItem($controller);
                         $this->displayPage(ob_get_clean());
@@ -313,8 +328,8 @@ class controller_pages {
 
                     case 'in_search_componentHost':
                         $this->restrictPage('Content Provider');
-                        ob_end_clean();
                         $c_items->displaySearchResults('componentHosts', $controller);
+                        $this->displayPage(ob_get_clean(), false);
                         break;
 
                     default:
@@ -361,8 +376,8 @@ class controller_pages {
                         break;
 
                     case 'in_search':
-                        ob_end_clean();
                         $c_itemPackages->displaySearchResults($controller);
+                        $this->displayPage(ob_get_clean(), false);
                         break;
 
                     default:
@@ -488,13 +503,13 @@ class controller_pages {
                         break;
 
                     case 'in_search':
-                        ob_end_clean();
                         $c_employees->displaySearchResults($controller);
+                        $this->displayPage(ob_get_clean(), false);
                         break;
 
                     case 'in_search_job':
-                        ob_end_clean();
                         $c_employees->displaySearchResultsJob($controller);
+                        $this->displayPage(ob_get_clean(), false);
                         break;
 
                     default:
@@ -555,12 +570,20 @@ class controller_pages {
                 switch ($view) {
                     case 'in_search':
                         $this->restrictPage('Content Provider');
-                        ob_end_clean();
                         $c_owners->displaySearchResults($controller, $action);
+                        $this->displayPage(ob_get_clean(), false);
                         break;
 
                     default:
                         $this->displayPageError('underconstruction');
+                }
+                break;
+
+            case 'item_maintenance':
+                switch ($view) {
+                    case 'new_ticket':
+
+                        break;
                 }
                 break;
 
@@ -588,6 +611,7 @@ class controller_pages {
         $fileHeader = DIR_TEMPLATE.DS.'header.php';
         $fileFooter = DIR_TEMPLATE.DS.'footer.php';
 
+        ob_start();
         if ($complete) {
             ob_start();
             if (file_exists($fileHeader))
@@ -607,7 +631,20 @@ class controller_pages {
 
             ob_end_flush();
         } else
-            echo $content;
+            echo $content.'
+                <script type="text/javascript">
+                $(document).ready(function () {
+                    bootstrapJs();
+                });
+                </script>';
+
+        $contents = ob_get_clean();
+        // Check the environment of the application then
+        // minify the html source code if the environment
+        // is set to production
+        if (ENVIRONMENT == 'PRODUCTION')
+            $contents = str_replace(PHP_EOL, '', $contents);
+        echo $contents;
 
         exit();
     }

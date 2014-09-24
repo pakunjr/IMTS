@@ -66,6 +66,12 @@ class controller_items {
 
 
 
+    public function displayFormMultipleItems () {
+        echo $this->view->renderFormMultipleItems();
+    }
+
+
+
     public function displayItem ($itemId=null) {
         if ($itemId != null) {
             $detailsItem = $this->model->readItem($itemId);
@@ -213,6 +219,21 @@ class controller_items {
             exit('<span style="display: inline-block; color: #f00;">USER ERROR: The system do not know how you got here but you are on the wrong page.'
                 .'<br />Exiting...<br /><br />'
                 .'<a href="'.URL_BASE.'inventory/create_item/"><input type="button" value="Back to New Item Form." /></a></span>');
+        }
+    }
+
+
+
+    public function saveMultipleItems () {
+        if (!isset($_POST))
+            header('location: '.URL_BASE.'inventory/create_multiple_items/');
+
+        $result = $this->model->saveMultipleItems($_POST);
+
+        if ($result) {
+
+        } else {
+            
         }
     }
 

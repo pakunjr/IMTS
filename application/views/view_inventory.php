@@ -53,7 +53,7 @@ class view_inventory {
             <div class="hr-light"></div>
             <table>
             <tr>
-            <th>Item</th>
+            <th>Item/s</th>
             <th colspan="3">Component/s</th>
             </tr>';
         foreach ($items as $i) {
