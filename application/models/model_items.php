@@ -86,6 +86,131 @@ class model_items {
 
 
 
+    public function createMultipleItems ($datas) {
+        if ($datas == null)
+            return null;
+
+        $d = $datas;
+        $c_errors = new controller_errors();
+
+        $ownerDatas = array(
+            'ownership-owner'=>$d['ownership-owner']
+            ,'ownership-owner-type'=>$d['ownership-owner-type']
+            ,'ownership-date-owned'=>$d['ownership-date-owned']
+            ,'ownership-date-released'=>$d['ownership-date-released']);
+        unset($d['ownership-owner']);
+        unset($d['ownership-owner-label']);
+        unset($d['ownership-owner-type']);
+        unset($d['ownership-date-owned']);
+        unset($d['ownership-date-released']);
+
+        $mainItemDatas = array(
+            'item-name'=>$d['item-name']
+            ,'item-serial-no'=>$d['item-serial-no']
+            ,'item-model-no'=>$d['item-model-no']
+            ,'item-type'=>$d['item-type']
+            ,'item-state'=>$d['item-state']
+            ,'item-description'=>$d['item-description']
+            ,'item-quantity'=>$d['item-quantity']
+            ,'item-date-of-purchase'=>$d['item-date-of-purchase']
+            ,'item-package'=>$d['item-package']
+            ,'item-cost'=>$d['item-cost']
+            ,'item-depreciation'=>$d['item-depreciation']
+            ,'item-has-components'=>1
+            ,'item-component-of'=>0);
+        unset($d['item-name']);
+        unset($d['item-serial-no']);
+        unset($d['item-model-no']);
+        unset($d['item-type']);
+        unset($d['item-state']);
+        unset($d['item-description']);
+        unset($d['item-quantity']);
+        unset($d['item-date-of-purchase']);
+        unset($d['item-package']);
+        unset($d['item-package-label']);
+        unset($d['item-cost']);
+        unset($d['item-depreciation']);
+
+        $componentTypes = trim($d['item-components-types'], '/');
+        $componentTypes = strtolower($componentTypes);
+        $componentTypes = str_replace(' ', '-', $componentTypes);
+        $componentTypes = explode('/', $componentTypes);
+        unset($d['item-components-types']);
+
+        $mainItemSaveResult = $this->createItem($mainItemDatas);
+        if ($mainItemSaveResult != null) {
+            $mainItem = $mainItemSaveResult;
+            if ($ownerDatas['ownership-owner'] != 0) {
+                $ownerDatas['item-id'] = $mainItem['item-id'];
+                $ownershipSaveResult = $this->createItemOwnership($ownerData);
+            }
+
+            // Distinguish components individually
+            $components = array();
+            foreach ($componentTypes as $c) {
+                $sameTypeItems = array();
+                foreach ($d['item-name-'.$c] as $i=>$v) {
+                    $sameTypeItems[$i]['item-name'] = $v;
+                }
+                foreach ($d['item-serial-no-'.$c] as $i=>$v) {
+                    $sameTypeItems[$i]['item-serial-no'] = $v;
+                }
+                foreach ($d['item-model-no-'.$c] as $i=>$v) {
+                    $sameTypeItems[$i]['item-model-no'] = $v;
+                }
+                foreach ($d['item-description-'.$c] as $i=>$v) {
+                    $sameTypeItems[$i]['item-description'] = $v;
+                }
+                foreach ($d['item-quantity-'.$c] as $i=>$v) {
+                    $sameTypeItems[$i]['item-quantity'] = $v;
+                }
+                foreach ($d['item-date-of-purchase-'.$c] as $i=>$v) {
+                    $sameTypeItems[$i]['item-date-of-purchase'] = $v;
+                }
+                foreach ($d['item-state-'.$c] as $i=>$v) {
+                    $sameTypeItems[$i]['item-state'] = $v;
+                }
+                foreach ($d['item-cost-'.$c] as $i=>$v) {
+                    $sameTypeItems[$i]['item-cost'] = $v;
+                }
+                foreach ($d['item-depreciation-'.$c] as $i=>$v) {
+                    $sameTypeItems[$i]['item-depreciation'] = $v;
+                }
+
+                foreach ($sameTypeItems as $sti) {
+                    if (strlen($sti['item-name']) > 0
+                            || strlen($sti['item-serial-no']) > 0
+                            || strlen($sti['item-model-no']) > 0) {
+                        $sti['item-type'] = $mainItem['item-type'];
+                        $sti['item-package'] = 0;
+                        $sti['item-has-components'] = 0;
+                        $sti['item-component-of'] = $mainItem['item-id'];
+                        array_push($components, $sti);
+                    }
+                }
+            }
+
+            // Save each item individually and
+            // appoint ownership respectively
+            foreach ($components as $c) {
+                $componentSaveResult = $this->createItem($c);
+                if ($componentSaveResult != null) {
+                    if ($ownerDatas['ownership-owner'] != 0) {
+                        $ownerDatas['item-id'] = $componentSaveResult['item-id'];
+                        $this->createItemOwnership($ownerDatas);
+                    }
+                } else {
+                    $c_errors->logError('Failed to save the component.');
+                }
+            }
+            return $mainItem;
+        } else {
+            $c_errors->logError('Form for multiple item input can\'t save the main item.');
+        }
+    }
+
+
+
     public function readItem ($itemId) {
         $r = $this->db->statement(array(
             'q'=>"SELECT * FROM imts_items WHERE item_id = ? LIMIT 1"
@@ -273,6 +398,29 @@ class model_items {
         } else
             $rows = array();
         return count($rows) > 0 ? $rows : null;
+    }
+
+
+
+    public function fetchInventory ($ownerType, $ownerId) {
+        $datas = $this->db->statement(array(
+            'q'=>"SELECT * FROM imts_ownership AS own
+                LEFT JOIN imts_items AS item ON own.ownership_item = item.item_id
+                LEFT JOIN imts_items_type AS iType ON item.item_type = iType.item_type_id
+                LEFT JOIN imts_items_state AS iState ON item.item_state = iState.item_state_id
+                WHERE
+                    own.ownership_owner_type = ?
+                    AND own.ownership_owner = ?
+                ORDER BY
+                    item.item_component_of ASC
+                    ,FIELD(iState.item_state_label, 'Working', 'Stored', 'Broken', 'Disposed')
+                    ,item.item_name ASC
+                    ,item.item_serial_no ASC
+                    ,item.item_model_no ASC"
+            ,'v'=>array(
+                $ownerType
+                ,intval($ownerId))));
+        return count($datas) > 0 ? $datas : null;
     }
 
 

@@ -67,7 +67,7 @@ class view_departments {
 
         $c_departments = new controller_departments();
         $c_owners = new controller_owners();
-        $c_inventory = new controller_inventory();
+        $c_items = new controller_items();
         $c_persons = new controller_persons();
         $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
 
@@ -79,7 +79,7 @@ class view_departments {
             : $headName;
 
         ob_start();
-        $c_inventory->displayInventory('Department', $d['department_id']);
+        $c_items->displayInventory('Department', $d['department_id']);
         $inventory = ob_get_clean();
 
         ob_start();

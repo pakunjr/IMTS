@@ -73,6 +73,7 @@ class view_items {
             'auto_line_break'=>true
             ,'auto_label'=>true));
         $fx = new myFunctions();
+        $c_itemStates = new controller_itemStates();
 
         $itemTypes = array(
             'Processor'
@@ -90,6 +91,7 @@ class view_items {
             ,'Printer'
             ,'CD-ROM'
             ,'LAN');
+        $itemTypesString = '';
 
         $output = $f->openForm(array(
                 'id'=>'form-multiple-items'
@@ -106,6 +108,7 @@ class view_items {
             <th>Additional Information</th>
             </tr>';
         foreach ($itemTypes as $i) {
+            $itemTypesString .= $i.'/';
             $tweakNameType = str_replace(' ', '-', strtolower($i));
             $output .= '<tr>
                 <td class="item-type" rowspan="1" data-type="'.$tweakNameType.'">'.$i.'</td>
@@ -113,21 +116,27 @@ class view_items {
                     <span class="column">
                     '.$f->text(array(
                         'id'=>'item-name-'.$tweakNameType.'-1'
+                        ,'placeholder'=>'item-name-'.$tweakNameType.'-1'
                         ,'class'=>'item-data'
+                        ,'name'=>'item-name-'.$tweakNameType.'[]'
                         ,'label'=>'Name'
                         ,'data-count'=>'1'
                         ,'data-type'=>$tweakNameType
                         ,'data-category'=>'item-name')).'
                     '.$f->text(array(
                         'id'=>'item-serial-no-'.$tweakNameType.'-1'
+                        ,'placeholder'=>'item-serial-no-'.$tweakNameType.'-1'
                         ,'class'=>'item-data'
+                        ,'name'=>'item-serial-no-'.$tweakNameType.'[]'
                         ,'label'=>'S/N'
                         ,'data-count'=>'1'
                         ,'data-type'=>$tweakNameType
                         ,'data-category'=>'item-serial-no')).'
                     '.$f->text(array(
                         'id'=>'item-model-no-'.$tweakNameType.'-1'
+                        ,'placeholder'=>'item-model-no-'.$tweakNameType.'-1'
                         ,'class'=>'item-data'
+                        ,'name'=>'item-model-no-'.$tweakNameType.'[]'
                         ,'label'=>'M/N'
                         ,'data-count'=>'1'
                         ,'data-type'=>$tweakNameType
@@ -138,14 +147,18 @@ class view_items {
                     <span class="column">
                     '.$f->textarea(array(
                         'id'=>'item-description-'.$tweakNameType.'-1'
+                        ,'placeholder'=>'item-description-'.$tweakNameType.'-1'
                         ,'class'=>'item-data'
+                        ,'name'=>'item-description-'.$tweakNameType.'[]'
                         ,'label'=>'Description'
                         ,'data-count'=>'1'
                         ,'data-type'=>$tweakNameType
                         ,'data-category'=>'item-description')).'
                     '.$f->text(array(
                         'id'=>'item-quantity-'.$tweakNameType.'-1'
+                        ,'placeholder'=>'item-quantity-'.$tweakNameType.'-1'
                         ,'class'=>'item-data'
+                        ,'name'=>'item-quantity-'.$tweakNameType.'[]'
                         ,'label'=>'Quantity'
                         ,'value'=>'1 pc.'
                         ,'data-count'=>'1'
@@ -155,32 +168,40 @@ class view_items {
                     <span class="column">
                     '.$f->text(array(
                         'id'=>'item-date-of-purchase-'.$tweakNameType.'-1'
+                        ,'placeholder'=>'item-date-of-purchase-'.$tweakNameType.'-1'
                         ,'class'=>'datepicker'
+                        ,'name'=>'item-date-of-purchase-'.$tweakNameType.'[]'
                         ,'label'=>'Purchased'
                         ,'value'=>date('Y-m-d')
                         ,'data-count'=>'1'
                         ,'data-type'=>$tweakNameType
                         ,'data-category'=>'item-date-of-purchase')).'
-                    '.$f->select(array(
+                    '.$c_itemStates->displaySelectForm(array(
                         'id'=>'item-state-'.$tweakNameType.'-1'
+                        ,'placeholder'=>'item-state-'.$tweakNameType.'-1'
                         ,'class'=>'item-data'
+                        ,'name'=>'item-state-'.$tweakNameType.'[]'
                         ,'label'=>'State'
                         ,'data-count'=>'1'
                         ,'data-type'=>$tweakNameType
-                        ,'data-category'=>'item-state')).'
+                        ,'data-category'=>'item-state'), false).'
                     </span>
                     <span class="column">
                     '.$f->text(array(
                         'id'=>'item-cost-'.$tweakNameType.'-1'
+                        ,'placeholder'=>'item-cost-'.$tweakNameType.'-1'
                         ,'class'=>'item-data'
-                        ,'label'=>'Cost'
+                        ,'name'=>'item-cost-'.$tweakNameType.'[]'
+                        ,'label'=>'Unit Price'
                         ,'value'=>'0.00 PHP'
                         ,'data-count'=>'1'
                         ,'data-type'=>$tweakNameType
                         ,'data-category'=>'item-cost')).'
                     '.$f->text(array(
                         'id'=>'item-depreciation-'.$tweakNameType.'-1'
+                        ,'placeholder'=>'item-depreciation-'.$tweakNameType.'-1'
                         ,'class'=>'item-data'
+                        ,'name'=>'item-depreciation-'.$tweakNameType.'[]'
                         ,'label'=>'Depreciation'
                         ,'data-count'=>'1'
                         ,'data-type'=>$tweakNameType
@@ -191,6 +212,9 @@ class view_items {
         }
         $output .= '</table>
             '.$f->closeFieldset()
+            .$f->hidden(array(
+                'id'=>'item-components-types'
+                ,'value'=>$itemTypesString))
             .$f->submit(array('value'=>'Save Items'))
             .$f->closeForm();
         return $output;
@@ -220,34 +244,94 @@ class view_items {
             .$itemIdHolder
 
             .'<span class="column">'
-            .$f->text(array('id'=>'item-name','label'=>'Name','value'=>$i != null ? $i['item_name'] : ''))
-            .$f->text(array('id'=>'item-serial-no','label'=>'Serial No','value'=>$i != null ? $i['item_serial_no'] : ''))
-            .$f->text(array('id'=>'item-model-no','label'=>'Model No','value'=>$i != null ? $i['item_model_no'] : ''))
+            .$f->text(array(
+                'id'=>'item-name'
+                ,'label'=>'Name'
+                ,'value'=>$i != null ? $i['item_name'] : ''))
+            .$f->text(array(
+                'id'=>'item-serial-no'
+                ,'label'=>'Serial No'
+                ,'value'=>$i != null ? $i['item_serial_no'] : ''))
+            .$f->text(array(
+                'id'=>'item-model-no'
+                ,'label'=>'Model No'
+                ,'value'=>$i != null ? $i['item_model_no'] : ''))
             .$c_itemTypes->displaySelectForm(
-                array('label'=>'Type','default_option'=>$i != null ? $i['item_type'] : '')
+                array(
+                    'label'=>'Type'
+                    ,'default_option'=>$i != null
+                        ? $i['item_type']
+                        : '')
                 ,false)
             .'</span>'
 
             .'<span class="column">'
             .$c_itemStates->displaySelectForm(
-                array('label'=>'State','default_option'=>$i != null ? $i['item_state'] : '')
+                array(
+                    'label'=>'State'
+                    ,'default_option'=>$i != null
+                        ? $i['item_state']
+                        : '')
                 ,false)
-            .$f->textarea(array('id'=>'item-description','label'=>'Description','value'=>$i != null ? $i['item_description'] : ''))
-            .$f->text(array('id'=>'item-quantity','label'=>'Quantity','value'=>$i != null ? $i['item_quantity'] : '1 pc.'))
+            .$f->textarea(array(
+                'id'=>'item-description'
+                ,'label'=>'Description'
+                ,'value'=>$i != null
+                    ? $i['item_description']
+                    : ''))
+            .$f->text(array(
+                'id'=>'item-quantity'
+                ,'label'=>'Quantity'
+                ,'value'=>$i != null
+                    ? $i['item_quantity']
+                    : '1 pc.'))
             .'</span>'
 
             .'<span class="column">'
-            .$f->text(array('id'=>'item-date-of-purchase','class'=>'datepicker','label'=>'Date of Purchase','value'=>$i != null ? $i['item_date_of_purchase'] : date('Y-m-d')))
-            .$f->hidden(array('id'=>'item-package','value'=>$i != null ? $i['item_package'] : '0','data-url'=>URL_BASE.'inventory_packages/in_search/'))
-            .$f->text(array('id'=>'item-package-label','label'=>'Package','value'=>$i != null ? $c_itemPackages->displayPackageName($i['item_package'], false) : ''))
-            .$f->checkbox(array('id'=>'item-has-components','label'=>'Has Components','checked'=>$hasComponentsCheck))
-            .$f->hidden(array('id'=>'item-component-of','value'=>$i != null ? $i['item_component_of'] : '0','data-url'=>URL_BASE.'inventory/in_search_componentHost/'))
-            .$f->text(array('id'=>'item-component-of-label','label'=>'Component Of','value'=>$i != null ? $c_items->displayItemName($i['item_component_of'], false) : ''))
+            .$f->text(array(
+                'id'=>'item-date-of-purchase'
+                ,'class'=>'datepicker'
+                ,'label'=>'Date of Purchase'
+                ,'value'=>$i != null
+                    ? $i['item_date_of_purchase']
+                    : date('Y-m-d')))
+            .$f->hidden(array(
+                'id'=>'item-package'
+                ,'value'=>$i != null
+                    ? $i['item_package']
+                    : '0'
+                ,'data-url'=>URL_BASE.'inventory_packages/in_search/'))
+            .$f->text(array(
+                'id'=>'item-package-label'
+                ,'label'=>'Package'
+                ,'value'=>$i != null
+                    ? $c_itemPackages->displayPackageName($i['item_package'], false)
+                    : ''))
+            .$f->checkbox(array(
+                'id'=>'item-has-components'
+                ,'label'=>'Has Components'
+                ,'checked'=>$hasComponentsCheck))
+            .$f->hidden(array(
+                'id'=>'item-component-of'
+                ,'value'=>$i != null
+                    ? $i['item_component_of']
+                    : '0'
+                ,'data-url'=>URL_BASE.'inventory/in_search_componentHost/'))
+            .$f->text(array(
+                'id'=>'item-component-of-label'
+                ,'label'=>'Component Of'
+                ,'value'=>$i != null
+                    ? $c_items->displayItemName($i['item_component_of'], false)
+                    : ''))
             .'</span>'
 
             .'<span class="column">'
-            .$f->text(array('id'=>'item-cost', 'label'=>'Cost (Indicate Currency)', 'value'=>$i != null ? $i['item_cost'] : ''))
-            .$f->text(array('id'=>'item-depreciation', 'label'=>'Depreciation (Timespan)', 'value'=>$i != null ? $i['item_depreciation'] : ''))
+            .$f->text(array(
+                'id'=>'item-cost'
+                ,'label'=>'Unit Price'
+                ,'value'=>$i != null ? $i['item_cost'] : ''))
+            .$f->text(array(
+                'id'=>'item-depreciation', 'label'=>'Depreciation (Timespan)', 'value'=>$i != null ? $i['item_depreciation'] : ''))
             .'</span>'
             .$f->closeFieldset();
         return $output;
@@ -497,6 +581,120 @@ class view_items {
             }
             $output .= '</table>';
         } else $output = 'There are no owner history.';
+        return $output;
+    }
+
+
+
+    public function renderInventory ($datas) {
+        if ($datas == null)
+            return 'There are no items in this inventory.';
+
+        $fx = new myFunctions();
+        $c_items = new controller_items();
+
+        $items = array();
+        $itemsCount = array(
+            'hosts'=>0
+            ,'components'=>0);
+        foreach ($datas as $d) {
+            if ($d['item_component_of'] == '0') {
+                if (!isset($ownerType))
+                    $ownerType = $d['ownership_owner_type'];
+
+                if (!isset($ownerId))
+                    $ownerId = $d['ownership_owner'];
+
+                $itemId = $d['item_id'];
+                $items[$itemId] = $d;
+                $itemsCount['hosts']++;
+            } else {
+                $hostId = $d['item_component_of'];
+                $itemId = $d['item_id'];
+                $items[$hostId]['components'][$itemId] = $d;
+                $itemsCount['components']++;
+            }
+        }
+
+        $btnGenerateReport = '<a href="'.URL_BASE.'documents/inventory_report/'.$ownerType.'/'.$ownerId.'/" target="_blank">
+            <input type="button" value="Generate Report" />
+            </a>';
+        $buttons = $btnGenerateReport;
+
+        $output = $buttons.'
+            <div class="hr-light"></div>
+            <table>
+            <tr>
+            <th>Item/s</th>
+            <th colspan="3">Component/s</th>
+            </tr>';
+        foreach ($items as $i) {
+            if (isset($i['components']) && is_array($i['components'])) {
+                $components = '</tr>';
+                foreach ($i['components'] as $c) {
+                    $componentDescription = strlen($c['item_description']) > 0
+                        ? '<br />'.nl2br($c['item_description'])
+                        : '';
+
+                    $componentButtons = $c_items->displayItemButtons($c['item_id'], false);
+                    $componentButtons = strlen($componentButtons) > 0 ? '<div class="hr-light"></div>'.$componentButtons : '';
+                    $components .= '<tr class="data" data-url="'.URL_BASE.'inventory/read_item/'.$c['item_id'].'/">
+                        <td>
+                            <b>'.$c['item_name'].'</b>
+                            <div class="data-more-details">
+                                <b>'.$c['item_name'].'</b><br />
+                                <small>
+                                S/N: '.$c['item_serial_no'].'<br />
+                                M/N: '.$c['item_model_no'].'
+                                </small>
+                                <div class="hr-light"></div>
+                                State: '.$c['item_state_label'].'<br />
+                                Owned since: '.$fx->dateToWords($c['ownership_date_owned']).'<br />
+                                Released since: '.$fx->dateToWords($c['ownership_date_released']).'
+                                '.$componentDescription.'
+                                '.$componentButtons.'
+                            </div>
+                        </td>
+                        <td>S/N: '.$c['item_serial_no'].'</td>
+                        <td>M/N: '.$c['item_model_no'].'</td>
+                        </tr>';
+                }
+                $rowspan = count($i['components']) + 1;
+            } else {
+                $components = '<td colspan="3">This item has no components</td></tr>';
+                $rowspan = 1;
+            }
+
+            $itemDescription = strlen($i['item_description']) > 0
+                ? '<br />'.nl2br($i['item_description'])
+                : '';
+
+            $itemButtons = $c_items->displayItemButtons($i['item_id'], false);
+            $itemButtons = strlen($itemButtons) > 0 ? '<div class="hr-light"></div>'.$itemButtons : '';
+            $output .= '<tr class="data" data-url="'.URL_BASE.'inventory/read_item/'.$i['item_id'].'/">
+                <td rowspan="'.$rowspan.'">
+                    <b>'.$i['item_name'].'</b><br />
+                    Serial No.: '.$i['item_serial_no'].'<br />
+                    Model No.: '.$i['item_model_no'].'
+                    <div class="data-more-details">
+                        <b>'.$i['item_name'].'</b><br />
+                        <small>
+                        S/N: '.$i['item_serial_no'].'<br />
+                        M/N: '.$i['item_model_no'].'
+                        </small>
+                        <div class="hr-light"></div>
+                        State: '.$i['item_state_label'].'<br />
+                        Owned since: '.$fx->dateToWords($i['ownership_date_owned']).'<br />
+                        Released since: '.$fx->dateToWords($i['ownership_date_released']).'
+                        '.$itemDescription.'
+                        '.$itemButtons.'
+                    </div>
+                </td>
+                '.$components;
+        }
+        $output .= '</table>
+            <div class="hr-light"></div>
+            '.$buttons;
         return $output;
     }
 

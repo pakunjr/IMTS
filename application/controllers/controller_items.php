@@ -110,6 +110,13 @@ class controller_items {
 
 
 
+    public function displayInventory ($ownerType, $ownerId) {
+        $datas = $this->model->fetchInventory($ownerType, $ownerId);
+        echo $this->view->renderInventory($datas);
+    }
+
+
+
     public function displayItemName ($itemId=null, $echo=true) {
         $item = $this->model->readItem($itemId);
         $itemName = $this->view->renderItemName($item);
@@ -228,7 +235,7 @@ class controller_items {
         if (!isset($_POST))
             header('location: '.URL_BASE.'inventory/create_multiple_items/');
 
-        $result = $this->model->saveMultipleItems($_POST);
+        $result = $this->model->createMultipleItems($_POST);
 
         if ($result) {
 

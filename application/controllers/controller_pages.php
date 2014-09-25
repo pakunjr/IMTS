@@ -631,12 +631,7 @@ class controller_pages {
 
             ob_end_flush();
         } else
-            echo $content.'
-                <script type="text/javascript">
-                $(document).ready(function () {
-                    bootstrapJs();
-                });
-                </script>';
+            echo $content;
 
         $contents = ob_get_clean();
         // Check the environment of the application then

@@ -1,9 +1,23 @@
-var bootstrapJs = function () {
+var myBootstrapJs = function () {
+    // Show the table rows one by one
+    // or by group within a certain
+    // time interval to avoid browser
+    // crash or slow down
+    /*
+    if ($('table').length > 0) {
+        $('table').each(function () {
+            var $this = $(this)
+                ,trCount = $(this).children('tr').length;
+
+        });
+    }
+    */
+
     /**
      * Calls and execute all javascript
      * functions in this file
      */
-    systemFx();
+    mySystemFx();
     formsFx();
     accountFx();
     itemFx();
@@ -15,7 +29,7 @@ var bootstrapJs = function () {
 
 
 
-var systemFx = function () {
+var mySystemFx = function () {
     /**
      * Concerns system functions such as
      * the clock, menus, and other effects
@@ -123,7 +137,71 @@ var accountFx = function () {
 
 
 var itemFx = function () {
+    // Set special features of the multiple
+    // items input form, the form will not
+    // work properly without these scripts
+    if ($('#form-multiple-items').length > 0) {
+        // Hide unnecessary form elements to avoid
+        // complications later on and to simplify
+        // the form
+        $('label[for="item-has-components"], label[for="item-component-of-label"], #item-has-components, #item-component-of-label, #item-component-of').each(function () {
+            var $this = $(this);
+            $this.remove();
+        });
 
+        // Feature to multiply the selected types
+        // for items that are of the same type
+        // but has such differences
+        var $form = $('#form-multiple-items');
+        $form.find('.item-type').each(function () {
+            var $this = $(this)
+                ,dataType = $this.attr('data-type');
+            $this.addClass('unselectable').hover(function () {
+                $this.css({
+                    'background': '#d9efff'
+                    ,'text-shadow': '2px 2px 3px rgba(0, 0, 0, 0.2)'
+                });
+            }, function () {
+                $this.css({
+                    'background': 'transparent'
+                    ,'text-shadow': '0px 0px 0px transparent'
+                });
+            }).css({
+                'cursor': 'pointer'
+            }).on('click', function () {
+                // Duplicate the row related
+                // to this type
+                var rowspan = parseInt($this.attr('rowspan'))
+                    ,htmlContents = ''
+                    ,rowContents = '<td>'
+                        + $this.parent('tr').children('td:nth-child(2)').html()
+                        +'</td>'
+                        +'<td>'
+                        + $this.parent('tr').children('td:nth-child(3)').html()
+                        +'</td>';
+
+                rowspan++;
+                $this.parent('tr').find('input, textarea, select').each(function () {
+                    var $element = $(this)
+                        ,dataCount = $element.attr('data-count')
+                        ,dataType = $element.attr('data-type')
+                        ,dataCategory = $element.attr('data-category')
+                        ,currentId = dataCategory+'-'+dataType+'-'+dataCount
+                        ,newId = dataCategory+'-'+dataType+'-'+rowspan;
+
+                    rowContents = rowContents.replace(new RegExp(currentId, 'g'), newId);
+                });
+
+                htmlContents = '<tr>'
+                    + rowContents
+                    +'</tr>';
+                $this.parent('tr').after(htmlContents);
+                $this.find('input, textarea, select').attr('data-count', rowspan);
+                $this.prop('rowspan', rowspan);
+                systemBootstrapJs();
+            });
+        });
+    }
 };
 
 
@@ -378,18 +456,8 @@ var buttonsConfirmFx = function () {
 
 
 $(document).ready(function () {
-    // Slowly show the table rows
-    /*
-    if ($('table').length > 0) {
-        $('table').each(function () {
-            var $this = $(this)
-                ,trCount = $(this).children('tr').length;
-
-        });
-    }
-    */
-
-    bootstrapJs();
+    systemBootstrapJs();
+    myBootstrapJs();
 
     // Show the page contents after all html
     // contents and javascripts are loaded into

@@ -168,7 +168,7 @@ class view_persons {
         $p = $personDatas;
 
         $fx = new myFunctions();
-        $c_inventory = new controller_inventory();
+        $c_items = new controller_items();
         $c_owners = new controller_owners();
         $c_employees = new controller_employees();
         $c_accounts = new controller_accounts();
@@ -188,7 +188,7 @@ class view_persons {
             $departmentHeadOf = 'None';
 
         ob_start();
-        $c_inventory->displayInventory('Person', $p['person_id']);
+        $c_items->displayInventory('Person', $p['person_id']);
         $inventory = ob_get_clean();
 
         ob_start();
