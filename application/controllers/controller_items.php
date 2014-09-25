@@ -237,10 +237,11 @@ class controller_items {
 
         $result = $this->model->createMultipleItems($_POST);
 
-        if ($result) {
-
+        if ($result != null) {
+            header('location: '.URL_BASE.'inventory/read_item/'.$result['item-id'].'/');
+            return;
         } else {
-            
+            echo 'Something went wrong.';
         }
     }
 

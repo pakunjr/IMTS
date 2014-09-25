@@ -125,6 +125,7 @@ class view_pages {
         $breadcrumb .= $controller != null ? ' > '.$controller : '';
         $breadcrumb .= $action != null ? ' > '.$action : '';
         $breadcrumb .= $extra != null ? ' > '.$extra : '';
+        $breadcrumb = str_replace('_', ' ', $breadcrumb);
 
         $output = '<div id="breadcrumb">'
             .'<span id="breadcrumb-clock">Today is '.$fx->dateToWords(date('Y-m-d')).' @<span id="breadcrumb-clock-timer">'

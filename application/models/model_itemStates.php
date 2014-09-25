@@ -16,6 +16,22 @@ class model_itemStates {
 
 
 
+    public function createSelectOptions () {
+        $states = $this->readItemStates();
+        if (is_array($states)) {
+            $selectOptions = array();
+            foreach ($states as $s) {
+                $label = $s['item_state_label'];
+                $value = $s['item_state_id'];
+                $selectOptions[$label] = $value;
+            }
+            return $selectOptions;
+        } else
+            return null;
+    }
+
+
+
     public function readItemState ($stateId) {
         $rows = $this->db->statement(array(
             'q'=>"SELECT * FROM imts_items_state WHERE item_state_id = ? LIMIT 1"

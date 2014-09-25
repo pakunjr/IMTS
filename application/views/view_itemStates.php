@@ -25,11 +25,12 @@ class view_itemStates {
             ,'label'=>'item_state_label'
             ,'value'=>'item_state_id'));
 
-        return $f->select(array(
+        $selectInput = $f->select(array(
             'id'=>'item-state'
             ,'label'=>isset($options['label']) ? $options['label'] : ''
             ,'select_options'=>$select_options
             ,'default_option'=>isset($options['default_option']) ? $options['default_option'] : ''));
+        return $selectInput;
     }
 
 

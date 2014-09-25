@@ -182,7 +182,7 @@ class model_items {
                             || strlen($sti['item-serial-no']) > 0
                             || strlen($sti['item-model-no']) > 0) {
                         $sti['item-type'] = $mainItem['item-type'];
-                        $sti['item-package'] = 0;
+                        $sti['item-package'] = $mainItem['item-package'];
                         $sti['item-has-components'] = 0;
                         $sti['item-component-of'] = $mainItem['item-id'];
                         array_push($components, $sti);

@@ -21,7 +21,8 @@ class controller_itemStates {
     public function displaySelectForm ($options=array(), $echo=true) {
         $states = $this->model->readItemStates();
         $form = $this->view->renderSelectForm($states, $options);
-        if (!$echo) return $form;
+        if (!$echo)
+            return $form;
         echo $form;
     }
 
@@ -30,8 +31,19 @@ class controller_itemStates {
     public function displayItemStateName ($stateId, $echo=true) {
         $itemState = $this->model->readItemState($stateId);
         $name = $this->view->renderItemStateName($itemState);
-        if (!$echo) return $name;
+        if (!$echo)
+            return $name;
         echo $name;
+    }
+
+
+
+    public function getSelectOptions () {
+        $states = $this->model->createSelectOptions();
+        if (is_array($states))
+            return $states;
+        else
+            return null;
     }
 
 }

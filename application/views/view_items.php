@@ -51,13 +51,14 @@ class view_items {
             $cancelBtn = '<a href="'.URL_BASE.'inventory/read_item/'.$i['item']['item_component_of'].'/"><input class="btn-red" type="button" value="Cancel" /></a>';
         }
 
-        $output = $itemName
-            .'<div class="hr-light"></div>'
-            .$f->openForm(array('id'=>'form-item', 'class'=>'main-form', 'method'=>'post', 'action'=>$actionLink, 'enctype'=>'multipart/form-data'))
+        $output = $itemName.'
+            <a class="btn-blue" href="'.URL_BASE.'inventory/create_multiple_items/">Click here for Multiple Item input (applicable for one computer set only)</a>
+            <div class="hr-light"></div>
+            '.$f->openForm(array('id'=>'form-item', 'class'=>'main-form', 'method'=>'post', 'action'=>$actionLink, 'enctype'=>'multipart/form-data'))
             .$this->renderFormItem($i['item'])
-            .$this->renderFormOwner($i['owner'])
-            .'<div class="hr-light"></div>'
-            .$submitBtn.$cancelBtn
+            .$this->renderFormOwner($i['owner']).'
+            <div class="hr-light"></div>
+            '.$submitBtn.$cancelBtn
             .$f->closeForm();
         return $output;
     }
@@ -93,7 +94,10 @@ class view_items {
             ,'LAN');
         $itemTypesString = '';
 
-        $output = $f->openForm(array(
+        $output = '<h3>Multiple Item input (applicable for 1 computer set only)</h3>
+            <a class="btn-blue" href="'.URL_BASE.'inventory/create_item/">Click here to go back to Single Item input (any item)</a>
+            <div class="hr-light"></div>
+            '.$f->openForm(array(
                 'id'=>'form-multiple-items'
                 ,'method'=>'post'
                 ,'action'=>URL_BASE.'inventory/create_multiple_items/save/'
@@ -176,12 +180,14 @@ class view_items {
                         ,'data-count'=>'1'
                         ,'data-type'=>$tweakNameType
                         ,'data-category'=>'item-date-of-purchase')).'
-                    '.$c_itemStates->displaySelectForm(array(
+                    '.$f->select(array(
                         'id'=>'item-state-'.$tweakNameType.'-1'
                         ,'placeholder'=>'item-state-'.$tweakNameType.'-1'
                         ,'class'=>'item-data'
                         ,'name'=>'item-state-'.$tweakNameType.'[]'
                         ,'label'=>'State'
+                        ,'select_options'=>$c_itemStates->getSelectOptions()
+                        ,'default_option'=>''
                         ,'data-count'=>'1'
                         ,'data-type'=>$tweakNameType
                         ,'data-category'=>'item-state'), false).'
