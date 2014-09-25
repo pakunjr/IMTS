@@ -1,18 +1,4 @@
 var myBootstrapJs = function () {
-    // Show the table rows one by one
-    // or by group within a certain
-    // time interval to avoid browser
-    // crash or slow down
-    /*
-    if ($('table').length > 0) {
-        $('table').each(function () {
-            var $this = $(this)
-                ,trCount = $(this).children('tr').length;
-
-        });
-    }
-    */
-
     /**
      * Calls and execute all javascript
      * functions in this file

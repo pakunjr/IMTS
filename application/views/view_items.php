@@ -422,8 +422,9 @@ class view_items {
                 .'<th>Type</th>'
                 .'<td>'.$c_itemTypes->displayItemTypeName($it['item_type'], false).'</td>'
                 .'<th>Quantity</th>'
-                .'<td>'.$it['item_quantity'].'</td>'
-            .'</tr>'
+                .'<td>'.$it['item_quantity'].'</td>
+                <td rowspan="6">'.$fx->generateQrCode(URL_BASE.'inventory/read_item/'.$it['item_id'].'/', 'item-qrcode-'.$it['item_id']).'</td>
+            </tr>'
             .'<tr>'
                 .'<th>State</th>'
                 .'<td>'.$c_itemStates->displayItemStateName($it['item_state'], false).'</td>'
@@ -449,8 +450,8 @@ class view_items {
                 .'<td>'.$it['item_cost'].'<div class="hr-light"></div>'.$it['item_depreciation'].'</td>'
                 .'<th>Date of Purchase</th>'
                 .'<td>'.$fx->dateToWords($it['item_date_of_purchase']).'</td>'
-            .'</tr>'
-            .'</table>'
+            .'</tr>
+            </table>'
             .'</div>'
 
             .'<div class="accordion-title">Item Component/s</div><div class="accordion-content">'.$this->renderItemComponents($i['components']).'</div>'
