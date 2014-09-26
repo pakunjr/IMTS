@@ -23,14 +23,14 @@ class controller_documents {
             $file = DIR_PLUGINS.DS.'mPDF'.DS.'mpdf.php';
             if (file_exists($file)) {
                 require_once($file);
-                $this->mPDF = new mPDF('c', 'A4');
+                $this->mPDF = new mPDF('c', 'A4', 7, 'Helvetica', 15, 15, 16, 16, 9, 9, 'P');
             } else
                 exit('<span style="display: inline-block; color: #f00;">PLUGIN ERROR: mPDF is missing, system cannot generate the document.
                     <br />Exiting...
                     <br /><br /><a href="'.URL_BASE.'">Click here to go to <input type="button" value="Homepage" /></a>
                     </span>');
         } else
-            $this->mPDF = new mPDF('c', 'A4');
+            $this->mPDF = new mPDF('c', 'A4', 7, 'Helvetica', 15, 15, 16, 16, 9, 9, 'P');
 
         $this->mPDF->SetDisplayMode('fullpage');
         $this->mPDF->useSubstitutions = false;

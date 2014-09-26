@@ -55,7 +55,7 @@ class view_documents {
             }
             table th,
             table td {
-                padding: 5px 8px;
+                padding: 2px 3px;
                 border: 1px solid #333;
                 font-family: Helvetica;
                 font-size: 0.9em;
@@ -90,6 +90,7 @@ class view_documents {
                 .'</span>');
 
         $fx = new myFunctions();
+        $c_items = new controller_items();
 
         $itemId = $datas['item_id'];
         $itemName = $datas['item_name'];
@@ -127,26 +128,33 @@ class view_documents {
                 <tr>
                 <th>Serial No.</th>
                 <td>'.$h['item_serial_no'].'</td>
-                <th>Package</th>
-                <td>'.$h['package_name'].'</td>
-                <th rowspan="3">Description / Notes</th>
-                <td rowspan="3"><p>'.nl2br($h['item_description']).'</p></td>
+                <th>Description</th>
+                <td rowspan="6">'.$c_items->displayQrCode($h['item_id'], false).'</td>
                 </tr>
                 <tr>
                 <th>Model No.</th>
                 <td>'.$h['item_model_no'].'</td>
-                <th>Cost</th>
-                <td>'.$h['item_cost'].'</td>
+                <td rowspan="5"><p>'.nl2br($h['item_description']).'</p></td>
                 </tr>
                 <tr>
                 <th>Purchased</th>
                 <td>'.$fx->dateToWords($h['item_date_of_purchase']).'</td>
+                </tr>
+                <tr>
+                <th>Package</th>
+                <td>'.$h['package_name'].'</td>
+                </tr>
+                <tr>
+                <th>Unit Price</th>
+                <td>'.$h['item_cost'].'</td>
+                </tr>
+                <tr>
                 <th>Depreciation</th>
                 <td>'.$h['item_depreciation'].'</td>
                 </tr>';
             if (isset($components) && is_array($components)) {
-                $output .= '<tr><th colspan="6">Components</th></tr>
-                    <tr><td colspan="6" style="text-align: center;">
+                $output .= '<tr><th colspan="4">Components</th></tr>
+                    <tr><td colspan="4" style="text-align: center;">
                     <table>
                     <tr>
                     <th>Name</th>
@@ -239,7 +247,6 @@ class view_documents {
                     <div style="font-weight: bold;">'.$i['item_name'].'</div>
                     Serial No.: '.$i['item_serial_no'].'<br />
                     Model No.: '.$i['item_model_no'].'<br />
-                    State: '.$i['item_state_label'].'<br />
                     Owned since: '.$fx->dateToWords($i['ownership_date_owned']).'<br />
                     Released since: '.$fx->dateToWords($i['ownership_date_released']).'<br />
                     Cost: '.$i['item_cost'].'<br />
@@ -265,7 +272,6 @@ class view_documents {
                         <td>
                             Owned since: '.$fx->dateToWords($c['ownership_date_owned']).'<br />
                             Released since: '.$fx->dateToWords($c['ownership_date_released']).'<br />
-                            State: '.$c['item_state_label'].'<br />
                             Cost: '.$c['item_cost'].'<br />
                             Depreciation: '.$c['item_depreciation'].'
                             '.$componentDescription.'

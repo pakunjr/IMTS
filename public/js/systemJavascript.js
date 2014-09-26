@@ -62,14 +62,9 @@ var systemBootstrapJs = function () {
             var $this = $(this)
                 ,$parent = $this.closest('tr');
 
-            $this.prepend('<span class="btn-close">x</span>');
-            $this.after('<div class="blacksheet"></div>');
-            var $btnClose = $this.find('.btn-close')
-                ,$blackSheet = $this.next('.blacksheet');
-
             $this.css({
                 'display': 'block'
-                ,'max-width': '350px'
+                ,'max-width': $('#main-content').width() + 'px'
                 ,'min-width': '200px'
                 ,'margin': '3px 0px 0px -18px'
                 ,'padding': '13px 18px'
@@ -81,57 +76,150 @@ var systemBootstrapJs = function () {
                 ,'box-shadow': '2px 2px 3px rgba(0, 0, 0, 0.3)'
             }).hide(0);
 
-            $blackSheet.css({
-                'display': 'block'
-                ,'width': $(window).width() + 'px'
-                ,'height': $(window).height() + 'px'
-                ,'position': 'fixed'
-                ,'top': '0px'
-                ,'left': '0px'
-                ,'z-index': '1'
-                ,'background-color': 'rgba(20, 58, 102, 0.3)'
-            }).hide(0);
+            $parent.mousemove(function (event) {
+                $this.css({
+                    'top': (event.pageY + 10) + 'px'
+                    ,'left': (event.pageX + 10) + 'px'
+                });
+            }).hover(function () {
+                $this.show(0);
+                var itemName = $parent
+                        .children('td:first-child')
+                        .find('b:nth-child(1)')
+                        .html()
+                    ,urlUpdateItem = null
+                    ,urlAddComopnent = null
+                    ,urlArchiveItem = null
+                    ,urlDeleteItem = null
+                    ,urlGenerateProfileCard = null
+                    ,urlTraceItem = null
+                    ,urlNiboti = null;
 
-            $btnClose.css({
-                'display': 'inline-block'
-                ,'width': '15px'
-                ,'height': '15px'
-                ,'padding': '5px'
-                ,'float': 'right'
-                ,'border': '1px solid #b3b3b3'
-                ,'border-radius': '20px'
-                ,'background-color': '#ccc'
-                ,'text-align': 'center'
-                ,'cursor': 'pointer'
-            });
+                if ($this.find('input[value="Update Item"]').length > 0) {
+                    var $e = $this.find('input[value="Update Item"]')
+                        ,$a = $e.closest('a')
+                        ,url = $a.attr('href');
+                    $a.before('<span style="display: inline-block;">Press 1 to update the item</span><br />');
+                    $a.remove();
+                    urlUpdateItem = url;
+                }
 
-            $btnClose.hover(function () {
-                $btnClose.css({'background-color': '#f98e1b'});
-            }, function () {
-                $btnClose.css({'background-color': '#ccc'});
-            });
+                if ($this.find('input[value="Add Component"]').length > 0) {
+                    var $e = $this.find('input[value="Add Component"]')
+                        ,$a = $e.closest('a')
+                        ,url = $a.attr('href');
+                    $a.before('<span style="display: inline-block;">Press 2 to add a component</span><br />');
+                    $a.remove();
+                    urlAddComponent = url;
+                }
 
-            $parent.hover(function () {
-                $this.show(0, function () {
-                    $btnClose.click(function () {
-                        $this.hide(0);
-                    });
+                if ($this.find('input[value="Archive Item"]').length > 0) {
+                    var $e = $this.find('input[value="Archive Item"]')
+                        ,$a = $e.closest('a')
+                        ,url = $a.attr('href');
+                    $a.before('<span style="display: inline-block;">Press 3 to archive the item</span><br />');
+                    $a.remove();
+                    urlArchiveItem = url;
+                }
 
-                    $this.hover(function () {
-                        $blackSheet.show(0);
-                    }, function () {
-                        $blackSheet.hide(0);
-                    });
+                if ($this.find('input[value="Delete Item"]').length > 0) {
+                    var $e = $this.find('input[value="Delete Item"]')
+                        ,$a = $e.closest('a')
+                        ,url = $a.attr('href');
+                    $a.before('<span style="display: inline-block;">Press 7 to delete the item</span><br />');
+                    $a.remove();
+                    urlDeleteItem = url;
+                }
+
+                if ($this.find('input[value="Generate Profile Card"]').length > 0) {
+                    var $e = $this.find('input[value="Generate Profile Card"]')
+                        ,$a = $e.closest('a')
+                        ,url = $a.attr('href');
+                    $a.before('<span style="display: inline-block;">Press 4 to generate profile card</span><br />');
+                    $a.remove();
+                    urlGenerateProfileCard = url;
+                }
+
+                if ($this.find('input[value="Trace Item"]').length > 0) {
+                    var $e = $this.find('input[value="Trace Item"]')
+                        ,$a = $e.closest('a')
+                        ,url = $a.attr('href');
+                    $a.before('<span style="display: inline-block;">Press 5 to trace the item</span><br />');
+                    $a.remove();
+                    urlTraceItem = url;
+                }
+
+                if ($this.find('input[value="NIBOTI"]').length > 0) {
+                    var $e = $this.find('input[value="NIBOTI"]')
+                        ,$a = $e.closest('a')
+                        ,url = $a.attr('href');
+                    $a.before('<span style="display: inline-block;">Press 6 to add new item based on this item</span><br />');
+                    $a.remove();
+                    urlNiboti = url;
+                }
+
+                $(document).keydown(function (event) {
+                    var pressedKey = event.keyCode || event.which;
+                    switch (pressedKey) {
+                        case '49': case 49:
+                            if (urlUpdateItem != null)
+                                window.location = urlUpdateItem;
+                            break;
+
+                        case '50': case 50:
+                            if (urlAddComponent != null)
+                                window.location = urlAddComponent;
+                            break;
+
+                        case '51': case 51:
+                            if (urlArchiveItem != null) {
+                                var confirmMsg = 'Do you want to archive this item?'
+                                    +'<div class="hr-light"></div>'
+                                    +itemName
+                                    +'<div class="hr-light"></div>'
+                                    +'<span style="color: #f00;">You\'ll need at least a Supervisor account to undo this action.</span>';
+                                myConfirm(confirmMsg, function () {
+                                    window.location = urlArchiveItem;
+                                });
+                                $this.hide(0);
+                            }
+                            break;
+
+                        case '52': case 52:
+                            if (urlGenerateProfileCard != null)
+                                window.location = urlGenerateProfileCard;
+                            break;
+
+                        case '53': case 53:
+                            if (urlTraceItem != null)
+                                window.location = urlTraceItem;
+                            break;
+
+                        case '54': case 54:
+                            if (urlNiboti != null)
+                                window.location = urlNiboti;
+                            break;
+
+                        case '55': case 55:
+                            if (urlDeleteItem != null) {
+                                var confirmMsg = 'Do you want to Delete this Item?'
+                                    +'<div class="hr-light"></div>'
+                                    + itemName
+                                    +'<div class="hr-light"></div>'
+                                    +'<span style="color: #f00;">This action is irreversible, once the item has been deleted in the database, it will no longer be restored.</span>';
+                                myConfirm(confirmMsg, function () {
+                                    window.location = urlDeleteItem;
+                                });
+                            }
+                            break;
+
+                        default:
+                            // alert(pressedKey);
+                    }
                 });
             }, function () {
                 $this.hide(0);
-            });
-
-            $(window).on('resize', function () {
-                $blackSheet.css({
-                    'width': $(window).width() + 'px'
-                    ,'height': $(window).height() + 'px'
-                });
+                $(document).unbind('keydown');
             });
         });
     }

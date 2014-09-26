@@ -2,10 +2,18 @@
 <br /><div id="footer">
     <div class="hr-heavy"></div>
     <?php
-        $output = '<div id="copyright">'
-            .SYSTEM_NAME.' '.SYSTEM_VERSION.'<br />'
-            .'Lorma Colleges &copy; '.SYSTEM_YEAR_START.' - '.date('Y')
-            .'</div>';
+        $output = '<div id="left-logos">
+            <img src="'.URL_BASE.'public/img/logo_lorma.jpg" />
+            </div>
+
+            <div id="copyright">
+            '.SYSTEM_NAME.' '.SYSTEM_VERSION.'<br />
+            Lorma Colleges &copy; '.SYSTEM_YEAR_START.' - '.date('Y').'
+            </div>
+
+            <div id="right-logos">
+
+            </div>';
         echo $output;
     ?>
 </div>

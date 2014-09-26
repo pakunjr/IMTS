@@ -105,7 +105,7 @@ class myFunctions {
         }
 
         return file_exists($filename)
-            ? '<img width="300" height="300" src="'.URL_BASE.'public/img/qrcodes/'.$rawFilename.'.png" />'
+            ? '<img width="250" height="250" src="'.URL_BASE.'public/img/qrcodes/'.$rawFilename.'.png" />'
             : 'QR Code is not available';
     }
 

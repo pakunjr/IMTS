@@ -213,7 +213,11 @@ class model_items {
 
     public function readItem ($itemId) {
         $r = $this->db->statement(array(
-            'q'=>"SELECT * FROM imts_items WHERE item_id = ? LIMIT 1"
+            'q'=>"SELECT * FROM imts_items AS item
+                LEFT JOIN imts_items_type AS iType ON item.item_type = iType.item_type_id
+                LEFT JOIN imts_items_state AS iState ON item.item_state = iState.item_state_id
+                WHERE item_id = ?
+                LIMIT 1"
             ,'v'=>array(
                 intval($itemId))));
         return count($r) > 0 ? $r[0] : null;
@@ -331,12 +335,32 @@ class model_items {
 
 
 
-    public function archiveItem ($itemId) {
+    public function deleteItem ($itemId) {
+        // Delete item from the database
         $result = $this->db->statement(array(
-            'q'=>"UPDATE imts_items SET item_archive_state = 1 WHERE item_id = ?"
+            'q'=>"DELETE FROM imts_items WHERE item_id = ?"
             ,'v'=>array(
                 intval($itemId))));
-        return $result;
+
+        if ($result) {
+            // Do not delete the components but
+            // change their host item
+            $this->db->statement(array(
+                'q'=>"UPDATE imts_items
+                    SET item_component_of = 0
+                    WHERE item_component_of = ?"
+                ,'v'=>array(
+                    intval($itemId))));
+
+            // Delete all ownerships of the items
+            $this->db->statement(array(
+                'q'=>"DELETE FROM imts_ownership WHERE ownership_item = ?"
+                ,'v'=>array(
+                    intval($itemId))));
+
+            return true;
+        } else
+            return false;
     }
 
 
@@ -346,6 +370,16 @@ class model_items {
         $result = $this->db->statement(array(
             'q'=>"UPDATE imts_ownership SET ownership_date_released = '$currentDate' WHERE ownership_id = ?"
             ,'v'=>array(intval($ownershipId))));
+        return $result;
+    }
+
+
+
+    public function archiveItem ($itemId) {
+        $result = $this->db->statement(array(
+            'q'=>"UPDATE imts_items SET item_archive_state = 1 WHERE item_id = ?"
+            ,'v'=>array(
+                intval($itemId))));
         return $result;
     }
 

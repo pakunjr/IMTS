@@ -74,21 +74,21 @@ class controller_items {
 
     public function displayItem ($itemId=null) {
         if ($itemId != null) {
-            $detailsItem = $this->model->readItem($itemId);
-            $detailsOwners = $this->model->readItemOwners($itemId);
-            $detailsComponents = $this->model->readItemComponents($itemId);
+            $iData = $this->model->readItem($itemId);
+            $iOwners = $this->model->readItemOwners($itemId);
+            $iComponents = $this->model->readItemComponents($itemId);
 
-            if ($detailsComponents != null) {
-                foreach ($detailsComponents as $dc => $array) {
+            if ($iComponents != null) {
+                foreach ($iComponents as $dc => $array) {
                     $currentOwner = $this->model->readItemOwner($array['item_id']);
-                    $detailsComponents[$dc]['ownership'] = $currentOwner;
+                    $iComponents[$dc]['ownership'] = $currentOwner;
                 }
             }
 
             $infos = array(
-                'item'=>$detailsItem
-                ,'owners'=>$detailsOwners
-                ,'components'=>$detailsComponents);
+                'item'=>$iData
+                ,'owners'=>$iOwners
+                ,'components'=>$iComponents);
         } else {
             $infos = array(
                 'item'=>null
@@ -163,6 +163,16 @@ class controller_items {
     public function displayIsItemComponentHost ($itemId, $echo=true) {
         $isHost = $this->model->isItemComponentHost($itemId);
         $output = $isHost ? 'Yes' : 'No';
+        if (!$echo)
+            return $output;
+        echo $output;
+    }
+
+
+
+    public function displayQrCode ($itemId, $echo=false) {
+        $datas = $this->model->readItem($itemId);
+        $output = $this->view->renderQrCode($datas);
         if (!$echo)
             return $output;
         echo $output;
@@ -311,9 +321,26 @@ class controller_items {
 
 
 
+    public function deleteItem ($itemId) {
+        $result = $this->model->deleteItem($itemId);
+        if ($result)
+            header('location: '.URL_BASE.'inventory/');
+        else
+            header('location: '.URL_BASE.'inventory/read_item/'.$itemId.'/');
+    }
+
+
+
     public function archiveItem ($itemId) {
         $result = $this->model->archiveItem($itemId);
         header('location: '.URL_BASE.'inventory/read_item/'.$itemId.'/');
+    }
+
+
+
+    public function countComponents ($itemId) {
+        $result = $this->model->readItemComponents($itemId);
+        return count($result);
     }
 
 }

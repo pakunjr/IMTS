@@ -64,9 +64,9 @@ if (ENVIRONMENT == 'DEVELOPMENT') {
     $c_accounts = new controller_accounts();
     $c_accounts->displayLoginForm();
 
-    echo '<div id="header-system-logo"></div>'
-        ,'<div id="header-system-name-short">',SYSTEM_NAME_SHORT,'</div>'
-        ,'<div id="header-system-name">',SYSTEM_NAME,'</div>';
+    echo '<div id="header-system-logo"></div>
+        <div id="header-system-name-short">',SYSTEM_NAME_SHORT,'</div>
+        <div id="header-system-name">',SYSTEM_NAME,'</div>';
     ?>
 </div>
 

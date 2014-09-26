@@ -316,6 +316,11 @@ class controller_pages {
                         }
                         break;
 
+                    case 'delete_item':
+                        $this->restrictPage('Administrator');
+                        $c_items->deleteItem($controller);
+                        break;
+
                     case 'archive_item':
                         $this->restrictPage('Supervisor');
                         $c_items->archiveItem($controller);

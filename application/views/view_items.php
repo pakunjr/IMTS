@@ -377,14 +377,13 @@ class view_items {
 
         $fx = new myFunctions();
         $c_items = new controller_items();
-        $c_itemTypes = new controller_itemTypes();
-        $c_itemStates = new controller_itemStates();
         $c_itemPackages = new controller_itemPackages();
-        $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
 
-        $itComponentHostName = $c_items->displayItemName($it['item_component_of'], false);
-        $itComponentHostLink = $it['item_component_of'] != 0
-            ? '<a href="'.URL_BASE.'inventory/read_item/'.$it['item_component_of'].'/"><input type="button" value="'.$itComponentHostName.'" /></a>'
+        $hostName = $c_items->displayItemName($it['item_component_of'], false);
+        $hostLink = $it['item_component_of'] != 0
+            ? '<a class="btn-blue" href="'.URL_BASE.'inventory/read_item/'.$it['item_component_of'].'/">
+                '.$hostName.'
+                </a>'
             : 'None';
 
         $packageName = $c_itemPackages->displayPackageName($it['item_package'], false);
@@ -392,75 +391,62 @@ class view_items {
             ? '<a href="'.URL_BASE.'inventory_packages/read_package/'.$it['item_package'].'/"><input type="button" value="'.$packageName.'" /></a>'
             : $packageName;
 
-        $hasComponents = $it['item_has_components'] == '1' ? 'Yes' : 'No';
+        $hasComponents = $it['item_has_components'] == '1'
+            ? 'Yes'
+            : 'No';
 
-        $btnGenerateProfileCard = '<a href="'.URL_BASE.'documents/profile_card/'.$it['item_id'].'/" target="_blank">
-            <input type="button" value="Generate Profile Card" />
-            </a>';
-        $btnAddComponent = $it['item_has_components'] == '1'
-            ? '<a href="'.URL_BASE.'inventory/create_item_addComponent/'.$it['item_id'].'/"><input class="btn-green" type="button" value="Add Component" /></a>'
-            : '';
-        $btnNiboti = '<a href="'.URL_BASE.'inventory/create_item_niboti/'.$i['item']['item_id'].'/"><input type="button" value="NIBOTI" /></a>';
-        $btnArchive = in_array($accessLevel, array('Administrator', 'Admin', 'Supervisor'))
-            ? '<a href="'.URL_BASE.'inventory/archive_item/'.$i['item']['item_id'].'/"><input data-item-name="'.$i['item']['item_name'].' (S/N: '.$i['item']['item_serial_no'].' -- M/N: '.$i['item']['item_model_no'].')" class="btn-red" type="button" value="Archive Item" /></a>'
-            : '';
-        $actionButtons = $i['item']['item_archive_state'] == '0'
-            ? '<div class="hr-light"></div><a href="'.URL_BASE.'inventory/update_item/'.$i['item']['item_id'].'/"><input class="btn-green" type="button" value="Update Informations" /></a>'
-                .$btnGenerateProfileCard
-                .$btnAddComponent
-                .$btnNiboti
-                .$btnArchive
-            : '<div class="hr-light"></div>This item has been archived.';
+        $qrCode = $this->renderQrCode($it);
 
-        $output = '<h3>'.$it['item_name'].'<br />'
-            .'<small><span style="color: #03f;">Serial</span>: '.$it['item_serial_no'].'</small><br />'
-            .'<small><span style="color: #f00;">Model</span>: '.$it['item_model_no'].'</small></h3>'
-            .'<div class="hr-light"></div>'
-            .'<div class="accordion-title">Item Information</div><div class="accordion-content accordion-content-default">'
-            .'<table>'
-            .'<tr>'
-                .'<th>Type</th>'
-                .'<td>'.$c_itemTypes->displayItemTypeName($it['item_type'], false).'</td>'
-                .'<th>Quantity</th>'
-                .'<td>'.$it['item_quantity'].'</td>
-                <td rowspan="6">'.$fx->generateQrCode(URL_BASE.'inventory/read_item/'.$it['item_id'].'/', 'item-qrcode-'.$it['item_id']).'</td>
-            </tr>'
-            .'<tr>'
-                .'<th>State</th>'
-                .'<td>'.$c_itemStates->displayItemStateName($it['item_state'], false).'</td>'
-                .'<th>Component Of</th>'
-                .'<td>'.$itComponentHostLink.'</td>'
-            .'</tr>'
-            .'<tr>'
-                .'<th rowspan="3">Description</th>'
-                .'<td rowspan="3">'.nl2br($it['item_description']).'</td>'
-                .'<th>Has Component/s</th>'
-                .'<td>'.$hasComponents.'</td>'
-            .'</tr>'
-            .'<tr>'
-                .'<th>Package</th>'
-                .'<td>'.$packageLink.'</td>'
-            .'</tr>'
-            .'<tr>'
-                .'<th>Current Owner</th>'
-                .'<td>'.$c_items->displayItemCurrentOwner($it['item_id'], false).'</td>'
-            .'</tr>'
-            .'<tr>'
-                .'<th>Price<div class="hr-light"></div>Depreciation</th>'
-                .'<td>'.$it['item_cost'].'<div class="hr-light"></div>'.$it['item_depreciation'].'</td>'
-                .'<th>Date of Purchase</th>'
-                .'<td>'.$fx->dateToWords($it['item_date_of_purchase']).'</td>'
-            .'</tr>
-            </table>'
-            .'</div>'
+        $output = '<h3>'.$it['item_name'].'<br />
+            <small><span style="color: #03f;">Serial</span>: '.$it['item_serial_no'].'</small><br />
+            <small><span style="color: #f00;">Model</span>: '.$it['item_model_no'].'</small></h3>
+            <div class="hr-light"></div>
+            <div class="accordion-title">Item Information</div><div class="accordion-content accordion-content-default">
+            <table>
+            <tr>
+            <th>Type</th>
+            <td>'.$it['item_type_label'].'</td>
+                <th>Quantity</th>
+                <td>'.$it['item_quantity'].'</td>
+                <td rowspan="6">'.$qrCode.'</td>
+            </tr>
+            <tr>
+                <th>State</th>
+                <td>'.$it['item_state_label'].'</td>
+                <th>Component Of</th>
+                <td>'.$hostLink.'</td>
+            </tr>
+            <tr>
+                <th rowspan="3">Description</th>
+                <td rowspan="3">'.nl2br($it['item_description']).'</td>
+                <th>Has Component/s</th>
+                <td>'.$hasComponents.'</td>
+            </tr>
+            <tr>
+                <th>Package</th>
+                <td>'.$packageLink.'</td>
+            </tr>
+            <tr>
+                <th>Current Owner</th>
+                <td>'.$c_items->displayItemCurrentOwner($it['item_id'], false).'</td>
+                </tr>
+                <tr>
+            <th>Price<div class="hr-light"></div>Depreciation</th>
+            <td>'.$it['item_cost'].'<div class="hr-light"></div>'.$it['item_depreciation'].'</td>
+                <th>Date of Purchase</th>
+                <td>'.$fx->dateToWords($it['item_date_of_purchase']).'</td>
+                </tr>
+            </table>
+            </div>
 
-            .'<div class="accordion-title">Item Component/s</div><div class="accordion-content">'.$this->renderItemComponents($i['components']).'</div>'
+            <div class="accordion-title">Item Component/s</div><div class="accordion-content">'.$this->renderItemComponents($i['components']).'</div>
 
-            .'<div class="accordion-title">History of Ownership/s</div><div class="accordion-content">'.$this->renderItemOwnershipHistory($i['owners']).'</div>'
+            <div class="accordion-title">History of Ownership/s</div><div class="accordion-content">'.$this->renderItemOwnershipHistory($i['owners']).'</div>
 
-            .'<div class="accordion-title">Log</div><div class="accordion-content">'.$this->renderItemLog($i['item']['item_log']).'</div>'
+            <div class="accordion-title">Log</div><div class="accordion-content">'.$this->renderItemLog($i['item']['item_log']).'</div>
 
-            .$actionButtons;
+            <div class="hr-light"></div>
+            '.$this->renderItemButtons($i['item']);
         return $output;
     }
 
@@ -482,7 +468,7 @@ class view_items {
                 ? '<br />'.nl2br($c['item_description'])
                 : '';
 
-            $componentButtons = $this->renderItemButtons($c['item_id']);
+            $componentButtons = $this->renderItemButtons($c);
             $componentButtons = strlen($componentButtons) > 0 ? '<div class="hr-light"></div>'.$componentButtons : '';
 
             $output .= '<tr class="data" data-url="'.URL_BASE.'inventory/read_item/'.$c['item_id'].'/">
@@ -510,8 +496,9 @@ class view_items {
 
 
 
-    public function renderItemButtons ($itemId) {
+    public function renderItemButtons ($datas) {
         $fx = new myFunctions();
+        $itemId = $datas['item_id'];
 
         $btnUpdate = $fx->isAccessible('Content Provider')
             ? '<a href="'.URL_BASE.'inventory/update_item/'.$itemId.'/">
@@ -532,6 +519,7 @@ class view_items {
             : '';
 
         $btnProfileCard = $fx->isAccessible('Content Provider')
+                && $datas['item_component_of'] == 0
             ? '<a href="'.URL_BASE.'documents/profile_card/'.$itemId.'/" target="_blank">
                 <input type="button" value="Generate Profile Card" />
                 </a>'
@@ -543,7 +531,26 @@ class view_items {
                 </a>'
             : '';
 
-        $buttons = $btnUpdate.$btnArchive.$btnProfileCard.$btnTrace;
+        $btnAddComponent = $fx->isAccessible('Content Provider')
+                && $datas['item_component_of'] == 0
+            ? '<a href="'.URL_BASE.'inventory/create_item_addComponent/'.$itemId.'/">
+                <input type="button" value="Add Component" />
+                </a>'
+            : '';
+
+        $btnNiboti = $fx->isAccessible('Content Provider')
+            ? '<a href="'.URL_BASE.'inventory/create_item_niboti/'.$itemId.'/">
+                <input type="button" value="NIBOTI" />
+                </a>'
+            : '';
+
+        $buttons = $btnUpdate
+            .$btnAddComponent
+            .$btnArchive
+            .$btnDelete
+            .$btnProfileCard
+            .$btnTrace
+            .$btnNiboti;
         return $buttons;
     }
 
@@ -760,6 +767,30 @@ class view_items {
 
 
 
+    public function renderQrCode ($datas=null) {
+        if ($datas == null)
+            return 'Cannot generate QR Code.';
+
+        $d = $datas;
+        $fx = new myFunctions();
+
+        $itemDescription = strlen($d['item_description']) > 0
+            ? 'Description:'.PHP_EOL.$d['item_description']
+            : '';
+
+        $qrCodeFilename = 'item-qrcode-'.$d['item_id'];
+        $qrCode = 'Name: '.$d['item_name'].PHP_EOL
+            .'Serial No.: '.$d['item_serial_no'].PHP_EOL
+            .'Model No.: '.$d['item_model_no'].PHP_EOL
+            .'Date Purchased: '.$fx->dateToWords($d['item_date_of_purchase']).PHP_EOL
+            .$itemDescription.PHP_EOL.PHP_EOL
+            .'URL: '.URL_BASE.'inventory/read_item/'.$d['item_id'].'/';
+        $qrCode = $fx->generateQrCode($qrCode, $qrCodeFilename);
+        return $qrCode;
+    }
+
+
+
     public function renderSearchForm ($keyword) {
         $f = new form(array('auto_line_break'=>false, 'auto_label'=>true));
 
@@ -815,7 +846,8 @@ class view_items {
                     Type: '.$d['item_type_label'].'<br />
                     State: '.$d['item_state_label'].'<br />
                     Package: '.$d['package_name'].' (S/N: '.$d['package_serial_no'].')<br />
-                    Component Of: '.$c_items->displayItemName($d['item_component_of'], false).'
+                    Component Of: '.$c_items->displayItemName($d['item_component_of'], false).'<br />
+                    No. of Components: '.$c_items->countComponents($d['item_id']).'
                     '.$itemDescription.'
                     '.$itemButtons.'
                     </div>
@@ -825,84 +857,6 @@ class view_items {
                 </tr>';
         }
         $output .= '</table>';
-        return $output;
-        // End here
-
-        $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
-        
-        if ($results != null) {
-            $c_items = new controller_items();
-            $c_itemTypes = new controller_itemTypes();
-            $c_itemStates = new controller_itemStates();
-            $c_itemPackages = new controller_itemPackages();
-
-            $output = '<table><tr>
-                <th>Name</th>
-                <th>Type</th>
-                <th>State</th>
-                <th>Description</th>';
-            if (isset($_POST['search-keyword'])) {
-                $output .= '<th>Current Owner</th>'
-                    .'<th>Package</th>'
-                    .'<th>Component Of</th>';
-                $output .= !in_array($accessLevel, array('Viewer')) ? '<th>Actions</th>' : '';
-            }
-            $output .= '</tr>';
-            foreach ($results as $result) {
-                $packageName = $c_itemPackages->displayPackageName($result['item_package'], false);
-                $packageLink = $packageName != 'None'
-                    ? '<a href="'.URL_BASE.'inventory_packages/read_package/'.$result['item_package'].'/"><input type="button" value="'.$packageName.'" /></a>'
-                    : $packageName;
-
-                $componentHostName = $c_items->displayItemName($result['item_component_of'], false);
-                $componentHostLink = $componentHostName != 'None'
-                    ? '<a href="'.URL_BASE.'inventory/read_item/'.$result['item_component_of'].'/"><input type="button" value="'.$componentHostName.'" /></a>'
-                    : $componentHostName;
-
-                $rowClass = $result['item_archive_state'] == '0'
-                    ? 'data'
-                    : 'red disabled';
-
-                $output .= '<tr class="'.$rowClass.'" '
-                    .'data-id="'.$result['item_id'].'" '
-                    .'data-label="'.$result['item_name'].' ('.$result['item_serial_no'].', '.$result['item_model_no'].')" '
-                    .'data-url="'.URL_BASE.'inventory/read_item/'.$result['item_id'].'/">'
-                    .'<td>'.$result['item_name'].'<br />'
-                        .'<span style="color: #03f;">Serial</span>: '.$result['item_serial_no'].'<br />'
-                        .'<span style="color: #f00;">Model</span>: '.$result['item_model_no']
-                    .'</td>'
-                    .'<td>'.$c_itemTypes->displayItemTypeName($result['item_type'], false).'</td>'
-                    .'<td>'.$c_itemStates->displayItemStateName($result['item_state'], false).'</td>'
-                    .'<td>'.nl2br($result['item_description']).'</td>';
-                if (isset($_POST['search-keyword'])) {
-                    $archiveButton = in_array($accessLevel, array('Administrator', 'Admin', 'Supervisor'))
-                            ? '<a href="'.URL_BASE.'inventory/archive_item/'.$result['item_id'].'/"><input data-item-name="'.$result['item_name'].' (S/N: '.$result['item_serial_no'].' -- M/N: '.$result['item_model_no'].')" class="btn-red" type="button" value="Archive Item" /></a>'
-                            : '';
-                    $actionButtons = $result['item_archive_state'] == '0'
-                        ? '<a href="'.URL_BASE.'inventory/update_item/'.$result['item_id'].'/"><input class="btn-green" type="button" value="Update Item" /></a>'
-                            .$archiveButton
-                        : 'This item has been archived.';
-
-                    $output .= '<td>'.$c_items->displayItemCurrentOwner($result['item_id'], false).'</td>'
-                        .'<td>'.$packageLink.'</td>'
-                        .'<td>'.$componentHostLink.'</td>';
-                    $output .= !in_array($accessLevel, array('Viewer')) ? '<td>'.$actionButtons.'</td>' : '';
-                }
-                $output .= '</tr>';
-            }
-            $output .= '</table>'
-                .'<div class="hr-light"></div>';
-            $output .= !in_array($accessLevel, array('Viewer'))
-                ? '<a href="'.URL_BASE.'inventory/create_item/" target="_blank"><input class="btn-green" type="button" value="Add an Item" /></a>'
-                : '';
-        } else {
-            $output = 'There are no items matching your keywords.<div class="hr-light"></div>';
-            $output .= !in_array($accessLevel, array('Viewer'))
-                ? '<a href="'.URL_BASE.'inventory/create_item/" target="_blank">
-                    <input class="btn-green" type="button" value="Add an Item" />
-                    </a>'
-                : '';
-        }
         return $output;
     }
 
