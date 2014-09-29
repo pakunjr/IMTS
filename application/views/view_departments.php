@@ -250,7 +250,7 @@ class view_departments {
         $fx = new myFunctions();
         $c_persons = new controller_persons();
 
-        $output = '<table>
+        $output = '<table class="paged">
             <tr>
                 <th>Short</th>
                 <th>Name</th>

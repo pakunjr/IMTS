@@ -448,10 +448,14 @@ $(document).ready(function () {
     // Show the page contents after all html
     // contents and javascripts are loaded into
     // the system
-    $('#page').fadeIn(150, function () {
+    $('#page').slideDown(150, function () {
         var $this = $(this);
         $this.css({
             'display': 'block'
         });
+
+        systemPagination();
+        accordionFx();
+        dataFx();
     });
 });

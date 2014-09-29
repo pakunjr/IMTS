@@ -637,7 +637,7 @@ class view_items {
 
         $output = $buttons.'
             <div class="hr-light"></div>
-            <table>
+            <table class="paged">
             <tr>
             <th>Item/s</th>
             <th colspan="3">Component/s</th>
@@ -673,7 +673,9 @@ class view_items {
                         <td>M/N: '.$c['item_model_no'].'</td>
                         </tr>';
                 }
-                $rowspan = count($i['components']) + 1;
+                $components = '<td><table>'.$components.'</table></td>';
+                // $rowspan = count($i['components']) + 1;
+                $rowspan = 1;
             } else {
                 $components = '<td colspan="3">This item has no components</td></tr>';
                 $rowspan = 1;
@@ -815,7 +817,7 @@ class view_items {
         $fx = new myFunctions();
         $c_items = new controller_items();
 
-        $output = '<table>
+        $output = '<table class="paged">
             <tr>
             <th>Item</th>
             <th>Serial No.</th>

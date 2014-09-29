@@ -32,249 +32,6 @@ var systemBootstrapJs = function () {
         });
     }
 
-    // Treat each data as a view button, detect if
-    // the data is being used in an embedded search
-    // to avoid undesirable result and errors
-    if ($('#search-box-container').length < 1
-            && $('.data').length > 0) {
-        $('.data').each(function () {
-            var $this = $(this)
-                ,url = $this.attr('data-url')
-                ,$childHyperlinks = $this.children('a');
-
-            if (!$this.hasClass('disabled')) {
-                $this.addClass('special-hover').on('click', function () {
-                    // Stop redirect if the mouse is hovered
-                    // over a link or other specified elements
-                    // in this condition
-                    if ($('a:hover').length < 1
-                        && $('.data-more-details:hover').length < 1)
-                        window.location = url;
-                });
-            }
-        });
-    }
-
-    // Shows hidden information related to
-    // the data that is hovered into
-    if ($('.data-more-details').length > 0) {
-        $('.data-more-details').each(function () {
-            var $this = $(this)
-                ,$parent = $this.closest('tr');
-
-            $this.css({
-                'display': 'block'
-                ,'max-width': $('#main-content').width() + 'px'
-                ,'min-width': '200px'
-                ,'margin': '3px 0px 0px -18px'
-                ,'padding': '13px 18px'
-                ,'position': 'absolute'
-                ,'z-index': '2'
-                ,'border': '1px solid #ccc'
-                ,'border-radius': '4px'
-                ,'background': '#fff'
-                ,'box-shadow': '2px 2px 3px rgba(0, 0, 0, 0.3)'
-            }).hide(0);
-
-            $parent.mousemove(function (event) {
-                $this.css({
-                    'top': (event.pageY + 10) + 'px'
-                    ,'left': (event.pageX + 10) + 'px'
-                });
-            }).hover(function () {
-                $this.show(0);
-                var itemName = $parent
-                        .children('td:first-child')
-                        .find('b:nth-child(1)')
-                        .html()
-                    ,urlUpdateItem = null
-                    ,urlAddComopnent = null
-                    ,urlArchiveItem = null
-                    ,urlDeleteItem = null
-                    ,urlGenerateProfileCard = null
-                    ,urlTraceItem = null
-                    ,urlNiboti = null;
-
-                if ($this.find('input[value="Update Item"]').length > 0) {
-                    var $e = $this.find('input[value="Update Item"]')
-                        ,$a = $e.closest('a')
-                        ,url = $a.attr('href');
-                    $a.before('<span style="display: inline-block;">Press 1 to update the item</span><br />');
-                    $a.remove();
-                    urlUpdateItem = url;
-                }
-
-                if ($this.find('input[value="Add Component"]').length > 0) {
-                    var $e = $this.find('input[value="Add Component"]')
-                        ,$a = $e.closest('a')
-                        ,url = $a.attr('href');
-                    $a.before('<span style="display: inline-block;">Press 2 to add a component</span><br />');
-                    $a.remove();
-                    urlAddComponent = url;
-                }
-
-                if ($this.find('input[value="Archive Item"]').length > 0) {
-                    var $e = $this.find('input[value="Archive Item"]')
-                        ,$a = $e.closest('a')
-                        ,url = $a.attr('href');
-                    $a.before('<span style="display: inline-block;">Press 3 to archive the item</span><br />');
-                    $a.remove();
-                    urlArchiveItem = url;
-                }
-
-                if ($this.find('input[value="Delete Item"]').length > 0) {
-                    var $e = $this.find('input[value="Delete Item"]')
-                        ,$a = $e.closest('a')
-                        ,url = $a.attr('href');
-                    $a.before('<span style="display: inline-block;">Press 7 to delete the item</span><br />');
-                    $a.remove();
-                    urlDeleteItem = url;
-                }
-
-                if ($this.find('input[value="Generate Profile Card"]').length > 0) {
-                    var $e = $this.find('input[value="Generate Profile Card"]')
-                        ,$a = $e.closest('a')
-                        ,url = $a.attr('href');
-                    $a.before('<span style="display: inline-block;">Press 4 to generate profile card</span><br />');
-                    $a.remove();
-                    urlGenerateProfileCard = url;
-                }
-
-                if ($this.find('input[value="Trace Item"]').length > 0) {
-                    var $e = $this.find('input[value="Trace Item"]')
-                        ,$a = $e.closest('a')
-                        ,url = $a.attr('href');
-                    $a.before('<span style="display: inline-block;">Press 5 to trace the item</span><br />');
-                    $a.remove();
-                    urlTraceItem = url;
-                }
-
-                if ($this.find('input[value="NIBOTI"]').length > 0) {
-                    var $e = $this.find('input[value="NIBOTI"]')
-                        ,$a = $e.closest('a')
-                        ,url = $a.attr('href');
-                    $a.before('<span style="display: inline-block;">Press 6 to add new item based on this item</span><br />');
-                    $a.remove();
-                    urlNiboti = url;
-                }
-
-                $(document).keydown(function (event) {
-                    var pressedKey = event.keyCode || event.which;
-                    switch (pressedKey) {
-                        case '49': case 49:
-                            if (urlUpdateItem != null)
-                                window.location = urlUpdateItem;
-                            break;
-
-                        case '50': case 50:
-                            if (urlAddComponent != null)
-                                window.location = urlAddComponent;
-                            break;
-
-                        case '51': case 51:
-                            if (urlArchiveItem != null) {
-                                var confirmMsg = 'Do you want to archive this item?'
-                                    +'<div class="hr-light"></div>'
-                                    +itemName
-                                    +'<div class="hr-light"></div>'
-                                    +'<span style="color: #f00;">You\'ll need at least a Supervisor account to undo this action.</span>';
-                                myConfirm(confirmMsg, function () {
-                                    window.location = urlArchiveItem;
-                                });
-                                $this.hide(0);
-                            }
-                            break;
-
-                        case '52': case 52:
-                            if (urlGenerateProfileCard != null)
-                                window.location = urlGenerateProfileCard;
-                            break;
-
-                        case '53': case 53:
-                            if (urlTraceItem != null)
-                                window.location = urlTraceItem;
-                            break;
-
-                        case '54': case 54:
-                            if (urlNiboti != null)
-                                window.location = urlNiboti;
-                            break;
-
-                        case '55': case 55:
-                            if (urlDeleteItem != null) {
-                                var confirmMsg = 'Do you want to Delete this Item?'
-                                    +'<div class="hr-light"></div>'
-                                    + itemName
-                                    +'<div class="hr-light"></div>'
-                                    +'<span style="color: #f00;">This action is irreversible, once the item has been deleted in the database, it will no longer be restored.</span>';
-                                myConfirm(confirmMsg, function () {
-                                    window.location = urlDeleteItem;
-                                });
-                            }
-                            break;
-
-                        default:
-                            // alert(pressedKey);
-                    }
-                });
-            }, function () {
-                $this.hide(0);
-                $(document).unbind('keydown');
-            });
-        });
-    }
-
-    // Accordions
-    if ($('.accordion-title').length > 0) {
-        $('.accordion-title').each(function () {
-            var $title = $(this);
-
-            if ($title.next('.accordion-content').length > 0) {
-                $title.prepend('<span class="accordion-symbol"></span> ')
-                .css({
-                    'display': 'block'
-                    ,'padding': '8px 13px'
-                    ,'border': '1px solid #143a66'
-                    ,'background': '#265080'
-                    ,'text-shadow': '2px 2px 0px rgba(0, 0, 0, 0.3)'
-                    ,'font-size': '1em'
-                    ,'color': '#fff'
-                    ,'cursor': 'pointer'
-                });
-
-                var $content = $title.next('.accordion-content')
-                    ,$symbol = $title.find('.accordion-symbol');
-
-                $content.css({
-                    'padding': '8px 13px'
-                    ,'overflow': 'auto'
-                    ,'border': '1px solid #143a66'
-                });
-
-                if (!$content.hasClass('accordion-content-default')) {
-                    $content.stop(true, true).slideUp(0, function () {
-                        $symbol.html('+');
-                    });
-                } else {
-                    $title.css('background-color', '#5983b3');
-                    $symbol.html('-');
-                }
-
-                $title.on('click', function () {
-                    $content.slideToggle(0, function () {
-                        if ($content.is(':visible')) {
-                            $title.css('background-color', '#5983b3');
-                            $symbol.html('-');
-                        } else {
-                            $title.css('background-color', '#265080');
-                            $symbol.html('+');
-                        }
-                    });
-                });
-            }
-        });
-    }
-
     // Map of the input texts to be able to view
     // the whole content of input elements that
     // have limited view
@@ -543,6 +300,173 @@ var myPrompt = function (message, myAction) {
 
 
 
+var accordionFx = function () {
+    if ($('.accordion-title').length > 0) {
+        $('.accordion-title').each(function () {
+            var $title = $(this);
+
+            if ($title.next('.accordion-content').length > 0) {
+                $title.prepend('<span class="accordion-symbol"></span> ')
+                .css({
+                    'display': 'block'
+                    ,'padding': '8px 13px'
+                    ,'border': '1px solid #143a66'
+                    ,'background': '#265080'
+                    ,'text-shadow': '2px 2px 0px rgba(0, 0, 0, 0.3)'
+                    ,'font-size': '1em'
+                    ,'color': '#fff'
+                    ,'cursor': 'pointer'
+                });
+
+                var $content = $title.next('.accordion-content')
+                    ,$symbol = $title.find('.accordion-symbol');
+
+                $content.css({
+                    'padding': '8px 13px'
+                    ,'overflow': 'auto'
+                    ,'border': '1px solid #143a66'
+                });
+
+                if (!$content.hasClass('accordion-content-default')) {
+                    $content.stop(true, true).slideUp(0, function () {
+                        $symbol.html('+');
+                    });
+                } else {
+                    $title.css('background-color', '#5983b3');
+                    $symbol.html('-');
+                }
+
+                $title.on('click', function () {
+                    $content.slideToggle(0, function () {
+                        if ($content.is(':visible')) {
+                            $title.css('background-color', '#5983b3');
+                            $symbol.html('-');
+                        } else {
+                            $title.css('background-color', '#265080');
+                            $symbol.html('+');
+                        }
+                    });
+                });
+            }
+        });
+    }
+};
+
+
+
+var dataFx = function () {
+    // Treat each data as a view button, detect if
+    // the data is being used in an embedded search
+    // to avoid undesirable result and errors
+    if ($('#search-box-container').length < 1
+            && $('.data').length > 0) {
+        $('.data').each(function () {
+            var $this = $(this)
+                ,url = $this.attr('data-url')
+                ,$childHyperlinks = $this.children('a');
+
+            if (!$this.hasClass('disabled')) {
+                $this.addClass('special-hover').on('click', function () {
+                    // Stop redirect if the mouse is hovered
+                    // over a link or other specified elements
+                    // in this condition
+                    if ($('a:hover').length < 1
+                        && $('.data-more-details:hover').length < 1)
+                        window.location = url;
+                });
+            }
+        });
+    }
+
+    // Shows hidden information related to
+    // the data that is hovered into
+    if ($('.data-more-details').length > 0) {
+        $('.data-more-details').each(function () {
+            var $this = $(this)
+                ,$parent = $this.closest('tr');
+
+            var closeButton = '<span class="data-more-details-btn-close">x</span>';
+
+            $this.css({
+                'display': 'block'
+                ,'max-width': $('#main-content').width() + 'px'
+                ,'min-width': '200px'
+                ,'margin': '3px 0px 0px -18px'
+                ,'padding': '13px 18px'
+                ,'position': 'absolute'
+                ,'z-index': '2'
+                ,'border': '1px solid #ccc'
+                ,'border-radius': '4px'
+                ,'background': '#fff'
+                ,'box-shadow': '2px 2px 3px rgba(0, 0, 0, 0.3)'
+            }).hide(0, function () {
+                if ($this.find('.data-more-details-btn-close').length < 1)
+                    $this.prepend(closeButton);
+
+                var $closeBtn = $this.children('.data-more-details-btn-close');
+                $closeBtn.css({
+                    'display': 'inline-block'
+                    ,'width': '15px'
+                    ,'height': '18px'
+                    ,'padding': '5px 8px'
+                    ,'border': '1px solid #ccc'
+                    ,'background': '#fff'
+                    ,'float': 'right'
+                    ,'font-size': '12pt'
+                    ,'text-align': 'center'
+                    ,'color': '#333'
+                    ,'cursor': 'pointer'
+                }).hover(function () {
+                    $closeBtn.css({
+                        'background': '#ccc'
+                        ,'text-shadow': '0px 0px 0px transparent'
+                        ,'color': '#fff'
+                    });
+                }, function () {
+                    $closeBtn.css({
+                        'background': '#fff'
+                        ,'color': '#333'
+                    });
+                }).click(function () {
+                    $this.hide(0);
+                });
+            });
+
+            $parent.mousemove(function (event) {
+                // Have the fox follow the cursor
+                // when the cursor go out of bounds
+                // of the left and right border of
+                // the box except if the mouse have
+                // hovered out
+                var mouseY = event.pageY
+                    ,mouseX = event.pageX
+                    ,boxWidth = $this.width()
+                    ,boxLeft = $this.offset().left
+                    ,boxRight = boxLeft + boxWidth;
+
+                if (mouseX > (boxRight + 15)) {
+                    $this.css({
+                        'left': (mouseX - boxWidth) + 'px'
+                    });
+                } else if (mouseX < (boxLeft + 15)) {
+                    $this.css({
+                        'left': mouseX + 'px'
+                    });
+                }
+            }).hover(function () {
+                if ($('.data-more-details:visible').length > 0) {
+                    $('.data-more-details:visible').hide(0);
+                }
+                $this.show(0);
+            }, function () {
+                $this.hide(0);
+            });
+        });
+    }
+};
+
+
+
 var embedSearchFx = function ($user_options) {
     var options = $.extend({
         'url': null
@@ -669,24 +593,161 @@ var embedSearchFx = function ($user_options) {
 
 
 
-var pagination = function (userOptions) {
-    // This function is underconstruction
-    // or is still in planning stage as
-    // there is no complete idea of its
-    // implementation
-
+var systemPagination = function (userOptions) {
     var options = $.extend({
-        'table' : null
-        ,'itemsPerPage': '20'
-        ,'currentPage': '1'
-        ,'pageCount': ''
-        ,'itemCount': ''
+        'itemsPerPage': '10'
     }, userOptions);
 
-    var $table = options['table'];
+    if ($('table.paged').length > 0) {
+        $('table.paged').each(function () {
+            var $table = $(this)
+                ,$tableBody = $table.children('tbody')
+                ,itemsPerPage = options['itemsPerPage']
+                ,totalItems = 0
+                ,totalPages = 0
+                ,paginationButtons = ''
+                ,pages = []
+                ,currentPage = 1
+                ,targetPage = 1;
 
-    if ($table == null)
-        return false;
+            if ($table.children('tr').length == 0)
+                totalItems = $tableBody.children('tr').length;
+            else
+                totalItems = $table.children('tr').length;
+
+            totalItems--;
+
+            if (totalItems > itemsPerPage) {
+                totalPages = totalItems / itemsPerPage;
+                totalPages = Math.ceil(totalPages);
+
+                // Get the table headers
+                var $tmpTableHeaders = $tableBody.children('tr:nth-child(1)');
+                $tmpTableHeaders.wrap('<p></p>');
+                pages[0] = $tmpTableHeaders.parent('p').html();
+                $tmpTableHeaders.parent('p').remove();
+
+                for (var i = 1; i <= totalPages; i++) {
+                    // Create the buttons
+                    // for navigation
+                    paginationButtons = paginationButtons + '<span class="unhighlightable pagination-navigation-buttons" data-page="'+ i +'">'+ i +'</span>';
+
+                    // Create the the contents of
+                    // each pages
+                    var pageContent = '';
+                    for (var j = 1; j <= itemsPerPage; j++) {
+                        var $data = $tableBody.children('tr:nth-child(1)');
+                        $data.wrap('<p></p>');
+                        pageContent = pageContent + $data.parent('p').html();
+                        $data.parent('p').remove();
+                    }
+                    pages[i] = pageContent;
+                }
+                paginationButtons = '<div class="pagination-navigation">'
+                    +'<span class="unhighlightable pagination-navigation-buttons" data-page="1">First</span>'
+                    +'<span class="unhighlightable pagination-navigation-buttons" data-page="prev">Prev</span>'
+                    + paginationButtons
+                    +'<span class="unhighlightable pagination-navigation-buttons" data-page="next">Next</span>'
+                    +'<span class="unhighlightable pagination-navigation-buttons" data-page="'+ totalPages +'">Last</span>'
+                    +'</div>'
+
+                $table
+                    .before(paginationButtons)
+                    .after(paginationButtons);
+
+                var $navigationTop = $table.prev('.pagination-navigation')
+                    ,$navigationBottom = $table.next('.pagination-navigation')
+                    ,$navigation = $navigationTop.add($navigationBottom);
+                $navigation.children('.pagination-navigation-buttons').each(function () {
+                    var $button = $(this)
+                        ,pageNo = $button.html();
+
+                    // Render first load
+                    // contents of the page
+                    // highlight of the button
+                    $tableBody
+                        .html(pages[currentPage])
+                        .prepend(pages[0]);
+                    $navigation
+                        .find('span[data-page="1"]')
+                        .addClass('currentPage');
+                    $navigation
+                        .find('span[data-page="prev"]')
+                        .addClass('disabled');
+
+                    $button.click(function () {
+                        if (!$(this).hasClass('disabled')) {
+                            switch (pageNo) {
+                                case 'First':
+                                    targetPage = 1;
+                                    break;
+
+                                case 'Prev':
+                                    targetPage = currentPage - 1;
+                                    if (targetPage < 1)
+                                        targetPage = 1;
+                                    break;
+
+                                case 'Next':
+                                    targetPage = currentPage + 1;
+                                    if (targetPage > totalPages)
+                                        targetPage = totalPages;
+                                    break;
+
+                                case 'Last':
+                                    targetPage = totalPages;
+                                    break;
+
+                                default:
+                                    targetPage = pageNo;
+                            }
+
+                            // pages[0] holds the
+                            // content for table
+                            // headers
+                            $tableBody
+                                .html(pages[targetPage])
+                                .prepend(pages[0]);
+                            currentPage = targetPage;
+
+                            $navigation
+                                .find('.currentPage')
+                                .removeClass('currentPage');
+                            $navigation
+                                .find('span[data-page="'+ currentPage +'"]')
+                                .addClass('currentPage');
+
+                            if (currentPage == 1)
+                                $navigation
+                                    .find('span[data-page="prev"]')
+                                    .addClass('disabled');
+                            else
+                                $navigation
+                                    .find('span[data-page="prev"]')
+                                    .removeClass('disabled');
+
+                            if (currentPage == totalPages)
+                                $navigation
+                                    .find('span[data-page="next"]')
+                                    .addClass('disabled');
+                            else
+                                $navigation
+                                    .find('span[data-page="next"]')
+                                    .removeClass('disabled');
+
+                            dataFx();
+                        }
+                    });
+                });
+            }
+
+            // Paged table are hidden by default
+            // in the CSS, this will show the paged
+            // table on load of the document
+            $table.slideDown(150);
+        });
+        
+    }
 };
 
 
