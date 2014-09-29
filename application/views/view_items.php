@@ -637,7 +637,7 @@ class view_items {
 
         $output = $buttons.'
             <div class="hr-light"></div>
-            <table class="paged">
+            <table class="paged" data-items-per-page="5">
             <tr>
             <th>Item/s</th>
             <th colspan="3">Component/s</th>

@@ -378,8 +378,7 @@ var dataFx = function () {
         });
     }
 
-    // Shows hidden information related to
-    // the data that is hovered into
+    // Shows hidden data upon right click
     if ($('.data-more-details').length > 0) {
         $('.data-more-details').each(function () {
             var $this = $(this)
@@ -433,7 +432,7 @@ var dataFx = function () {
             });
 
             $parent.mousemove(function (event) {
-                // Have the fox follow the cursor
+                // Have the box follow the cursor
                 // when the cursor go out of bounds
                 // of the left and right border of
                 // the box except if the mouse have
@@ -444,21 +443,27 @@ var dataFx = function () {
                     ,boxLeft = $this.offset().left
                     ,boxRight = boxLeft + boxWidth;
 
-                if (mouseX > (boxRight + 15)) {
+                if (mouseX > (boxRight + 30)) {
                     $this.css({
                         'left': (mouseX - boxWidth) + 'px'
                     });
-                } else if (mouseX < (boxLeft + 15)) {
+                } else if (mouseX < (boxLeft + 30)) {
                     $this.css({
                         'left': mouseX + 'px'
                     });
                 }
-            }).hover(function () {
-                if ($('.data-more-details:visible').length > 0) {
-                    $('.data-more-details:visible').hide(0);
+            }).contextmenu(function () {
+                return false;
+            }).mousedown(function (event) {
+                var pressedButton = event.which;
+                if (pressedButton == 3 || pressedButton == '3') {
+                    if ($('.data-more-details:visible').length > 0) {
+                        $('.data-more-details:visible').hide(0);
+                    }
+                    $this.show(0);
+                    return false;
                 }
-                $this.show(0);
-            }, function () {
+            }).mouseleave(function () {
                 $this.hide(0);
             });
         });
@@ -602,13 +607,16 @@ var systemPagination = function (userOptions) {
         $('table.paged').each(function () {
             var $table = $(this)
                 ,$tableBody = $table.children('tbody')
-                ,itemsPerPage = options['itemsPerPage']
+                ,itemsPerPage = $table.attr('data-items-per-page')
                 ,totalItems = 0
                 ,totalPages = 0
                 ,paginationButtons = ''
                 ,pages = []
                 ,currentPage = 1
                 ,targetPage = 1;
+
+            if (typeof itemsPerPage == 'undefined')
+                itemsPerPage = options['itemsPerPage'];
 
             if ($table.children('tr').length == 0)
                 totalItems = $tableBody.children('tr').length;
@@ -646,7 +654,9 @@ var systemPagination = function (userOptions) {
                 paginationButtons = '<div class="pagination-navigation">'
                     +'<span class="unhighlightable pagination-navigation-buttons" data-page="1">First</span>'
                     +'<span class="unhighlightable pagination-navigation-buttons" data-page="prev">Prev</span>'
+                    +'<span class="unhighlightable pagination-navigation-buttons" data-page="ellipsis-prev">...</span>'
                     + paginationButtons
+                    +'<span class="unhighlightable pagination-navigation-buttons" data-page="ellipsis-next">...</span>'
                     +'<span class="unhighlightable pagination-navigation-buttons" data-page="next">Next</span>'
                     +'<span class="unhighlightable pagination-navigation-buttons" data-page="'+ totalPages +'">Last</span>'
                     +'</div>'
@@ -678,18 +688,23 @@ var systemPagination = function (userOptions) {
                     $button.click(function () {
                         if (!$(this).hasClass('disabled')) {
                             switch (pageNo) {
+                                case '...':
+                                    var ellipsisType = $button.attr('data-page');
+                                    return;
+                                    break;
+
                                 case 'First':
                                     targetPage = 1;
                                     break;
 
                                 case 'Prev':
-                                    targetPage = currentPage - 1;
+                                    targetPage = parseInt(currentPage) - 1;
                                     if (targetPage < 1)
                                         targetPage = 1;
                                     break;
 
                                 case 'Next':
-                                    targetPage = currentPage + 1;
+                                    targetPage = parseInt(currentPage) + 1;
                                     if (targetPage > totalPages)
                                         targetPage = totalPages;
                                     break;
@@ -744,7 +759,7 @@ var systemPagination = function (userOptions) {
             // Paged table are hidden by default
             // in the CSS, this will show the paged
             // table on load of the document
-            $table.slideDown(150);
+            $table.delay(500).slideDown(150);
         });
         
     }
