@@ -426,6 +426,14 @@ var dataFx = function () {
                         'background': '#fff'
                         ,'color': '#333'
                     });
+                }).mousedown(function () {
+                    $closeBtn.css({
+                        'box-shadow': '2px 2px 2px rgba(0, 0, 0, 0.2) inset'
+                    });
+                }).mouseup(function () {
+                    $closeBtn.css({
+                        'box-shadow': '0px 0px 0px transparent'
+                    });
                 }).click(function () {
                     $this.hide(0);
                 });
@@ -443,18 +451,24 @@ var dataFx = function () {
                     ,boxLeft = $this.offset().left
                     ,boxRight = boxLeft + boxWidth;
 
-                if (mouseX > (boxRight + 30)) {
-                    $this.css({
-                        'left': (mouseX - boxWidth) + 'px'
-                    });
-                } else if (mouseX < (boxLeft + 30)) {
-                    $this.css({
-                        'left': mouseX + 'px'
-                    });
+                if (!$this.is(':hover')) {
+                    if (mouseX > parseInt(boxRight)) {
+                        $this.css({
+                            'left': (mouseX - parseInt(boxWidth)) + 'px'
+                        });
+                    } else if (mouseX < (parseInt(boxLeft) + 30)) {
+                        $this.css({
+                            'left': mouseX + 'px'
+                        });
+                    }
                 }
             }).contextmenu(function () {
                 return false;
             }).mousedown(function (event) {
+                $parent.css({
+                    'box-shadow': '2px 2px 2px rgba(0, 0, 0, 0.2) inset'
+                });
+
                 var pressedButton = event.which;
                 if (pressedButton == 3 || pressedButton == '3') {
                     if ($('.data-more-details:visible').length > 0) {
@@ -463,8 +477,10 @@ var dataFx = function () {
                     $this.show(0);
                     return false;
                 }
-            }).mouseleave(function () {
-                $this.hide(0);
+            }).mouseup(function () {
+                $parent.css({
+                    'box-shadow': '0px 0px 0px transparent'
+                });
             });
         });
     }
@@ -601,13 +617,15 @@ var embedSearchFx = function ($user_options) {
 var systemPagination = function (userOptions) {
     var options = $.extend({
         'itemsPerPage': '10'
+        ,'buttonRange': '3'
     }, userOptions);
 
     if ($('table.paged').length > 0) {
         $('table.paged').each(function () {
             var $table = $(this)
                 ,$tableBody = $table.children('tbody')
-                ,itemsPerPage = $table.attr('data-items-per-page')
+                ,itemsPerPage = $table.attr('data-pagination-items-per-page')
+                ,buttonRange = $table.attr('data-pagination-button-range')
                 ,totalItems = 0
                 ,totalPages = 0
                 ,paginationButtons = ''
@@ -617,6 +635,8 @@ var systemPagination = function (userOptions) {
 
             if (typeof itemsPerPage == 'undefined')
                 itemsPerPage = options['itemsPerPage'];
+            if (typeof buttonRange == 'undefined')
+                buttonRange = options['buttonRange'];
 
             if ($table.children('tr').length == 0)
                 totalItems = $tableBody.children('tr').length;
@@ -638,7 +658,7 @@ var systemPagination = function (userOptions) {
                 for (var i = 1; i <= totalPages; i++) {
                     // Create the buttons
                     // for navigation
-                    paginationButtons = paginationButtons + '<span class="unhighlightable pagination-navigation-buttons" data-page="'+ i +'">'+ i +'</span>';
+                    paginationButtons = paginationButtons + '<span class="unhighlightable pagination-navigation-buttons hidden paged-button" data-page="'+ i +'">'+ i +'</span>';
 
                     // Create the the contents of
                     // each pages
@@ -654,15 +674,21 @@ var systemPagination = function (userOptions) {
                 paginationButtons = '<div class="pagination-navigation">'
                     +'<span class="unhighlightable pagination-navigation-buttons" data-page="1">First</span>'
                     +'<span class="unhighlightable pagination-navigation-buttons" data-page="prev">Prev</span>'
-                    +'<span class="unhighlightable pagination-navigation-buttons" data-page="ellipsis-prev">...</span>'
+                    +'<span class="unhighlightable pagination-navigation-buttons ellipsis-button" data-page="ellipsis-prev">...</span>'
                     + paginationButtons
-                    +'<span class="unhighlightable pagination-navigation-buttons" data-page="ellipsis-next">...</span>'
+                    +'<span class="unhighlightable pagination-navigation-buttons ellipsis-button" data-page="ellipsis-next">...</span>'
                     +'<span class="unhighlightable pagination-navigation-buttons" data-page="next">Next</span>'
                     +'<span class="unhighlightable pagination-navigation-buttons" data-page="'+ totalPages +'">Last</span>'
                     +'</div>'
 
+                var paginationStatistics = '<div class="pagination-statistics">'
+                    +'Total no. of data: '+ totalItems +'<br />'
+                    +'Total no. of pages: '+ totalPages +'<br />'
+                    +'Items per page: '+ itemsPerPage
+                    +'</div>';
+
                 $table
-                    .before(paginationButtons)
+                    .before(paginationStatistics + paginationButtons)
                     .after(paginationButtons);
 
                 var $navigationTop = $table.prev('.pagination-navigation')
@@ -672,25 +698,51 @@ var systemPagination = function (userOptions) {
                     var $button = $(this)
                         ,pageNo = $button.html();
 
-                    // Render first load
-                    // contents of the page
-                    // highlight of the button
-                    $tableBody
-                        .html(pages[currentPage])
-                        .prepend(pages[0]);
-                    $navigation
-                        .find('span[data-page="1"]')
-                        .addClass('currentPage');
-                    $navigation
-                        .find('span[data-page="prev"]')
-                        .addClass('disabled');
+                    // Render the paginated table
+                    // upon first load
+                    $tableBody.html(pages[currentPage]).prepend(pages[0]);
+                    $navigation.find('span[data-page="1"]').addClass('currentPage').removeClass('hidden');
+                    $navigation.find('span[data-page="prev"]').addClass('disabled');
+                    $navigation.children('.ellipsis-button[data-page="ellipsis-prev"]:visible').addClass('hidden');
+                    if ($navigation.children('.paged-button[data-page="'+ totalPages +'"]:visible').length > 0) {
+                        $navigation.children('.ellipsis-button[data-page="ellipsis-next"]:visible').addClass('hidden');
+                    }
 
+                    // Show buttons to the right
+                    // for initial load
+                    for (var c = currentPage; c <= parseInt(currentPage) + parseInt(buttonRange); c++) {
+                        if (c <= totalPages) {
+                            $navigation.children('.paged-button[data-page="'+ c +'"]').removeClass('hidden');
+                        }
+                    }
+
+                    // Do these actions when a
+                    // button in the navigation
+                    // is clicked
                     $button.click(function () {
-                        if (!$(this).hasClass('disabled')) {
+                        if (!$(this).hasClass('disabled')
+                                && !$(this).hasClass('currentPage')) {
                             switch (pageNo) {
                                 case '...':
-                                    var ellipsisType = $button.attr('data-page');
-                                    return;
+                                    var ellipsisType = $button.attr('data-page')
+                                        ,ellipsisTargetPage = 1;
+
+                                    if (ellipsisType == 'ellipsis-prev') {
+                                        ellipsisTargetPage = parseInt(parseInt(currentPage) - parseInt(buttonRange)) - parseInt(buttonRange);
+                                        ellipsisTargetPage--;
+                                        
+                                        if (ellipsisTargetPage < 1) {
+                                            ellipsisTargetPage = 1;
+                                        }
+                                    } else if (ellipsisType == 'ellipsis-next') {
+                                        ellipsisTargetPage = parseInt(parseInt(currentPage) + parseInt(buttonRange)) + parseInt(buttonRange);
+                                        ellipsisTargetPage++;
+                                        
+                                        if (ellipsisTargetPage > totalPages) {
+                                            ellipsisTargetPage = totalPages;
+                                        }
+                                    }
+                                    targetPage = ellipsisTargetPage;
                                     break;
 
                                 case 'First':
@@ -749,6 +801,42 @@ var systemPagination = function (userOptions) {
                                 $navigation
                                     .find('span[data-page="next"]')
                                     .removeClass('disabled');
+
+                            // Hide and show the other
+                            // buttons that are near
+                            // the current page's button
+                            $navigation.children('.paged-button:visible').addClass('hidden');
+                            $navigation.children('.paged-button[data-page="'+currentPage+'"]').removeClass('hidden');
+
+                            // Show buttons to the left
+                            for (var c = currentPage; c >= parseInt(currentPage) - parseInt(buttonRange); c--) {
+                                if (c > 0) {
+                                    $navigation.children('.paged-button[data-page="'+ c +'"]').removeClass('hidden');
+                                }
+                            }
+
+                            // Show buttons to the right
+                            for (var c = currentPage; c <= parseInt(currentPage) + parseInt(buttonRange); c++) {
+                                if (c <= totalPages) {
+                                    $navigation.children('.paged-button[data-page="'+ c +'"]').removeClass('hidden');
+                                }
+                            }
+
+                            // Hide the right ellipsis
+                            // if conditions are met
+                            if ($navigation.children('.paged-button[data-page="'+ totalPages +'"]:visible').length > 0) {
+                                $navigation.children('.ellipsis-button[data-page="ellipsis-next"]:visible').addClass('hidden');
+                            } else {
+                                $navigation.children('.ellipsis-button[data-page="ellipsis-next"]').removeClass('hidden');
+                            }
+
+                            // Hide the left ellipsis
+                            // if conditions are met
+                            if ($navigation.children('.paged-button[data-page="1"]:visible').length > 0) {
+                                $navigation.children('.ellipsis-button[data-page="ellipsis-prev"]').addClass('hidden');
+                            } else {
+                                $navigation.children('.ellipsis-button[data-page="ellipsis-prev"]').removeClass('hidden');
+                            }
 
                             dataFx();
                         }

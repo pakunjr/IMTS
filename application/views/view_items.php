@@ -459,7 +459,7 @@ class view_items {
         $fx = new myFunctions();
         $c_items = new controller_items();
 
-        $output = '<table><tr>
+        $output = '<table class="paged"><tr>
             <th>Name</th>
             <th>Serial No.</th>
             <th>Model No.</th></tr>';
@@ -499,6 +499,12 @@ class view_items {
     public function renderItemButtons ($datas) {
         $fx = new myFunctions();
         $itemId = $datas['item_id'];
+
+        $btnView = $fx->isAccessible('Viewer')
+            ? '<a href="'.URL_BASE.'inventory/read_item/'.$itemId.'/">
+                <input class="btn-green" type="button" value="View Item" />
+                </a>'
+            : '';
 
         $btnUpdate = $fx->isAccessible('Content Provider')
             ? '<a href="'.URL_BASE.'inventory/update_item/'.$itemId.'/">
@@ -544,7 +550,8 @@ class view_items {
                 </a>'
             : '';
 
-        $buttons = $btnUpdate
+        $buttons = $btnView
+            .$btnUpdate
             .$btnAddComponent
             .$btnArchive
             .$btnDelete
@@ -563,7 +570,7 @@ class view_items {
         $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
 
         if ($owners != null) {
-            $output = '<table><tr>'
+            $output = '<table class="paged"><tr>'
                 .'<th>Name</th>'
                 .'<th>Type</th>'
                 .'<th>Date Owned</th>'
@@ -637,7 +644,7 @@ class view_items {
 
         $output = $buttons.'
             <div class="hr-light"></div>
-            <table class="paged" data-items-per-page="5">
+            <table class="paged" data-pagination-items-per-page="5">
             <tr>
             <th>Item/s</th>
             <th colspan="3">Component/s</th>
@@ -657,10 +664,8 @@ class view_items {
                             <b>'.$c['item_name'].'</b>
                             <div class="data-more-details">
                                 <b>'.$c['item_name'].'</b><br />
-                                <small>
                                 S/N: '.$c['item_serial_no'].'<br />
                                 M/N: '.$c['item_model_no'].'
-                                </small>
                                 <div class="hr-light"></div>
                                 State: '.$c['item_state_label'].'<br />
                                 Owned since: '.$fx->dateToWords($c['ownership_date_owned']).'<br />
@@ -724,7 +729,7 @@ class view_items {
 
             arsort($log);
 
-            $output = '<table><tr>'
+            $output = '<table class="paged"><tr>'
                 .'<th>Date</th>'
                 .'<th>Time</th>'
                 .'<th>User -- Account Owner</th>'

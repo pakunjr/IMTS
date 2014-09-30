@@ -99,8 +99,6 @@ class view_persons {
 
 
     public function renderSearchResults ($datas) {
-        $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
-
         if ($datas == null) {
             $output = 'There are no person/s that matched your keyword.<div class="hr-light"></div>';
             $output .= !in_array($accessLevel, array('Viewer'))
@@ -111,7 +109,7 @@ class view_persons {
 
         $fx = new myFunctions();
 
-        $output = '<table><tr>
+        $output = '<table class="paged"><tr>
             <th>Lastname</th>
             <th>Firstname</th>
             <th>Middlename</th>
@@ -151,9 +149,9 @@ class view_persons {
                 <td>'.$d['person_suffix'].'</td>
                 </tr>';
         }
-        $output .= '</table>'
-            .'<div class="hr-light"></div>';
-        $output .= !in_array($accessLevel, array('Viewer'))
+        $output .= '</table>
+            <div class="hr-light"></div>';
+        $output .= $fx->isAccessible('Content Provider')
             ? '<a href="'.URL_BASE.'persons/create_person/" target="_blank"><input class="btn-green" type="button" value="Add a Person" /></a>'
             : '';
         return $output;
@@ -267,6 +265,11 @@ class view_persons {
         $p = $datas;
         $fx = new myFunctions();
 
+        $btnView = $fx->isAccessible('Viewer')
+            ? '<a href="'.URL_BASE.'persons/read_person/'.$p['person_id'].'/">
+                <input class="btn-blue" type="button" value="View Person" />
+                </a>'
+            : '';
         $btnUpdate = $fx->isAccessible('Viewer')
             ? '<a href="'.URL_BASE.'persons/update_person/'.$p['person_id'].'/">
                 <input class="btn-green" type="button" value="Update Person" />
@@ -287,7 +290,8 @@ class view_persons {
                 <input class="btn-green" type="button" value="Create an Account for this Person" />
                 </a>'
             : '';
-        $buttons = $btnUpdate
+        $buttons = $btnView
+            .$btnUpdate
             .$btnDelete
             .$btnAddEmployment
             .$btnCreateAccount;

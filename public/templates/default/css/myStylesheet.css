@@ -470,6 +470,12 @@ a:hover {
 table.paged {
     display: none;
 }
+.pagination-statistics {
+    display: block;
+    padding: 8px 12px;
+    margin: 2px 2px 0px 0px;
+    border: 1px solid #ccc;
+}
 .pagination-navigation {
     display: block;
     margin: 2px 2px 0px 0px;
@@ -485,10 +491,16 @@ table.paged {
     background: #ccc;
     color: #fff;
 }
+.pagination-navigation-buttons:active {
+    box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.2) inset;
+}
 .pagination-navigation-buttons.currentPage {
     border-color: #0d5480;
     background: #1275b3;
     color: #fff;
+}
+.pagination-navigation-buttons.hidden {
+    display: none;
 }
 .pagination-navigation-buttons.disabled {
     border-color: #808080;
