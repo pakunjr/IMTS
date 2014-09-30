@@ -384,6 +384,9 @@ table {
     width: 100%;
     border-collapse: collapse;
 }
+table table * {
+    font-size: 1em;
+}
 tr {
     background: #fff;
 }

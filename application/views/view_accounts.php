@@ -74,9 +74,18 @@ class view_accounts {
 
     public function renderLoginForm () {
         $f = new form(array('auto_line_break'=>false, 'auto_label'=>true));
-        $output = $f->openForm(array('id'=>'form-login', 'method'=>'post', 'action'=>URL_BASE.'accounts/login/', 'enctype'=>'multipart/form-data'))
-            .$f->text(array('id'=>'username', 'label'=>'Username / Email Address', 'placeholder'=>'username / email address'))
-            .$f->password(array('id'=>'password', 'label'=>'Password'))
+        $output = $f->openForm(array(
+                'id'=>'form-login'
+                ,'method'=>'post'
+                ,'action'=>URL_BASE.'accounts/login/'
+                ,'enctype'=>'multipart/form-data'))
+            .$f->text(array(
+                'id'=>'username'
+                ,'label'=>'Username / Email Address'
+                ,'placeholder'=>'username / email address'))
+            .$f->password(array(
+                'id'=>'password'
+                ,'label'=>'Password'))
             .$f->submit(array('value'=>'Login'))
             .$f->closeForm();
         return $output;
@@ -85,7 +94,9 @@ class view_accounts {
 
 
     public function renderLoginWelcome () {
-        $output = '<div id="form-login">Hello <b>'.$_SESSION['user']['name'].'</b><br />'.$_SESSION['user']['accessLevel'].'</div>';
+        $output = '<div id="form-login">
+            Hello <b>'.$_SESSION['user']['name'].'</b><br />
+            '.$_SESSION['user']['accessLevel'].'</div>';
         return $output;
     }
 
@@ -95,18 +106,37 @@ class view_accounts {
         $d = $datas;
         $f = new form(array('auto_line_break'=>true, 'auto_label'=>true));
         $output = '<h3>'.$d['account_username'].'</h3>'
-            .$f->openForm(array('id'=>'', 'class'=>'main-form', 'method'=>'post', 'action'=>URL_BASE.'accounts/update_password/save/', 'enctype'=>'multipart/form-data'))
-            .$f->hidden(array('id'=>'account-id', 'value'=>$accountId))
+            .$f->openForm(array(
+                'id'=>''
+                ,'class'=>'main-form'
+                ,'method'=>'post'
+                ,'action'=>URL_BASE.'accounts/update_password/save/'
+                ,'enctype'=>'multipart/form-data'))
+            .$f->hidden(array(
+                'id'=>'account-id'
+                ,'value'=>$accountId))
             .$f->openFieldset(array('legend'=>'Change Password'))
             .'<span class="column">'
-            .$f->password(array('id'=>'old-password', 'label'=>'Old Password'))
+            .$f->password(array(
+                'id'=>'old-password'
+                ,'label'=>'Old Password'))
             .'<br />'
-            .$f->password(array('id'=>'new-password', 'label'=>'New Password'))
-            .$f->password(array('id'=>'new-password-confirm', 'label'=>'Confirm New Password'))
+            .$f->password(array(
+                'id'=>'new-password'
+                ,'label'=>'New Password'))
+            .$f->password(array(
+                'id'=>'new-password-confirm'
+                ,'label'=>'Confirm New Password'))
             .'</span>'
             .$f->closeFieldset()
-            .$f->submit(array('value'=>'Save Changes', 'auto_line_break'=>false))
-            .'<a href="'.URL_BASE.'accounts/read_account/'.$accountId.'/">'.$f->button(array('class'=>'btn-red', 'value'=>'Cancel')).'</a>'
+            .$f->submit(array(
+                'value'=>'Save Changes'
+                ,'auto_line_break'=>false))
+            .'<a href="'.URL_BASE.'accounts/read_account/'.$accountId.'/">
+            '.$f->button(array(
+                'class'=>'btn-red'
+                ,'value'=>'Cancel')).'
+            </a>'
             .$f->closeForm();
         return $output;
     }
@@ -127,25 +157,21 @@ class view_accounts {
 
 
     public function renderAccountInformations ($datas) {
-        if ($datas == null) return 'Error: This account is not available or do not exists on our system.';
+        if ($datas == null)
+            return 'Error: This account is not available or do not exists on our system.';
 
         $d = $datas;
+        $fx = new myFunctions();
         $c_employees = new controller_employees();
-        $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
 
-        $accountStatus = $d['account_deactivated'] == '0' ? 'Activated' : 'Deactivated';
-        $deactivateBtn = $d['account_deactivated'] == '0'
-            ? '<a href="'.URL_BASE.'accounts/deactivate_account/'.$d['account_id'].'/">'
-                .'<input class="btn-red" type="button" value="Deactivate Account" />'
-                .'</a>'
-            : '<a href="'.URL_BASE.'accounts/activate_account/'.$d['account_id'].'/">'
-                .'<input class="btn-green" type="button" value="Activate Account" />'
-                .'</a>';
-        $deactivateBtn = in_array($accessLevel, array('Administrator', 'Admin'))
-            ? $deactivateBtn : '';
+        $accountStatus = $d['account_deactivated'] == '0' 
+            ? 'Activated' 
+            : 'Deactivated';
 
+        $accountButtons = $this->renderAccountButtons($d);
         $accountOwnerName = $d['person_lastname'].', '.$d['person_firstname'].' '.$d['person_middlename'].' '.$d['person_suffix'];
         $accountOwnerNameLink = '<a href="'.URL_BASE.'persons/read_person/'.$d['person_id'].'/"><input type="button" value="'.$accountOwnerName.'" /></a>';
+
         $output = '<h3>'.$d['account_username'].' -- '.$d['person_lastname'].', '.$d['person_firstname'].' '.$d['person_middlename'].' '.$d['person_suffix'].'</h3>
             <div class="hr-light"></div>
             <div class="accordion-title">Account Information</div><div class="accordion-content accordion-content-default">
@@ -164,14 +190,8 @@ class view_accounts {
             </tr>
             </table>
             </div>
-            <div class="hr-light"></div>';
-        $output .= in_array($accessLevel, array('Administrator', 'Admin'))
-            ? '<a href="'.URL_BASE.'accounts/update_account/'.$d['person_id'].'/'.$d['account_id'].'/"><input class="btn-green" type="button" value="Update Account" /></a>'
-            : '';
-        $output .= '<a href="'.URL_BASE.'accounts/update_password/'.$d['account_id'].'/">'
-            .'<input type="button" value="Change Password" />'
-            .'</a>'
-            .$deactivateBtn;
+            <div class="hr-light"></div>
+            '.$accountButtons;
         return $output;
     }
 
@@ -226,9 +246,11 @@ class view_accounts {
                 <input class="btn-green" type="button" value="Update Account" />
                 </a>'
             : '';
+
         $btnChangePassword = '<a href="'.URL_BASE.'accounts/update_password/'.$d['account_id'].'/">
             <input type="button" value="Change Password" />
             </a>';
+
         $btnActivation = $d['account_deactivated'] == '0'
             ? '<a href="'.URL_BASE.'accounts/deactivate_account/'.$d['account_id'].'/">
                 <input class="btn-red" type="button" value="Deactivate Account" />

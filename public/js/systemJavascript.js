@@ -365,14 +365,17 @@ var dataFx = function () {
                 ,url = $this.attr('data-url')
                 ,$childHyperlinks = $this.children('a');
 
+            // special-hover class is only used
+            // by tables, tr specifically
             if (!$this.hasClass('disabled')) {
                 $this.addClass('special-hover').on('click', function () {
                     // Stop redirect if the mouse is hovered
                     // over a link or other specified elements
                     // in this condition
                     if ($('a:hover').length < 1
-                        && $('.data-more-details:hover').length < 1)
+                        && $('.data-more-details:hover').length < 1) {
                         window.location = url;
+                    }
                 });
             }
         });
@@ -700,10 +703,18 @@ var systemPagination = function (userOptions) {
 
                     // Render the paginated table
                     // upon first load
-                    $tableBody.html(pages[currentPage]).prepend(pages[0]);
-                    $navigation.find('span[data-page="1"]').addClass('currentPage').removeClass('hidden');
-                    $navigation.find('span[data-page="prev"]').addClass('disabled');
-                    $navigation.children('.ellipsis-button[data-page="ellipsis-prev"]:visible').addClass('hidden');
+                    $tableBody
+                        .html(pages[currentPage])
+                        .prepend(pages[0]);
+                    $navigation
+                        .children('span[data-page="1"]')
+                        .addClass('currentPage').removeClass('hidden');
+                    $navigation
+                        .children('span[data-page="prev"]')
+                        .addClass('disabled');
+                    $navigation
+                        .children('.ellipsis-button[data-page="ellipsis-prev"]:visible')
+                        .addClass('hidden');
                     if ($navigation.children('.paged-button[data-page="'+ totalPages +'"]:visible').length > 0) {
                         $navigation.children('.ellipsis-button[data-page="ellipsis-next"]:visible').addClass('hidden');
                     }
@@ -778,28 +789,28 @@ var systemPagination = function (userOptions) {
                             currentPage = targetPage;
 
                             $navigation
-                                .find('.currentPage')
+                                .children('.currentPage')
                                 .removeClass('currentPage');
                             $navigation
-                                .find('span[data-page="'+ currentPage +'"]')
+                                .children('span[data-page="'+ currentPage +'"]')
                                 .addClass('currentPage');
 
                             if (currentPage == 1)
                                 $navigation
-                                    .find('span[data-page="prev"]')
+                                    .children('span[data-page="prev"]')
                                     .addClass('disabled');
                             else
                                 $navigation
-                                    .find('span[data-page="prev"]')
+                                    .children('span[data-page="prev"]')
                                     .removeClass('disabled');
 
                             if (currentPage == totalPages)
                                 $navigation
-                                    .find('span[data-page="next"]')
+                                    .children('span[data-page="next"]')
                                     .addClass('disabled');
                             else
                                 $navigation
-                                    .find('span[data-page="next"]')
+                                    .children('span[data-page="next"]')
                                     .removeClass('disabled');
 
                             // Hide and show the other

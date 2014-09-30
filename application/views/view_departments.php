@@ -35,24 +35,62 @@ class view_departments {
 
         $output = $departmentName
             .'<div class="hr-light"></div>'
-            .$f->openForm(array('id'=>'', 'class'=>'main-form', 'action'=>$actionLink, 'method'=>'post', 'enctype'=>'multipart/form-data'))
-            .$f->hidden(array('id'=>'department-id', 'value'=>$d != null ? $d['department_id'] : '0'))
+            .$f->openForm(array(
+                'id'=>''
+                ,'class'=>'main-form'
+                ,'action'=>$actionLink
+                ,'method'=>'post'
+                ,'enctype'=>'multipart/form-data'))
+            .$f->hidden(array(
+                'id'=>'department-id'
+                ,'value'=>$d != null
+                    ? $d['department_id']
+                    : '0'))
 
             .$f->openFieldset(array('legend'=>'Department Information'))
             .'<span class="column">'
-            .$f->hidden(array('id'=>'department-head', 'value'=>$d != null ? $d['department_head'] : '0', 'data-url'=>URL_BASE.'employees/in_search/'))
-            .$f->text(array('id'=>'department-head-label', 'label'=>'Head', 'value'=>$d != null ? $c_persons->displayPersonName($d['department_head'], false) : ''))
-            .$f->text(array('id'=>'department-name', 'label'=>'Name', 'value'=>$d != null ? $d['department_name'] : ''))
-            .$f->text(array('id'=>'department-name-short', 'label'=>'Short', 'value'=>$d != null ? $d['department_name_short'] : ''))
+            .$f->hidden(array(
+                'id'=>'department-head'
+                ,'value'=>$d != null
+                    ? $d['department_head']
+                    : '0'
+                ,'data-url'=>URL_BASE.'employees/in_search/'))
+            .$f->text(array(
+                'id'=>'department-head-label'
+                ,'label'=>'Head'
+                ,'value'=>$d != null
+                    ? $c_persons->displayPersonName($d['department_head'], false)
+                    : ''))
+            .$f->text(array(
+                'id'=>'department-name'
+                ,'label'=>'Name'
+                ,'value'=>$d != null
+                    ? $d['department_name']
+                    : ''))
+            .$f->text(array(
+                'id'=>'department-name-short'
+                ,'label'=>'Short'
+                ,'value'=>$d != null
+                    ? $d['department_name_short']
+                    : ''))
             .'</span>'
 
             .'<span class="column">'
-            .$f->textarea(array('id'=>'department-description', 'label'=>'Description', 'value'=>$d != null ? $d['department_description'] : ''))
+            .$f->textarea(array(
+                'id'=>'department-description'
+                ,'label'=>'Description'
+                ,'value'=>$d != null
+                    ? $d['department_description']
+                    : ''))
             .'</span>'
             .$f->closeFieldset()
 
             .'<div class="hr-light"></div>'
-            .$f->submit(array('value'=>$d != null ? 'Update Department' : 'Save Department', 'auto_line_break'=>false))
+            .$f->submit(array(
+                'value'=>$d != null
+                    ? 'Update Department'
+                    : 'Save Department'
+                ,'auto_line_break'=>false))
             .$cancelButton
             .$f->closeForm();
         return $output;
@@ -122,7 +160,9 @@ class view_departments {
 
             <div class="hr-light"></div>';
         $output .= !in_array($accessLevel, array('Viewer'))
-                ? '<a href="'.URL_BASE.'departments/update_department/'.$d['department_id'].'/"><input class="btn-green" type="button" value="Update Department" /></a>'
+                ? '<a href="'.URL_BASE.'departments/update_department/'.$d['department_id'].'/">
+                    <input class="btn-green" type="button" value="Update Department" />
+                    </a>'
                 : '';
         return $output;
     }

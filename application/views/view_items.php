@@ -26,9 +26,15 @@ class view_items {
             $itemName .= $i['item']['item_id'] == ''
                     || $i['item']['item_id'] == '0'
                 ? 'New Component for '.$c_items->displayItemName($i['item']['item_component_of'], false)
-                : $i['item']['item_name'].'<br />'
-                .'<small><span style="color: #03f;">Serial No</span>: '.$i['item']['item_serial_no'].'</small><br />'
-                .'<small><span style="color: #f00;">Model No</span>: '.$i['item']['item_model_no'].'</small>';
+                : $i['item']['item_name'].'<br />
+                    <small>
+                    <span style="color: #03f;">Serial No</span>: 
+                    '.$i['item']['item_serial_no'].'
+                    </small><br />
+                    <small>
+                    <span style="color: #f00;">Model No</span>: 
+                    '.$i['item']['item_model_no'].'
+                    </small>';
             $itemName .= '</h3>';
             $actionLink = URL_BASE.'inventory/update_item/save/';
             $submitBtn = $f->submit(array('value'=>'Save Changes','auto_line_break'=>false));
