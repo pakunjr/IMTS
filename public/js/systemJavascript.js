@@ -1,142 +1,3 @@
-var systemBootstrapJs = function () {
-    /**
-     * This function should be called by the
-     * active theme's bootstrap or $(document)
-     * .ready()
-     */
-
-    // Set default settings for datepickers
-    if ($('.datepicker').length > 0) {
-        $('.datepicker').each(function () {
-            var $this = $(this);
-
-            if ($this.val().length == 0)
-                $this.val('0000-00-00');
-
-            $this.css({
-                'cursor': 'pointer'
-            }).prop('readonly', true).datepicker({
-                showOtherMonths: true
-                ,selectOtherMonths: false
-                ,changeMonth: true
-                ,changeYear: true
-                ,'showAnim': 'slideDown'
-                ,'dateFormat': 'yy-mm-dd'
-            }).on('keyup', function (e) {
-                var code = e.keyCode || e.which;
-                if ( code == '27' || code == 27 ) {
-                    $this.val('0000-00-00');
-                    $this.blur();
-                }
-            });
-        });
-    }
-
-    // Map of the input texts to be able to view
-    // the whole content of input elements that
-    // have limited view
-    if ($('input[type="text"], textarea, select').length > 0) {
-        $('input[type="text"], textarea, select').each(function () {
-            var $this = $(this)
-                ,$body = $('body');
-
-            var readerHTML = '<div id="form-elements-reader-container">'
-                +'<div id="form-elements-reader-content">'
-                +'</div>'
-                +'</div>';
-
-            $this.on('mouseover focusin', function () {
-                var yCoord = $this.offset().top
-                    ,xCoord = $this.offset().left;
-
-                if ($('#form-elements-reader-container').length > 0)
-                    $('#form-elements-reader-container').remove();
-
-                $body.after(readerHTML);
-
-                if ($this.is('select'))
-                    var thisVal = $this.find('option:selected').html();
-                else if ($this.hasClass('datepicker'))
-                    var thisVal = dateToWords($this.val());
-                else
-                    var thisVal = $this.val();
-                thisVal = nl2br(thisVal);
-
-                var $ferContainer = $('#form-elements-reader-container')
-                    ,$ferContent = $('#form-elements-reader-content')
-                    ,$fcnr = $ferContainer
-                    ,$fcnt = $ferContent;
-
-                $fcnr.css({
-                    'display': 'inline-block'
-                    ,'max-width': '250px'
-                    ,'padding': '2px'
-                    ,'position': 'absolute'
-                    ,'top': yCoord + $this.height() + 12 + 'px'
-                    ,'left': xCoord + 'px'
-                    ,'overflow': 'hidden'
-                    ,'border-radius': '4px'
-                    ,'border': '1px solid #ccc'
-                    ,'background': '#fff'
-                    ,'box-shadow': '2px 2px 3px rgba(0, 0, 0, 0.15)'
-                    ,'text-align': 'left'
-                    ,'word-wrap': 'break-word'
-                });
-
-                $fcnt.html(thisVal).css({
-                    'display': 'block'
-                    ,'padding': '10px 15px'
-                    ,'border-radius': '4px'
-                    ,'border': '1px solid #ccc'
-                    ,'font-size': '0.85em'
-                });
-
-                $this.on('keyup change', function () {
-                    if ($this.is('select'))
-                        thisVal = $this.find('option:selected').html();
-                    else if ($this.hasClass('datepicker'))
-                        thisVal = dateToWords($this.val());
-                    else
-                        thisVal = $this.val();
-                    thisVal = nl2br(thisVal);
-
-                    $fcnt.html(thisVal);
-                });
-            }).on('mouseout', function () {
-                if ($('#form-elements-reader-container').length > 0)
-                    $('#form-elements-reader-container').remove();
-            });
-        });
-    }
-
-    // By pressing the `Esc` key, contents of input
-    // text is instantly erased
-    if ($('input[type="text"], input[type="password"], textarea').length > 0) {
-        $('input[type="text"], input[type="password"], textarea')
-        .on('keyup', function (e) {
-            var $this = $(this)
-                ,code = e.keyCode || e.which;
-
-            if (!$this.hasClass('datepicker')
-                    && !$this.hasClass('search-elements')) {
-                if (code == '27' || code == 27)
-                    $this.val('');
-            }
-        });
-    }
-
-    // Removes generated <br /> tag by the
-    // nl2br function on textareas
-    if ($('textarea').length > 0) {
-        $('textarea').each(function () {
-            var $this = $(this)
-                ,value = $this.val();
-
-            $this.val(value.replace(/<br \/>/g, ''));
-        });
-    }
-};
-
 var systemPopup = function (type, message, myAction) {
     if ($('#mypopup-container').length > 0)
         $('#mypopup-container').remove();
@@ -300,6 +161,144 @@ var myPrompt = function (message, myAction) {
 
 
 
+var formFx = function () {
+    // Set default settings for datepickers
+    if ($('.datepicker').length > 0) {
+        $('.datepicker').each(function () {
+            var $this = $(this);
+
+            if ($this.val().length == 0)
+                $this.val('0000-00-00');
+
+            $this.css({
+                'cursor': 'pointer'
+            }).prop('readonly', true).datepicker({
+                showOtherMonths: true
+                ,selectOtherMonths: false
+                ,changeMonth: true
+                ,changeYear: true
+                ,'showAnim': 'slideDown'
+                ,'dateFormat': 'yy-mm-dd'
+            }).on('keyup', function (e) {
+                var code = e.keyCode || e.which;
+                if ( code == '27' || code == 27 ) {
+                    $this.val('0000-00-00');
+                    $this.blur();
+                }
+            });
+        });
+    }
+
+    // Map of the input texts to be able to view
+    // the whole content of input elements that
+    // have limited view
+    if ($('input[type="text"], textarea, select').length > 0) {
+        $('input[type="text"], textarea, select').each(function () {
+            var $this = $(this)
+                ,$body = $('body');
+
+            var readerHTML = '<div id="form-elements-reader-container">'
+                +'<div id="form-elements-reader-content">'
+                +'</div>'
+                +'</div>';
+
+            $this.on('mouseover focusin', function () {
+                var yCoord = $this.offset().top
+                    ,xCoord = $this.offset().left;
+
+                if ($('#form-elements-reader-container').length > 0)
+                    $('#form-elements-reader-container').remove();
+
+                $body.after(readerHTML);
+
+                var thisVal = '';
+                
+                if ($this.is('select'))
+                    thisVal = $this.find('option:selected').html();
+                else if ($this.hasClass('datepicker'))
+                    thisVal = dateToWords($this.val());
+                else
+                    thisVal = $this.val();
+                
+                thisVal = nl2br(thisVal);
+
+                var $ferContainer = $('#form-elements-reader-container')
+                    ,$ferContent = $('#form-elements-reader-content')
+                    ,$fcnr = $ferContainer
+                    ,$fcnt = $ferContent;
+
+                $fcnr.css({
+                    'display': 'inline-block'
+                    ,'max-width': '250px'
+                    ,'padding': '2px'
+                    ,'position': 'absolute'
+                    ,'top': yCoord + $this.height() + 12 + 'px'
+                    ,'left': xCoord + 'px'
+                    ,'overflow': 'hidden'
+                    ,'border-radius': '4px'
+                    ,'border': '1px solid #ccc'
+                    ,'background': '#fff'
+                    ,'box-shadow': '2px 2px 3px rgba(0, 0, 0, 0.15)'
+                    ,'text-align': 'left'
+                    ,'word-wrap': 'break-word'
+                });
+
+                $fcnt.html(thisVal).css({
+                    'display': 'block'
+                    ,'padding': '10px 15px'
+                    ,'border-radius': '4px'
+                    ,'border': '1px solid #ccc'
+                    ,'font-size': '0.85em'
+                });
+
+                $this.on('keyup change', function () {
+                    if ($this.is('select'))
+                        thisVal = $this.find('option:selected').html();
+                    else if ($this.hasClass('datepicker'))
+                        thisVal = dateToWords($this.val());
+                    else
+                        thisVal = $this.val();
+                    thisVal = nl2br(thisVal);
+
+                    $fcnt.html(thisVal);
+                });
+            }).on('mouseout', function () {
+                if ($('#form-elements-reader-container').length > 0)
+                    $('#form-elements-reader-container').remove();
+            });
+        });
+    }
+
+    // By pressing the `Esc` key, contents of input
+    // text is instantly erased
+    if ($('input[type="text"], input[type="password"], textarea').length > 0) {
+        $('input[type="text"], input[type="password"], textarea')
+        .on('keyup', function (e) {
+            var $this = $(this)
+                ,code = e.keyCode || e.which;
+
+            if (!$this.hasClass('datepicker')
+                    && !$this.hasClass('search-elements')) {
+                if (code == '27' || code == 27)
+                    $this.val('');
+            }
+        });
+    }
+
+    // Removes generated <br /> tag by the
+    // nl2br function on textareas
+    if ($('textarea').length > 0) {
+        $('textarea').each(function () {
+            var $this = $(this)
+                ,value = $this.val();
+
+            $this.val(value.replace(/<br \/>/g, ''));
+        });
+    }
+};
+
+
+
 var accordionFx = function () {
     if ($('.accordion-title').length > 0) {
         $('.accordion-title').each(function () {
@@ -442,42 +441,62 @@ var dataFx = function () {
                 });
             });
 
-            $parent.mousemove(function (event) {
-                // Have the box follow the cursor
-                // when the cursor go out of bounds
-                // of the left and right border of
-                // the box except if the mouse have
-                // hovered out
-                var mouseY = event.pageY
-                    ,mouseX = event.pageX
-                    ,boxWidth = $this.width()
-                    ,boxLeft = $this.offset().left
-                    ,boxRight = boxLeft + boxWidth;
-
-                if (!$this.is(':hover')) {
-                    if (mouseX > parseInt(boxRight)) {
-                        $this.css({
-                            'left': (mouseX - parseInt(boxWidth)) + 'px'
-                        });
-                    } else if (mouseX < (parseInt(boxLeft) + 30)) {
-                        $this.css({
-                            'left': mouseX + 'px'
-                        });
-                    }
-                }
-            }).contextmenu(function () {
+            $parent.contextmenu(function () {
+                // Disable the context menu, the menu
+                // that shows up when mouse right button
+                // is clicked
                 return false;
             }).mousedown(function (event) {
                 $parent.css({
                     'box-shadow': '2px 2px 2px rgba(0, 0, 0, 0.2) inset'
                 });
 
-                var pressedButton = event.which;
-                if (pressedButton == 3 || pressedButton == '3') {
+                var clickedButton = event.which;
+                if (clickedButton == 3 || clickedButton == '3') {
                     if ($('.data-more-details:visible').length > 0) {
                         $('.data-more-details:visible').hide(0);
                     }
-                    $this.show(0);
+                    $this.css({
+                        'top': 'auto'
+                        ,'left': 'auto'
+                    }).show(0, function () {
+                        // Hide the box when `Esc` key is pressed
+                        $(document).keydown(function (event) {
+                            var pressedKey = event.which;
+                            if (pressedKey == '27' || pressedKey == 27) {
+                                $this.hide(0, function () {
+                                    $(document).unbind('keydown');
+                                });
+                            }
+                        });
+
+                        // Make the box draggable
+                        $this.mousedown(function (event) {
+                            var clickedButton = event.which
+                                ,differenceX = parseInt(event.pageX - parseInt($this.offset().left))
+                                ,differenceY = parseInt(event.pageY - parseInt($this.offset().top));
+                            if (parseInt(clickedButton) == 1) {
+                                // Drag the box with the cursor
+                                $(document).mousemove(function (eventt) {
+                                    var cursorX = parseInt(eventt.pageX)
+                                        ,cursorY = parseInt(eventt.pageY)
+                                        ,valueTop = cursorY - differenceY
+                                        ,valueLeft = cursorX - differenceX;
+
+                                    $this.css({
+                                        'top': valueTop + 'px'
+                                        ,'left': valueLeft + 'px'
+                                    });
+                                });
+
+                                // Stop the dragging upon release
+                                // of mouse left click
+                                $this.mouseup(function () {
+                                    $(document).unbind('mousemove');
+                                });
+                            }
+                        });
+                    });
                     return false;
                 }
             }).mouseup(function () {
@@ -499,8 +518,8 @@ var embedSearchFx = function ($user_options) {
     }, $user_options);
 
     if ( options['url'] == null
-        && options['o_label'] == null
-        && options['o_id'] == null )
+            && options['o_label'] == null
+            && options['o_id'] == null )
         return false;
 
     var url = options['url']
@@ -525,9 +544,9 @@ var embedSearchFx = function ($user_options) {
             $o_label
             .prop('readonly', false)
             .removeClass('searchbox-readonly')
-            .on('keyup', function (e) {
-                var code = e.keyCode || e.which;
-                if (code == '27' || code == 27)
+            .on('keyup', function (event) {
+                var pressedKey = event.which;
+                if (pressedKey == '27' || pressedKey == 27)
                     $o_label.val('');
             });
 
@@ -617,7 +636,7 @@ var embedSearchFx = function ($user_options) {
 
 
 
-var systemPagination = function (userOptions) {
+var tablePagination = function (userOptions) {
     var options = $.extend({
         'itemsPerPage': '10'
         ,'buttonRange': '3'
@@ -869,6 +888,63 @@ var systemPagination = function (userOptions) {
 var nl2br = function (my_string) {
     // Equivalent to PHP function nl2br()
     return (my_string + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1'+'<br />'+'$2');
+};
+
+
+
+var debug = function (debugContents) {
+    if ($('#system-debug-js').length < 1) {
+        var debugHtml = '<div id="system-debug-js">'
+            +'This is for debugging javascript values'
+            +'<span id="system-debug-js-btn-close">x</span>'
+            +'<div class="hr-light"></div>'
+            +'<div id="system-debug-js-contents"></div>'
+            +'</div>';
+        $('body').append(debugHtml);
+
+        var $debugContainer = $('#system-debug-js')
+            ,$debugCloseBtn = $('#system-debug-js-btn-close')
+            ,$debugContents = $('#system-debug-js-contents');
+
+        $debugContainer.css({
+            'display': 'inline-block'
+            ,'padding': '13px 18px'
+            ,'position': 'fixed'
+            ,'top': '2px'
+            ,'left': '2px'
+            ,'z-index': '999999'
+            ,'border': '1px solid #ccc'
+            ,'background': '#fff'
+            ,'box-shadow': '2px 2px 2px rgba(0, 0, 0, 0.25)'
+            ,'text-align': 'left'
+        });
+
+        $debugContents.css({
+            'display': 'inline-block'
+            ,'padding': '3px 5px'
+        });
+
+        $debugCloseBtn.css({
+            'display': 'inline-block'
+            ,'width': '15px'
+            ,'height': '15px'
+            ,'margin': '0px 0px 5px 5px'
+            ,'padding': '8px'
+            ,'float': 'right'
+            ,'border': '1px solid rgba(0, 0, 0, 0.5)'
+            ,'background': 'rgba(0, 0, 0, 0.35)'
+            ,'cursor': 'pointer'
+            ,'color': '#fff'
+            ,'text-align': 'center'
+        }).click(function () {
+            $debugContainer.remove();
+        });
+
+        $debugContents.html(debugContents);
+    } else {
+        var $debugContents = $('#system-debug-js-contents');
+        $debugContents.html(debugContents);
+    }
 };
 
 

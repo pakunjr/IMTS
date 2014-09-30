@@ -390,6 +390,34 @@ class controller_pages {
                 }
                 break;
 
+            case 'inventory_maintenance':
+                switch ($view) {
+                    case 'create_maintenance':
+                        switch ($controller) {
+                            case 'save':
+                                break;
+                                
+                            default:
+                        }
+                        break;
+
+                    case 'read_maintenance':
+                        break;
+
+                    case 'update_maintenance':
+                        switch ($controller) {
+                            case 'save':
+                                break;
+                                
+                            default:
+                        }
+                        break;
+
+                    default:
+                        $this->displayPageError('404');
+                }
+                break;
+
             case 'persons':
                 switch ($view) {
                     case 'create_person':

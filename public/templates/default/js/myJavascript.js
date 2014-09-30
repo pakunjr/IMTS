@@ -1,20 +1,3 @@
-var myBootstrapJs = function () {
-    /**
-     * Calls and execute all javascript
-     * functions in this file
-     */
-    mySystemFx();
-    formsFx();
-    accountFx();
-    itemFx();
-    employmentFx();
-    errorsFx();
-    formSearchesFx();
-    buttonsConfirmFx();
-};
-
-
-
 var mySystemFx = function () {
     /**
      * Concerns system functions such as
@@ -442,20 +425,28 @@ var buttonsConfirmFx = function () {
 
 
 $(document).ready(function () {
-    systemBootstrapJs();
-    myBootstrapJs();
+    mySystemFx();
+    formsFx();
+    accountFx();
+    itemFx();
+    employmentFx();
+    errorsFx();
+    formSearchesFx();
+    buttonsConfirmFx();
 
     // Show the page contents after all html
-    // contents and javascripts are loaded into
-    // the system
+    // contents are loaded by the PHP and
+    // call other necessary system functions
+    // respectively
     $('#page').slideDown(150, function () {
         var $this = $(this);
         $this.css({
             'display': 'block'
         });
 
-        systemPagination();
+        tablePagination();
         accordionFx();
         dataFx();
+        formFx();
     });
 });

@@ -174,33 +174,34 @@ class view_employees {
 
 
     public function renderSearchResults ($datas) {
-        if ($datas == null) return 'There are no employee matching your keyword.<div class="hr-light"></div><a href="'.URL_BASE.'persons/search_person/" target="_blank"><input class="btn-green" type="button" value="Search a Person" /></a>';
+        if ($datas == null)
+            return 'There are no employee matching your keyword.<div class="hr-light"></div><a href="'.URL_BASE.'persons/search_person/" target="_blank"><input class="btn-green" type="button" value="Search a Person" /></a>';
 
         $fx = new myFunctions();
 
-        $output = '<table><tr>'
-            .'<th>Name</th>'
-            .'<th>Job Position -- Description</th>'
-            .'<th>Employed Date</th>'
-            .'<th>Resignation / End of Contract Date</th>'
-            .'</tr>';
+        $output = '<table class="paged"><tr>
+            <th>Name</th>
+            <th>Job Position -- Description</th>
+            <th>Employed Date</th>
+            <th>Resignation / End of Contract Date</th>
+            </tr>';
         foreach ($datas as $d) {
-            $output .= '<tr class="data" '
-                .'data-id="'.$d['person_id'].'" '
-                .'data-label="'.$d['person_lastname'].', '.$d['person_firstname'].' '.$d['person_middlename'].' '.$d['person_suffix'].'">'
-                .'<td>'
-                    .$d['person_lastname'].', '
-                    .$d['person_firstname'].' '
-                    .$d['person_middlename'].' '
-                    .$d['person_suffix']
-                .'</td>'
-                .'<td>'.$d['employee_job_label'].' -- '.nl2br($d['employee_job_description']).'</td>'
-                .'<td>'.$fx->dateToWords($d['employee_employment_date']).'</td>'
-                .'<td>'.$fx->dateToWords($d['employee_resignation_date']).'</td>'
-                .'</tr>';
+            $pId = $d['person_id'];
+            $pName = $d['person_lastname'].', '.$d['person_firstname'].' '.$d['person_middlename'].' '.$d['person_suffix'];
+            $output .= '<tr class="data" data-id="'.$pId.'" data-label="'.$pName.'">
+                <td>'
+                    .$pName.'
+                </td>
+                <td>'.$d['employee_job_label'].' -- '.nl2br($d['employee_job_description']).'</td>
+                <td>'.$fx->dateToWords($d['employee_employment_date']).'</td>
+                <td>'.$fx->dateToWords($d['employee_resignation_date']).'</td>
+                </tr>';
         }
-        $output .= '</table>'
-            .'<div class="hr-light"></div><a href="'.URL_BASE.'persons/search_person/" target="_blank"><input class="btn-green" type="button" value="Search a Person" /></a>';
+        $output .= '</table>
+            <div class="hr-light"></div>
+            <a href="'.URL_BASE.'persons/search_person/" target="_blank">
+            <input class="btn-green" type="button" value="Search a Person" />
+            </a>';
         return $output;
     }
 
@@ -218,42 +219,51 @@ class view_employees {
 
 
     public function renderSearchResultsJob ($datas) {
-        $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
-        
+        $fx = new myFunctions();
+
         if ($datas == null) {
             $output = 'Your keyword did not match any Job name.<div class="hr-light"></div>';
-            $output .= in_array($accessLevel, array('Administrator', 'Admin', 'Supervisor'))
-                ? '<a href="'.URL_BASE.'employees/create_job/" target="_blank"><input class="btn-green" type="button" value="Add a Job" /></a>'
+            $output .= $fx->isAccessible('Supervisor')
+                ? '<a href="'.URL_BASE.'employees/create_job/" target="_blank">
+                    <input class="btn-green" type="button" value="Add a Job" />
+                    </a>'
                 : '';
             return $output;
         }
 
-        $output = '<table><tr>'
-            .'<th>Label</th>'
-            .'<th>Description</th>';
+        $output = '<table><tr>
+            <th>Label</th>
+            <th>Description</th>';
         if (isset($_POST['search-keyword'])) {
-            $output .= in_array($accessLevel, array('Administrator', 'Admin', 'Supervisor'))
-                ? '<th>Actions</th>' : '';
+            $output .= $fx->isAccessible('Supervisor')
+                ? '<th>Actions</th>'
+                : '';
         }
         $output .= '</tr>';
         foreach ($datas as $d) {
-            $output .= '<tr class="data" '
-                .'data-id="'.$d['employee_job_id'].'" '
-                .'data-label="'.$d['employee_job_label'].'" '
-                .'data-url="'.URL_BASE.'employees/read_job/'.$d['employee_job_id'].'/">'
-                .'<td>'.$d['employee_job_label'].'</td>'
-                .'<td>'.nl2br($d['employee_job_description']).'</td>';
+            $jId = $d['employee_job_id'];
+            $jLabel = $d['employee_job_label'];
+            $jUrl = URL_BASE.'employees/read_job/'.$d['employee_job_id'];
+            $output .= '<tr class="data" data-id="'.$jId.'" data-label="'.$jLabel.'" data-url="'.$jUrl.'/">
+                <td>'.$d['employee_job_label'].'</td>
+                <td>'.nl2br($d['employee_job_description']).'</td>';
             if (isset($_POST['search-keyword'])) {
-                $output .= in_array($accessLevel, array('Administrator', 'Admin', 'Supervisor'))
-                    ? '<td><a href="'.URL_BASE.'employees/update_job/'.$d['employee_job_id'].'/"><input class="btn-green" type="button" value="Update Job" /></a></td>'
+                $output .= $fx->isAccessible('Supervisor')
+                    ? '<td>
+                        <a href="'.URL_BASE.'employees/update_job/'.$d['employee_job_id'].'/">
+                        <input class="btn-green" type="button" value="Update Job" />
+                        </a>
+                        </td>'
                     : '';
             }
             $output .= '</tr>';
         }
-        $output .= '</table>'
-            .'<div class="hr-light"></div>';
-        $output .= in_array($accessLevel, array('Administrator', 'Admin', 'Supervisor'))
-            ? '<a href="'.URL_BASE.'employees/create_job/" target="_blank"><input class="btn-green" type="button" value="Add a Job" /></a>'
+        $output .= '</table>
+            <div class="hr-light"></div>';
+        $output .= $fx->isAccessible('Supervisor')
+            ? '<a href="'.URL_BASE.'employees/create_job/" target="_blank">
+                <input class="btn-green" type="button" value="Add a Job" />
+                </a>'
             : '';
         return $output;
     }
@@ -265,23 +275,26 @@ class view_employees {
             header('location: '.URL_BASE.'employees/search_job/');
             return;
         }
-        $d = $datas;
-        $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
 
-        $output = '<h3>'.$d['employee_job_label'].'</h3>'
-            .'<div class="hr-light"></div>'
-            .'<table><tr>'
-            .'<th>Label</th>'
-            .'<th>Description</th>'
-            .'</tr>'
-            .'<tr>'
-            .'<td>'.$d['employee_job_label'].'</td>'
-            .'<td>'.nl2br($d['employee_job_description']).'</td>'
-            .'</tr>'
-            .'</table>'
-            .'<div class="hr-light"></div>';
-        $output .= in_array($accessLevel, array('Administrator', 'Admin', 'Supervisor'))
-                ? '<a href="'.URL_BASE.'employees/update_job/'.$d['employee_job_id'].'/"><input class="btn-green" type="button" value="Update Job" /></a>'
+        $d = $datas;
+        $fx = new myFunctions();
+
+        $output = '<h3>'.$d['employee_job_label'].'</h3>
+            <div class="hr-light"></div>
+            <table><tr>
+            <th>Label</th>
+            <th>Description</th>
+            </tr>
+            <tr>
+            <td>'.$d['employee_job_label'].'</td>
+            <td>'.nl2br($d['employee_job_description']).'</td>
+            </tr>
+            </table>
+            <div class="hr-light"></div>';
+        $output .= $fx->isAccessible('Supervisor')
+                ? '<a href="'.URL_BASE.'employees/update_job/'.$d['employee_job_id'].'/">
+                    <input class="btn-green" type="button" value="Update Job" />
+                    </a>'
                 : '';
         return $output;
     }
