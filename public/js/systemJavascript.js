@@ -335,8 +335,8 @@ var accordionFx = function () {
                     $symbol.html('-');
                 }
 
-                $title.on('click', function () {
-                    $content.slideToggle(0, function () {
+                $title.addClass('unhighlightable').on('click', function () {
+                    $content.slideToggle(150, function () {
                         if ($content.is(':visible')) {
                             $title.css('background-color', '#5983b3');
                             $symbol.html('-');
@@ -471,31 +471,7 @@ var dataFx = function () {
                         });
 
                         // Make the box draggable
-                        $this.mousedown(function (event) {
-                            var clickedButton = event.which
-                                ,differenceX = parseInt(event.pageX - parseInt($this.offset().left))
-                                ,differenceY = parseInt(event.pageY - parseInt($this.offset().top));
-                            if (parseInt(clickedButton) == 1) {
-                                // Drag the box with the cursor
-                                $(document).mousemove(function (eventt) {
-                                    var cursorX = parseInt(eventt.pageX)
-                                        ,cursorY = parseInt(eventt.pageY)
-                                        ,valueTop = cursorY - differenceY
-                                        ,valueLeft = cursorX - differenceX;
-
-                                    $this.css({
-                                        'top': valueTop + 'px'
-                                        ,'left': valueLeft + 'px'
-                                    });
-                                });
-
-                                // Stop the dragging upon release
-                                // of mouse left click
-                                $this.mouseup(function () {
-                                    $(document).unbind('mousemove');
-                                });
-                            }
-                        });
+                        draggable($this);
                     });
                     return false;
                 }
@@ -945,6 +921,39 @@ var debug = function (debugContents) {
         var $debugContents = $('#system-debug-js-contents');
         $debugContents.html(debugContents);
     }
+};
+
+
+
+var draggable = function ($this) {
+    $this.mousedown(function (event) {
+        var clickedButton = event.which;
+        if (parseInt(clickedButton) == 1) {
+            var differenceX =
+                    parseInt(event.pageX)
+                    - parseInt($this.offset().left)
+                ,differenceY =
+                    parseInt(event.pageY)
+                    - parseInt($this.offset().top);
+
+            $(document).mousemove(function (eventt) {
+                var cursorX = parseInt(eventt.pageX)
+                    ,cursorY = parseInt(eventt.pageY)
+                    ,valueTop = cursorY - differenceY
+                    ,valueLeft = cursorX - differenceX;
+
+                $this.css({
+                    'position': 'absolute'
+                    ,'top': valueTop + 'px'
+                    ,'left': valueLeft + 'px'
+                });
+            });
+
+            $this.mouseup(function () {
+                $(document).unbind('mousemove');
+            });
+        }
+    });
 };
 
 

@@ -506,12 +506,6 @@ class view_items {
         $fx = new myFunctions();
         $itemId = $datas['item_id'];
 
-        $btnView = $fx->isAccessible('Viewer')
-            ? '<a href="'.URL_BASE.'inventory/read_item/'.$itemId.'/">
-                <input class="btn-green" type="button" value="View Item" />
-                </a>'
-            : '';
-
         $btnUpdate = $fx->isAccessible('Content Provider')
             ? '<a href="'.URL_BASE.'inventory/update_item/'.$itemId.'/">
                 <input class="btn-green" type="button" value="Update Item" />
@@ -556,8 +550,7 @@ class view_items {
                 </a>'
             : '';
 
-        $buttons = $btnView
-            .$btnUpdate
+        $buttons = $btnUpdate
             .$btnAddComponent
             .$btnArchive
             .$btnDelete

@@ -478,6 +478,7 @@ table.paged {
     padding: 8px 12px;
     margin: 2px 2px 0px 0px;
     border: 1px solid #ccc;
+    background: #f2f2f2;
 }
 .pagination-navigation {
     display: block;

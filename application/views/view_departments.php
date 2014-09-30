@@ -99,22 +99,26 @@ class view_departments {
 
 
     public function renderDepartmentInformations ($datas) {
-        if ($datas == null) return 'Error: This department do not exists in our system.';
+        if ($datas == null)
+            return 'Error: This department do not exists in our system.';
 
         $d = $datas;
-
+        $fx = new myFunctions();
         $c_departments = new controller_departments();
         $c_owners = new controller_owners();
         $c_items = new controller_items();
         $c_persons = new controller_persons();
-        $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
 
         $ownerName = '<h3>'.$d['department_name'].' - '.$d['department_name_short'].'</h3>';
 
         $headName = $c_persons->displayPersonName($d['department_head'], false);
         $headLink = !in_array($headName, array('Unknown Person', 'None'))
-            ? '<a href="'.URL_BASE.'persons/read_person/'.$d['department_head'].'/"><input type="button" value="'.$headName.'" /></a>'
+            ? '<a href="'.URL_BASE.'persons/read_person/'.$d['department_head'].'/">
+                <input type="button" value="'.$headName.'" />
+                </a>'
             : $headName;
+
+        $departmentButtons = $this->renderDepartmentButtons($d);
 
         ob_start();
         $c_items->displayInventory('Department', $d['department_id']);
@@ -158,12 +162,8 @@ class view_departments {
             <div class="accordion-title">Members History</div>
             <div class="accordion-content">'.$dMembersEx.'</div>
 
-            <div class="hr-light"></div>';
-        $output .= !in_array($accessLevel, array('Viewer'))
-                ? '<a href="'.URL_BASE.'departments/update_department/'.$d['department_id'].'/">
-                    <input class="btn-green" type="button" value="Update Department" />
-                    </a>'
-                : '';
+            <div class="hr-light"></div>
+            '.$departmentButtons;
         return $output;
     }
 
@@ -351,6 +351,7 @@ class view_departments {
                 <input class="btn-green" type="button" value="Update Department" />
                 </a>'
             : '';
+
         $btnDelete = $fx->isAccessible('Administrator')
             ? '<a href="'.URL_BASE.'departments/delete_department/'.$d['department_id'].'/">
                 <input class="btn-red" type="button" value="Delete Department" />
