@@ -19,40 +19,68 @@ class controller_accounts {
 
 
     public function createAccount () {
+        $c_pages = new controller_pages();
+
         if (!isset($_POST)) {
-            header('location: '.URL_BASE.'accounts/');
-            return;
+            $msg = '<span style="color: #f00;">Error</span>: You can\'t access this page direclty.';
+            $redirectUrl = URL_BASE.'accounts/create_account/';
+            $c_pages->pageRedirect($msg, $redirectUrl);
         }
 
         $res = $this->model->createAccount($_POST);
-        if ($res != null) header('location: '.URL_BASE.'accounts/read_account/'.$res['account-id'].'/');
-        else header('location: '.URL_BASE.'accounts/create_account/');
+        if ($res != null) {
+            $msg = 'Account has been created successfully.';
+            $redirectUrl = URL_BASE.'accounts/read_account/'.$res['account-id'].'/';
+        } else {
+            $msg = '<span style="color: #f00;">Error</span>: Account was not created.';
+            $redirectUrl = URL_BASE.'accounts/create_account/';
+        }
+        
+        $c_pages->pageRedirect($msg, $redirectUrl);
     }
 
 
 
     public function updateAccount () {
+        $c_pages = new controller_pages();
+
         if (!isset($_POST)) {
-            header('location: '.URL_BASE.'accounts/');
-            return;
+            $msg = '<span style="color: #f00;">Error</span>: You can\'t access this page direclty.';
+            $redirectUrl = URL_BASE.'accounts/';
+            $c_pages->pageRedirect($msg, $redirectUrl);
         }
 
         $res = $this->model->updateAccount($_POST);
-        header('location: '.URL_BASE.'accounts/read_account/'.$res['account-id'].'/');
+
+        if ($res) {
+            $msg = 'The account has been updated successfully.';
+            $redirectUrl = URL_BASE.'accounts/read_account/'.$res['account-id'].'/';
+        } else {
+            $msg = 'The account failed to be udpated.';
+            $redirectUrl = URL_BASE.'accounts/read_account/'.$res['account-id'].'/';
+        }
+
+        $c_pages->pageRedirect($msg, $redirectUrl);
     }
 
 
 
     public function updatePassword () {
+        $c_pages = new controller_pages();
+
         if (!isset($_POST)) {
             header('location: '.URL_BASE);
             return;
         }
 
-        if ($_POST['new-password'] != $_POST['new-password-confirm']
-            || strlen(trim($_POST['new-password'])) < 5) {
-            header('location: '.URL_BASE.'accounts/read_account/'.$_POST['account-id'].'/');
-            return;
+        if ($_POST['new-password'] != $_POST['new-password-confirm']) {
+            $msg = '<span style="color: #f00;">Error</span>: Your `New Password` and `Confirm New Password` did not match, please try again.';
+            $redirectUrl = URL_BASE.'accounts/update_password/'.$_POST['account-id'].'/';
+            $c_pages->pageRedirect($msg, $redirectUrl);
+        } else if (strlen(trim($_POST['new-password'])) < 5) {
+            $msg = '<span style="color: #f00;">Error</span>: Your new password must be 5 or more characters long.';
+            $redirectUrl = URL_BASE.'accounts/update_password/'.$_POST['account-id'].'/';
+            $c_pages->pageRedirect($msg, $redirectUrl);
         }
 
         $res = $this->model->updatePassword(
@@ -60,28 +88,57 @@ class controller_accounts {
             ,$_POST['old-password']
             ,$_POST['new-password']);
 
-        if ($res) header('location: '.URL_BASE.'accounts/logout/');
-        else header('location: '.URL_BASE.'accounts/read_account/'.$_POST['account-id'].'/');
+        if ($res) {
+            $msg = 'Logging out, please login again with your new password.<br /><br />Thank you.';
+            $redirectUrl = URL_BASE.'/accounts/logout/';
+            $c_pages->pageRedirect($msg, $redirectUrl);
+        } else {
+            $msg = '<span style="color: #f00;">Error</span>: The system failed to change your password due to some reason/s.
+                <div class="hr-light"></div>
+                <ul>
+                <li>The old password you have provided did not match your current password.</li>
+                <li>The system is having a hard time saving your new password into the database due to some unknown reason.</li>
+                </ul>';
+            $redirectUrl = URL_BASE.'accounts/update_password/'.$_POST['account-id'].'/';
+            $c_pages->pageRedirect($msg, $redirectUrl);
+        }
     }
 
 
 
     public function activateAccount ($accountId) {
-        $this->model->activateAccount($accountId);
-        header('location: '.URL_BASE.'accounts/read_account/'.$accountId.'/');
+        $c_pages = new controller_pages();
+        $status = $this->model->activateAccount($accountId);
+        if ($status) {
+            $msg = 'Account has been activated successfully.';
+            $redirectUrl = URL_BASE.'accounts/read_account/'.$accountId.'/';
+        } else {
+            $msg = '<span style="color: #f00;">Error</span>: Account is not activated, something went wrong.';
+            $redirectUrl = URL_BASE.'accounts/read_account/'.$accountId.'/';
+        }
+        $c_pages->pageRedirect($msg, $redirectUrl);
     }
 
 
 
     public function deactivateAccount ($accountId) {
-        $this->model->deactivateAccount($accountId);
+        $c_pages = new controller_pages();
+        $status = $this->model->deactivateAccount($accountId);
 
         if ($_SESSION['user']['username'] != 'admin') {
             if ($_SESSION['user']['accountId'] == $accountId) {
-                header('location: '.URL_BASE.'accounts/logout/');
-                return;
-            } else header('location: '.URL_BASE.'accounts/read_account/'.$accountId.'/');
-        } else header('location: '.URL_BASE.'accounts/read_account/'.$accountId.'/');
+                $msg = 'Your account has been deactivated, you are now being logged out.';
+                $redirectUrl = URL_BASE.'accounts/logout/';
+            } else {
+                $msg = 'The account has been deactivated';
+                $redirectUrl = URL_BASE.'accounts/read_account/'.$accountId.'/';
+            }
+        } else {
+            $msg = 'The account has been deactivated.';
+            $redirectUrl = URL_BASE.'accounts/read_account/'.$accountId.'/';
+        }
+
+        $c_pages->pageRedirect($msg, $redirectUrl);
     }
 
 
@@ -144,13 +201,22 @@ class controller_accounts {
 
 
     public function loginUser () {
+        $c_pages = new controller_pages();
+
         if (!isset($_POST)) {
-            header('location: '.URL_BASE);
-            return;
+            $m = '<span style="color: #f00;">Error</span>: You can\'t access this page directly.';
+            $u = URL_BASE;
+            $c_pages->pageRedirect($m, $u);
         }
 
-        $this->model->validateLogin($_POST);
-        header('location: '.URL_BASE);
+        $status = $this->model->validateLogin($_POST);
+
+        if (!$status) {
+            $msg = '<span style="color: #f00;">Error</span>: Invalid Username and Password combination';
+            $redirectUrl = URL_BASE;
+            $c_pages->pageRedirect($msg, $redirectUrl);
+        } else
+            header('location: '.URL_BASE);
     }
 
 

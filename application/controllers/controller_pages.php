@@ -331,6 +331,12 @@ class controller_pages {
                         $this->displayPage(ob_get_clean());
                         break;
 
+                    case 'in_search_item':
+                        $this->restrictPage('Content Provider');
+                        $c_items->displaySearchResults('item', $controller);
+                        $this->displayPage(ob_get_clean(), false);
+                        break;
+
                     case 'in_search_componentHost':
                         $this->restrictPage('Content Provider');
                         $c_items->displaySearchResults('componentHosts', $controller);
@@ -395,22 +401,37 @@ class controller_pages {
                     case 'create_maintenance':
                         switch ($controller) {
                             case 'save':
+                                $c_itemMaintenance->saveItemMaintenance();
                                 break;
                                 
                             default:
+                                $c_itemMaintenance->formItemMaintenance(array(
+                                    'type' => 'create'
+                                    ,'itemId' => $controller));
+                                $this->displayPage(ob_get_clean());
                         }
                         break;
 
                     case 'read_maintenance':
+                        $this->displayPageError('underconstruction');
                         break;
 
                     case 'update_maintenance':
                         switch ($controller) {
                             case 'save':
+                                $c_itemMaintenance->updateItemMaintenance();
                                 break;
                                 
                             default:
+                                $c_itemMaintenance->formItemMaintenance(array(
+                                    'type' => 'update'
+                                    ,'maintenanceId' => $controller));
+                                $this->displayPage(ob_get_clean());
                         }
+                        break;
+
+                    case 'search_maintenance':
+                        $this->displayPageError('underconstruction');
                         break;
 
                     default:
@@ -454,6 +475,11 @@ class controller_pages {
                     case 'search_person':
                         $c_persons->displaySearchForm();
                         $this->displayPage(ob_get_clean());
+                        break;
+
+                    case 'in_search_person':
+                        $c_persons->displaySearchResults($controller);
+                        $this->displayPage(ob_get_clean(), false);
                         break;
 
                     default:
@@ -644,6 +670,8 @@ class controller_pages {
         $fileHeader = DIR_TEMPLATE.DS.'header.php';
         $fileFooter = DIR_TEMPLATE.DS.'footer.php';
 
+        $fx = new myFunctions();
+
         ob_start();
         if ($complete) {
             ob_start();
@@ -672,6 +700,8 @@ class controller_pages {
         // is set to production
         if (ENVIRONMENT == 'PRODUCTION')
             $contents = str_replace(PHP_EOL, '', $contents);
+
+        $contents = $fx->minifyString($contents);
         echo $contents;
 
         exit();
@@ -730,6 +760,38 @@ class controller_pages {
         $fx = new myFunctions();
         if (!$fx->isAccessible($leastAccessLevel))
             $this->displayPageError('403');
+    }
+
+
+
+    public function pageRedirect ($msg, $redirectUrl) {
+        $fx = new myFunctions();
+
+        $msg .= '<div class="hr-light"></div>
+            This page will automatically redirect in <span id="redirect-countdown" style="color: #f00; font-weight: bold;">10</span> seconds.';
+        $msg = $fx->minifyString($msg);
+
+        $o = '<script type="text/javascript">
+            $(document).ready(function () {
+                myAlert(\''.$msg.'\', function () {
+                    window.location = \''.$redirectUrl.'\';
+                });
+
+                if ($("#redirect-countdown").length > 0) {
+                    setInterval(function () {
+                        var $timer = $("#redirect-countdown")
+                            ,currentCount = parseInt($timer.html())
+                            ,newCount = currentCount - 1;
+                        $timer.html(newCount);
+                    }, 1000);
+                }
+
+                setTimeout(function () {
+                    window.location = \''.$redirectUrl.'\';
+                }, 10000);
+            });
+            </script>';
+        $this->displayPage($o);
     }
 
 }

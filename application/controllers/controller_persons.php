@@ -19,26 +19,48 @@ class controller_persons {
 
 
     public function createPerson () {
+        $c_pages = new controller_pages();
+
         if (!isset($_POST)) {
-            header('location: '.URL_BASE.'persons/create_person/');
-            return;
+            $m = '<span style="color: #f00;">Error</span>: You cant access this page directly.';
+            $u = URL_BASE.'persons/create_person/';
+            $c_pages->pageRedirect($m, $u);
         }
+
         $personDatas = $this->model->createPerson($_POST);
-        if ($personDatas == null)
-            header('location: '.URL_BASE.'persons/create_person/');
-        else
-            header('location: '.URL_BASE.'persons/read_person/'.$personDatas['person-id'].'/');
+
+        if ($personDatas != null) {
+            $m = 'Successfully saved the person.';
+            $u = URL_BASE.'persons/read_person/'.$personDatas['person-id'].'/';
+        } else {
+            $m = '<span style="color: #f00;">Error</span>: Failed to save the person.';
+            $u = URL_BASE.'persons/create_person/';
+        }
+
+        $c_pages->pageRedirect($m, $u);
     }
 
 
 
     public function updatePerson () {
+        $c_pages = new controller_pages();
+
         if (!isset($_POST)) {
-            header('location: '.URL_BASE.'persons/');
-            return;
+            $m = '<span style="color: #f00;">Error</span>: You cant access this page directly.';
+            $u = URL_BASE.'persons/create_person/';
+            $c_pages->pageRedirect($m, $u);
         }
+
         $personDatas = $this->model->updatePerson($_POST);
-        header('location: '.URL_BASE.'persons/read_person/'.$personDatas['person-id'].'/');
+
+        if ($personDatas != null) {
+            $m = 'Successfully updated the person.';
+        } else {
+            $m = '<span style="color: #f00;">Error</span>: Failed to update the person.';
+        }
+
+        $u = URL_BASE.'persons/read_person/'.$_POST['person-id'].'/';
+        $c_pages->pageRedirect($m, $u);
     }
 
 
@@ -88,7 +110,8 @@ class controller_persons {
     public function displayPersonName ($personId, $echo=true) {
         $person = $this->model->readPerson($personId);
         $personName = $this->view->renderPersonName($person);
-        if (!$echo) return $personName;
+        if (!$echo)
+            return $personName;
         echo $personName;
     }
 

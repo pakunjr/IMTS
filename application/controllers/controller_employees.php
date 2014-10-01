@@ -19,63 +19,131 @@ class controller_employees {
 
 
     public function createEmployment () {
+        $c_pages = new controller_pages();
+
         if (!isset($_POST)) {
-            header('location: '.URL_BASE.'persons/');
-            return;
+            $m = '<span style="color: #f00;">Error</span>: You cant access this page directly.';
+            $u = URL_BASE.'employees/create_employment/';
+            $c_pages->pageRedirect($m, $u);
         }
+
         $employment = $this->model->createEmployment($_POST);
-        header('location: '.URL_BASE.'persons/read_person/'.$employment['employee-person'].'/');
+
+        if ($employment != null) {
+            $m = 'Employment has been created successfully.';
+            $u = URL_BASE.'persons/read_person/'.$employment['employee-person'].'/';
+        } else {
+            $m = '<span style="color: #f00;">Error</span>: Failed to create the employment';
+            $u = URL_BASE.'employees/create_employment/';
+        }
+
+        $c_pages->pageRedirect($m, $u);
     }
 
 
 
     public function createJob () {
+        $c_pages = new controller_pages();
+
         if (!isset($_POST)) {
-            header('location: '.URL_BASE.'employees/create_job/');
-            return;
+            $m = '<span style="color: #f00;">Error</span>: You cant access this page directly.';
+            $u = URL_BASE.'employees/create_job/';
+            $c_pages->pageRedirect($m, $u);
         }
+
         $job = $this->model->createJob($_POST);
+
         if ($job != null) {
-            header('location: '.URL_BASE.'employees/read_job/'.$job['employee-job-id'].'/');
-        } else header('location: '.URL_BASE.'employees/create_job/');
+            $m = 'Successfully created the job.';
+            $u = URL_BASE.'employees/read_job/'.$job['employee-job-id'].'/';
+        } else {
+            $m = '<span style="color: #f00;">Error</span>: Failed to create the job.';
+            $u = URL_BASE.'employees/create_job/';
+        }
+
+        $c_pages->pageRedirect($m, $u);
     }
 
 
 
     public function updateEmployment () {
+        $c_pages = new controller_pages();
+
         if (!isset($_POST)) {
-            header('location: '.URL_BASE.'persons/');
-            return;
+            $m = '<span style="color: #f00;">Error</span>: You cant access this page directly.';
+            $u = URL_BASE.'persons/';
+            $c_pages->pageRedirect($m, $u);
         }
+
         $employment = $this->model->updateEmployment($_POST);
-        header('location: '.URL_BASE.'persons/read_person/'.$employment['employee-person'].'/');
+
+        if ($employment != null) {
+            $m = 'Successfully updated the employment.';
+        } else {
+            $m = '<span style="color: #f00;">Error</span>: Failed to update the employment.';
+        }
+
+        $u = URL_BASE.'persons/read_person/'.$_POST['employee-person'].'/';
+        $c_pages->pageRedirect($m, $u);
     }
 
 
 
     public function updateJob () {
+        $c_pages = new controller_pages();
+
         if (!isset($_POST)) {
-            header('location: '.URL_BASE.'employees/search_job/');
-            return;
+            $m = '<span style="color: #f00;">Error</span>: You cant access this page directly.';
+            $u = URL_BASE.'employees/search_job/';
+            $c_pages->pageRedirect($m, $u);
         }
+
         $job = $this->model->updateJob($_POST);
-        header('location: '.URL_BASE.'employees/read_job/'.$_POST['employee-job-id'].'/');
+
+        if ($job != null) {
+            $m = 'Successfully updated the job.';
+        } else {
+            $m = '<span style="color: #f00;">Error</span>: Failed to update the job.';
+        }
+
+        $u = URL_BASE.'employees/read_job/'.$_POST['employee-job-id'].'/';
+        $c_pages->pageRedirect($m, $u);
     }
 
 
 
     public function deleteJob ($jobId) {
+        $c_pages = new controller_pages();
+
         $res = $this->model->deleteJob($jobId);
-        if ($res) header('location: '.URL_BASE.'employees/search_job/');
-        else header('location: '.URL_BASE.'employees/read_job/'.$jobId.'/');
+
+        if ($res) {
+            $m = 'Successfully deleted the job.';
+            $u = URL_BASE.'employees/search_job/';
+        } else {
+            $m = '<span style="color: #f00;">Error</span>: Failed to delete the job.';
+            $u = URL_BASE.'employees/read_job/'.$jobId.'/';
+        }
+
+        $c_pages->pageRedirect($m, $u);
     }
 
 
 
     public function endEmployment ($employeeId) {
-        $this->model->endEmployment($employeeId);
+        $c_pages = new controller_pages();
+
+        $status = $this->model->endEmployment($employeeId);
+
+        if ($status) {
+            $m = 'Successfully ended the employment.';
+        } else {
+            $m = '<span style="color: #f00;">Error</span>: Failed to end the employment.';
+        }
+
         $employment = $this->model->readEmployee($employeeId);
-        header('location: '.URL_BASE.'persons/read_person/'.$employment['person_id'].'/');
+        $u = URL_BASE.'persons/read_person/'.$employment['person_id'].'/';
+        $c_pages->pageRedirect($m, $u);
     }
 
 

@@ -208,6 +208,26 @@ var formSearchesFx = function () {
         });
     }
 
+    // Maintenances, which item
+    if ($('#maintenance-item').length > 0
+            && $('#maintenance-item-label').length > 0) {
+        embedSearchFx({
+            'url': $('#maintenance-item').attr('data-url')
+            ,'o_label': $('#maintenance-item-label')
+            ,'o_id': $('#maintenance-item')
+        });
+    }
+
+    // Maintenance, who is the assigned staff?
+    if ($('#maintenance-assigned-staff').length > 0
+            && $('#maintenance-assigned-staff-label').length > 0) {
+        embedSearchFx({
+            'url': $('#maintenance-assigned-staff').attr('data-url')
+            ,'o_label': $('#maintenance-assigned-staff-label')
+            ,'o_id': $('#maintenance-assigned-staff')
+        });
+    }
+
     // Owner of an item, either a person
     // or a department
     if ($('#ownership-owner').length > 0

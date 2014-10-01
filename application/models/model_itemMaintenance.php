@@ -53,4 +53,25 @@ class model_itemMaintenance {
         return count($o) > 0 ? $o[0] : null;
     }
 
+
+
+    public function updateItemMaintenance ($datas) {
+        $d = array_map('trim', $datas);
+        $a = $this->db->statement(array(
+            'q'=>"UPDATE imts_items_maintenance
+                SET
+                    maintenance_item = ?
+                    ,maintenance_assigned_staff = ?
+                    ,maintenance_status = ?
+                    ,maintenance_detailed_report = ?
+                WHERE maintenance_id = ?"
+            ,'v'=>array(
+                intval($d['maintenance-item'])
+                ,intval($d['maintenance-assigned-staff'])
+                ,intval($d['maintenance-status'])
+                ,$d['maintenance-detailed-report']
+                ,intval($d['maintenance-id']))));
+        return $a ? $d : null;
+    }
+
 }

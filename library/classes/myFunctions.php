@@ -42,6 +42,18 @@ class myFunctions {
 
 
 
+    public function minifyString ($string) {
+        $patterns = array(
+            '/\s\s+/'
+            ,'/\r\n/'
+            ,'/\n/');
+        $replacements = array('','', '');
+        $string = preg_replace($patterns, $replacements, $string);
+        return $string;
+    }
+
+
+
     public function isEmail ($emailAddress) {
         if (filter_var($emailAddress, FILTER_VALIDATE_EMAIL)) return true;
         else return false;

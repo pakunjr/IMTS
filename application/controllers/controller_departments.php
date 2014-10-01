@@ -19,25 +19,49 @@ class controller_departments {
 
 
     public function createDepartment () {
+        $c_pages = new controller_pages();
+
         if (!isset($_POST)) {
-            header('location: '.URL_BASE.'departments/create_department/');
-            return;
+            $m = '<span style="color: #f00;">Error</span>: You cant access this page directly.';
+            $u = URL_BASE.'departments/create_department/';
+            $c_pages->pageRedirect($m, $u);
         }
+
         $departmentDatas = $this->model->createDepartment($_POST);
+
         if ($departmentDatas != null) {
-            header('location: '.URL_BASE.'departments/read_department/'.$departmentDatas['department-id'].'/');
-        } else header('location: '.URL_BASE.'departments/create_department/');
+            $m = 'Department has been created successfully';
+            $u = URL_BASE.'departments/read_department/'.$departmentDatas['department-id'].'/';
+        } else {
+            $m = '<span style="color: #f00;">Error</span>: Failed to create the department.';
+            $u = URL_BASE.'departments/create_department/';
+        }
+
+        $c_pages->pageRedirect($m, $u);
     }
 
 
 
     public function updateDepartment () {
+        $c_pages = new controller_pages();
+
         if (!isset($_POST)) {
-            header('location: '.URL_BASE.'departments/');
-            return;
+            $m = '<span style="color: #f00;">Error</span>: You can\'t access this page directly.';
+            $u = URL_BASE.'departments/';
+            $c_pages->pageRedirect($m, $u);
         }
+
         $departmentDatas = $this->model->updateDepartment($_POST);
-        header('location: '.URL_BASE.'departments/read_department/'.$departmentDatas['department-id'].'/');
+
+        if ($departmentDatas != null) {
+            $m = 'Successfully updated the department.';
+            $u = URL_BASE.'departments/read_department/'.$departmentDatas['department-id'].'/';
+        } else {
+            $m = '<span style="color: #f00;">Error</span>: Failed to update the department.';
+            $u = URL_BASE.'departments/read_department/'.$_POST['department-id'].'/';
+        }
+
+        $c_pages->pageRedirect($m, $u);
     }
 
 

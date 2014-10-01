@@ -182,10 +182,12 @@ class controller_items {
 
     public function saveItem () {
         $c_errors = new controller_errors();
+        $c_pages = new controller_pages();
 
         if (isset($_POST)) {
             $datas = $this->model->createItem($_POST);
             $d = $datas;
+
             if ($d != null) {
                 $currentOwner = $this->model->readItemOwner($d['item-id']);
                 $co = $currentOwner;
@@ -204,6 +206,7 @@ class controller_items {
                          * owner
                          */
                         $this->model->deleteItemOwnership($co['ownership_id']);
+
                         if ($d['ownership-owner'] != '0') {
                             $newItemOwnershipData = $this->model->createItemOwnership($d);
                             $niod = $newItemOwnershipData;
@@ -224,41 +227,51 @@ class controller_items {
                             $this->model->logAction($d['item-id'], 'Created new ownership for `'.$c_owners->displayOwnerName($niod['ownership-id'], false).'`');
                     }
                 }
-                header('location: '.URL_BASE.'inventory/read_item/'.$d['item-id'].'/');
+                $m = 'Item has been created successfully';
+                $u = URL_BASE.'inventory/read_item/'.$d['item-id'].'/';
             } else {
                 $c_errors->logError('System failed to save the new item.');
-                exit('<span style="display: inline-block; color: #f00;">SYSTEM ERROR: Failed to save the new item.'
-                    .'<br />Exiting...<br /><br />'
-                    .'<a href="'.URL_BASE.'inventory/create_item/"><input type="button" value="Back to New Item Form." /></a></span>');
+                $m = '<span style="color: #f00;">Error</span>: Failed to create the item.';
+                $u = URL_BASE.'inventory/create_item/';
             }
         } else {
             $c_errors->logError('Save new item is being accessed directly without using the form, thus not passing any data.');
-            exit('<span style="display: inline-block; color: #f00;">USER ERROR: The system do not know how you got here but you are on the wrong page.'
-                .'<br />Exiting...<br /><br />'
-                .'<a href="'.URL_BASE.'inventory/create_item/"><input type="button" value="Back to New Item Form." /></a></span>');
+            $m = '<span style="color: #f00;">Error</span>: You can\'t access this page directly.';
+            $u = URL_BASE.'inventory/create_item/';
         }
+
+        $c_pages->pageRedirect($m, $u);
     }
 
 
 
     public function saveMultipleItems () {
-        if (!isset($_POST))
-            header('location: '.URL_BASE.'inventory/create_multiple_items/');
+        $c_pages = new controller_pages();
+
+        if (!isset($_POST)) {
+            $m = '<span style="color: #f00;">Error</span>: You can\'t access this page directly.';
+            $u = URL_BASE.'inventory/create_multiple_items/';
+            $c_pages->pageRedirect($m, $u);
+        }
 
         $result = $this->model->createMultipleItems($_POST);
 
         if ($result != null) {
-            header('location: '.URL_BASE.'inventory/read_item/'.$result['item-id'].'/');
-            return;
+            $m = 'Main item has been created successfully, please check the components if they\'re saved properly.';
+            $u = URL_BASE.'inventory/read_item/'.$result['item-id'].'/';
         } else {
-            echo 'Something went wrong.';
+            $m = '<span style="color: #f00;">Error</span>: Failed to create the item.';
+            $u = URL_BASE.'inventory/create_multiple_items/';
         }
+
+        $c_pages->pageRedirect($m, $u);
     }
 
 
 
     public function updateItem () {
         $c_errors = new controller_errors();
+        $c_pages = new controller_pages();
 
         if (isset($_POST)) {
             $datas = $this->model->updateItem($_POST);
@@ -307,33 +320,56 @@ class controller_items {
                             $this->model->logAction($d['item-id'], 'Created new ownership for `'.$c_owners->displayOwnerName($niod['ownership-id'], false).'`');
                     }
                 }
-            } else
+
+                $m = 'Updated the item successfully.<br />
+                    Please double check for errors.';
+            } else {
                 $c_errors->logError('System failed to update the item.');
-                
-            header('location: '.URL_BASE.'inventory/read_item/'.$d['item-id'].'/');
+                $m = '<span style="color: #f00;">Error</span>: Failed to update the item.';
+            }
+
+            $u = URL_BASE.'inventory/read_item/'.$d['item-id'].'/';
+            $c_pages->pageRedirect($m, $u);
+
         } else {
             $c_errors->logError('Update item is being accessed directly without using the form, thus not passing any data.');
-            exit('<span style="display: inline-block; color: #f00;">USER ERROR: The system do not know how you got here but you are on the wrong page.'
-                .'<br />Exiting...<br /><br />'
-                .'<a href="'.URL_BASE.'inventory/create_item/"><input type="button" value="Back to New Item Form." /></a></span>');
+            $m = '<span style="color: #f00;">Error</span>: You can\'t access this page directly.';
+            $u = URL_BASE.'inventory/create_item/';
+            $c_pages->pageRedirect($m, $u);
         }
     }
 
 
 
     public function deleteItem ($itemId) {
+        $c_pages = new controller_pages();
         $result = $this->model->deleteItem($itemId);
-        if ($result)
-            header('location: '.URL_BASE.'inventory/');
-        else
-            header('location: '.URL_BASE.'inventory/read_item/'.$itemId.'/');
+
+        if ($result) {
+            $m = 'Item has been deleted successfully.';
+            $u = URL_BASE.'inventory/';
+        } else {
+            $m = '<span style="color: #f00;">Error</span>: Item failed to be deleted.';
+            $u = URL_BASE.'inventory/read_item/'.$itemId.'/';
+        }
+
+        $c_pages->pageRedirect($m, $u);
     }
 
 
 
     public function archiveItem ($itemId) {
+        $c_pages = new controller_pages();
         $result = $this->model->archiveItem($itemId);
-        header('location: '.URL_BASE.'inventory/read_item/'.$itemId.'/');
+
+        if ($result) {
+            $m = 'Item has been archived successfully';
+        } else {
+            $m = '<span style="color: #f00;">Error</span>: Item failed to be archived.';
+        }
+
+        $u = URL_BASE.'inventory/read_item/'.$itemId.'/';
+        $c_pages->pageRedirect($m, $u);
     }
 
 

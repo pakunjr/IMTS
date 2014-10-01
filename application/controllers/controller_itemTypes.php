@@ -21,7 +21,8 @@ class controller_itemTypes {
     public function displaySelectForm ($options=array(), $echo=true) {
         $types = $this->model->readItemTypes();
         $form = $this->view->renderSelectForm($types, $options);
-        if (!$echo) return $form;
+        if (!$echo)
+            return $form;
         echo $form;
     }
 
@@ -30,7 +31,8 @@ class controller_itemTypes {
     public function displayItemTypeName ($typeId, $echo=true) {
         $itemType = $this->model->readItemType($typeId);
         $name = $this->view->renderItemTypeName($itemType);
-        if (!$echo) return $name;
+        if (!$echo)
+            return $name;
         echo $name;
     }
 

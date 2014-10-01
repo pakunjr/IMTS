@@ -15,97 +15,137 @@ class view_pages {
 
 
     public function renderNavigation ($type='default', $cModel=null) {
+        $fx = new myFunctions();
 
         $class = ' class="current-model"';
 
-        $classHome = $cModel == 'home' ? $class : '';
-        $classTrack = $cModel == 'track' ? $class : '';
-        $classInventory = in_array($cModel, array('inventory', 'inventory_packages')) ? $class : '';
-        $classOwners = in_array($cModel, array('persons', 'employees', 'owners', 'departments')) ? $class : '';
-        $classAdmin = $cModel == 'admin' ? $class : '';
-        $classMyAccount = in_array($cModel, array('my_account', 'accounts')) ? $class : '';
+        $classHome = $cModel == 'home'
+            ? $class
+            : '';
+        $classTrack = $cModel == 'track'
+            ? $class
+            : '';
+        $classInventory = in_array($cModel, array('inventory', 'inventory_packages'))
+            ? $class
+            : '';
+        $classOwners = in_array($cModel, array('persons', 'employees', 'owners', 'departments'))
+            ? $class
+            : '';
+        $classAdmin = $cModel == 'admin'
+            ? $class
+            : '';
+        $classMyAccount = in_array($cModel, array('my_account', 'accounts'))
+            ? $class
+            : '';
 
-        $user_personId = isset($_SESSION['user']) ? $_SESSION['user']['personId'] : null;
-        $user_accountId = isset($_SESSION['user']) ? $_SESSION['user']['accountId'] : null;
-        $user_accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
+        $user_personId = isset($_SESSION['user'])
+            ? $_SESSION['user']['personId']
+            : null;
+        $user_accountId = isset($_SESSION['user'])
+            ? $_SESSION['user']['accountId']
+            : null;
+        $user_accessLevel = isset($_SESSION['user'])
+            ? $_SESSION['user']['accessLevel']
+            : null;
 
         switch ($type) {
             case 'inventory':
-                $output = '<ul class="sub-menu">';
-                $output .= !in_array($user_accessLevel, array('Viewer'))
+                $itemNew = $fx->isAccessible('Content Provider')
                     ? '<li><a href="'.URL_BASE.'inventory/create_item/">Item > New</a></li>'
                     : '';
-                $output .= '<li><a href="'.URL_BASE.'inventory/search_item/">Item > Search</a></li>';
-                $output .= !in_array($user_accessLevel, array('Viewer'))
+                $packageNew = $fx->isAccessible('Content Provider')
                     ? '<li><a href="'.URL_BASE.'inventory_packages/create_package/">Packages > New</a></li>'
                     : '';
-                $output .= '<li><a href="'.URL_BASE.'inventory_packages/search_package/">Packages > Search</a></li>'
-                    .'</ul>';
+                $maintenanceNew = $fx->isAccessible('Content Provider')
+                    ? '<li><a href="'.URL_BASE.'inventory_maintenance/create_maintenance/">Item > Maintenance > New</a></li>'
+                    : '';
+
+                $output = '<ul class="sub-menu">
+                    '.$itemNew.'
+                    <li><a href="'.URL_BASE.'inventory/search_item/">Item > Search</a></li>
+                    '.$maintenanceNew.'
+                    <li><a href="'.URL_BASE.'inventory_maintenance/search_maintenance/">Item > Maintenance > Search</a></li>
+                    '.$packageNew.'
+                    <li><a href="'.URL_BASE.'inventory_packages/search_package/">Packages > Search</a></li>
+                    </ul>';
                 break;
 
             case 'owners':
-                $output = '<ul class="sub-menu">';
-                $output .= !in_array($user_accessLevel, array('Viewer'))
+                $personNew = $fx->isAccessible('Content Provider')
                     ? '<li><a href="'.URL_BASE.'persons/create_person/">Person > New</a></li>'
                     : '';
-                $output .= '<li><a href="'.URL_BASE.'persons/search_person/">Person > Search</a></li>';
-                $output .= !in_array($user_accessLevel, array('Viewer'))
+                $departmentNew = $fx->isAccessible('Content Provider')
                     ? '<li><a href="'.URL_BASE.'departments/create_department/">Department > New</a></li>'
                     : '';
-                $output .= '<li><a href="'.URL_BASE.'departments/search_department/">Department > Search</a></li>';
-                $output .= in_array($user_accessLevel, array('Administrator', 'Admin', 'Supervisor'))
+                $jobNew = $fx->isAccessible('Supervisor')
                     ? '<li><a href="'.URL_BASE.'employees/create_job/">Employment > Job > Create</a></li>'
                     : '';
-                $output .= in_array($user_accessLevel, array('Administrator', 'Admin', 'Supervisor'))
+                $jobSearch = $fx->isAccessible('Supervisor')
                     ? '<li><a href="'.URL_BASE.'employees/search_job/">Employment > Job > Search</a></li>'
                     : '';
-                $output .= '</ul>';
+
+                $output = '<ul class="sub-menu">
+                    '.$personNew.'
+                    <li><a href="'.URL_BASE.'persons/search_person/">Person > Search</a></li>
+                    '.$departmentNew.'
+                    <li><a href="'.URL_BASE.'departments/search_department/">Department > Search</a></li>
+                    '.$jobNew.'
+                    '.$jobSearch.'
+                    </ul>';
                 break;
 
             case 'admin':
-                $output = '<ul class="sub-menu">'
-                    .'<li><a href="'.URL_BASE.'admin/phpinfo/">PHP Info</a></li>'
-                    .'<li><a href="'.URL_BASE.'admin/log/errors/">Error/s &amp; Exception/s Log</a></li>'
-                    .'<li><a href="'.URL_BASE.'admin/log/database_errors/">Database Exceptions and Errors</a></li>'
-                    .'</ul>';
+                $output = '<ul class="sub-menu">
+                    <li><a href="'.URL_BASE.'admin/phpinfo/">PHP Info</a></li>
+                    <li><a href="'.URL_BASE.'admin/log/errors/">Error/s &amp; Exception/s Log</a></li>
+                    <li><a href="'.URL_BASE.'admin/log/database_errors/">Database Exceptions and Errors</a></li>
+                    </ul>';
                 break;
 
             case 'myAccount':
-                $output = '<ul class="sub-menu">'
-                    .'<li><a href="'.URL_BASE.'persons/update_person/'.$user_personId.'/">Update Profile</a></li>'
-                    .'<li><a href="'.URL_BASE.'accounts/update_password/'.$user_accountId.'/">Change Password</a></li>'
-                    .'<li><a href="'.URL_BASE.'accounts/logout/">Logout</a></li>'
-                    .'</ul>';
+                $output = '<ul class="sub-menu">
+                    <li><a href="'.URL_BASE.'persons/update_person/'.$user_personId.'/">Update Profile</a></li>
+                    <li><a href="'.URL_BASE.'accounts/update_password/'.$user_accountId.'/">Change Password</a></li>
+                    <li><a href="'.URL_BASE.'accounts/logout/">Logout</a></li>
+                    </ul>';
                 break;
 
             case 'tracking':
-                $output = '<ul class="sub-menu">'
-                    .'<li><a href="'.URL_BASE.'track/owner/">Owner</a></li>'
-                    .'<li><a href="'.URL_BASE.'track/">Item</a></li>'
-                    .'</ul>';
+                $output = '<ul class="sub-menu">
+                    <li><a href="'.URL_BASE.'track/owner/">Owner</a></li>
+                    <li><a href="'.URL_BASE.'track/">Item</a></li>
+                    </ul>';
                 break;
 
             default:
-                $output = '<ul id="main-navigation">';
-                $output .= isset($_SESSION['user'])
-                        && (in_array($user_accessLevel, array('Administrator', 'Admin')))
+                $blockAdmin = isset($_SESSION['user'])
+                        && $fx->isAccessible('Administrator')
                     ? '<li>'.$this->renderNavigation('admin').'<a'.$classAdmin.' href="'.URL_BASE.'admin/">Admin</a></li>'
                     : '';
-                $output .= '<li><a'.$classHome.' href="'.URL_BASE.'">Home</a></li>';
-                $output .= !isset($_SESSION['user'])
+                $blockTrack = !isset($_SESSION['user'])
                     ? '<li>'.$this->renderNavigation('tracking').'<a'.$classTrack.' href="'.URL_BASE.'track/owner/">Track</a></li>'
                     : '';
-                $output .= isset($_SESSION['user'])
+                $blockInventory = isset($_SESSION['user'])
                     ? '<li>'.$this->renderNavigation('inventory').'<a'.$classInventory.' href="'.URL_BASE.'inventory/">Inventory</a></li>'
                     : '';
-                $output .= isset($_SESSION['user'])
+                $blockOwners = isset($_SESSION['user'])
                     ? '<li>'.$this->renderNavigation('owners').'<a'.$classOwners.' href="#">Owners</a></li>'
                     : '';
-                $output .= isset($_SESSION['user'])
+                $blockMyAccount = isset($_SESSION['user'])
                     ? '<li>'.$this->renderNavigation('myAccount').'<a'.$classMyAccount.' href="'.URL_BASE.'accounts/read_account/'.$user_accountId.'/">My Account</a></li>'
                     : '';
-                $output .= '</ul>';
+
+                $output = '<ul id="main-navigation">
+                    '.$blockAdmin.'
+                    <li><a'.$classHome.' href="'.URL_BASE.'">Home</a></li>
+                    '.$blockTrack.'
+                    '.$blockInventory.'
+                    '.$blockOwners.'
+                    '.$blockMyAccount.'
+                    </ul>';
         }
+
+        $output = $fx->minifyString($output);
         return $output;
     }
 
@@ -125,16 +165,18 @@ class view_pages {
         $breadcrumb .= $controller != null ? ' > '.$controller : '';
         $breadcrumb .= $action != null ? ' > '.$action : '';
         $breadcrumb .= $extra != null ? ' > '.$extra : '';
-        $breadcrumb = str_replace('_', ' ', $breadcrumb);
+        $breadcrumb = preg_replace('/_/', ' ', $breadcrumb);
 
-        $output = '<div id="breadcrumb">'
-            .'<span id="breadcrumb-clock">Today is '.$fx->dateToWords(date('Y-m-d')).' @<span id="breadcrumb-clock-timer">'
-            .'<span id="breadcrumb-clock-timer-hours">'.date('H').'</span>:'
-            .'<span id="breadcrumb-clock-timer-minutes">'.date('i').'</span>:'
-            .'<span id="breadcrumb-clock-timer-seconds">'.date('s').'</span>'
-            .'</span></span>'
-            .'<div id="breadcrumb-breadcrumb">'.$breadcrumb.'</div>'
-            .'</div>';
+        $output = '<div id="breadcrumb">
+            <span id="breadcrumb-clock">Today is '.$fx->dateToWords(date('Y-m-d')).' @<span id="breadcrumb-clock-timer">
+            <span id="breadcrumb-clock-timer-hours">'.date('H').'</span>:
+            <span id="breadcrumb-clock-timer-minutes">'.date('i').'</span>:
+            <span id="breadcrumb-clock-timer-seconds">'.date('s').'</span>
+            </span></span>
+            <div id="breadcrumb-breadcrumb">'.$breadcrumb.'</div>
+            </div>';
+
+        $output = $fx->minifyString($output);
         return $output;
     }
 
@@ -143,6 +185,8 @@ class view_pages {
     public function renderPageError ($type='unknown', $customErrorMsg='') {
         $fileHeader = DIR_TEMPLATE.DS.'header.php';
         $fileFooter = DIR_TEMPLATE.DS.'footer.php';
+
+        $fx = new myFunctions();
 
         ob_start();
 
@@ -178,8 +222,8 @@ class view_pages {
         else
             echo '<!-- THEME ERROR: Footer, footer.php file is missing. -->';
 
-        $contents = ob_get_contents();
-        ob_end_clean();
+        $contents = ob_get_clean();
+        $contents = $fx->minifyString($contents);
         return $contents;
     }
 

@@ -273,7 +273,8 @@ class model_accounts {
                 ,'v'=>array($username)));
         }
 
-        if (count($rows) < 1) return false;
+        if (count($rows) < 1)
+            return false;
 
         $rows = $rows[0];
 
@@ -289,7 +290,8 @@ class model_accounts {
                 ,'name'=>$rows['person_lastname'].', '.$rows['person_firstname'].' '.$rows['person_middlename'].' '.$rows['person_suffix']
                 ,'personId'=>$rows['person_id']);
             return true;
-        } else return false;
+        } else
+            return false;
     }
 
 

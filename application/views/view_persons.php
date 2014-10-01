@@ -99,15 +99,15 @@ class view_persons {
 
 
     public function renderSearchResults ($datas) {
+        $fx = new myFunctions();
+
         if ($datas == null) {
             $output = 'There are no person/s that matched your keyword.<div class="hr-light"></div>';
-            $output .= !in_array($accessLevel, array('Viewer'))
+            $output .= $fx->isAccessible('Content Provider')
                 ? '<a href="'.URL_BASE.'persons/create_person/" target="_blank"><input class="btn-green" type="button" value="Add a Person" /></a>'
                 : '';
             return $output;
         }
-
-        $fx = new myFunctions();
 
         $output = '<table class="paged"><tr>
             <th>Lastname</th>
