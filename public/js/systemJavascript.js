@@ -46,55 +46,15 @@ var systemPopup = function (type, message, myAction) {
     }
 
     $popupContainer.css({
-        'display': 'block'
-        ,'width': $(window).width() + 'px'
+        'width': $(window).width() + 'px'
         ,'height': $(window).height() + 'px'
-        ,'position': 'fixed'
-        ,'top': '0px'
-        ,'left': '0px'
-        ,'z-index': '1000'
-        ,'background': 'rgba(89, 111, 128, 0.75)'
-        ,'text-align': 'center'
     });
 
     $popupBody.css({
-        'display': 'inline-block'
-        ,'max-width': '350px'
-        ,'margin-top': (($(window).height() / 2)
+        'margin-top': (($(window).height() / 2)
             - ($popupBody.height() / 2)
             - 40)
             + 'px'
-        ,'padding': '10px 15px'
-        ,'border-radius': '3px'
-        ,'border': '1px solid #333'
-        ,'background': '#f7f7f7'
-        ,'box-shadow': '3px 3px 3px rgba(0, 0, 0, 0.2)'
-        ,'text-align': 'center'
-    });
-
-    $popupTitle.css({
-        'display': 'block'
-        ,'padding': '5px 0px'
-        ,'font-family': 'Georgia'
-        ,'font-size': '1.1em'
-        ,'text-align': 'left'
-        ,'text-transform': 'capitalize'
-    });
-
-    $popupContent.css({
-        'display': 'block'
-        ,'margin': '0px 0px 5px 0px'
-        ,'padding': '10px 13px'
-        ,'border-radius': '3px'
-        ,'border': '1px solid #ccc'
-        ,'background': '#fff'
-        ,'font-size': '0.9em'
-        ,'text-align': 'left'
-    });
-
-    $popupBtns.css({
-        'display': 'block'
-        ,'text-align': 'center'
     });
 
     $(window).on('resize', function () {
@@ -171,7 +131,8 @@ var formFx = function () {
                 $this.val('0000-00-00');
 
             $this.css({
-                'cursor': 'pointer'
+                'text-align': 'center'
+                ,'cursor': 'pointer'
             }).prop('readonly', true).datepicker({
                 showOtherMonths: true
                 ,selectOtherMonths: false
@@ -222,34 +183,15 @@ var formFx = function () {
                 
                 thisVal = nl2br(thisVal);
 
-                var $ferContainer = $('#form-elements-reader-container')
-                    ,$ferContent = $('#form-elements-reader-content')
-                    ,$fcnr = $ferContainer
-                    ,$fcnt = $ferContent;
+                var $fcnr = $('#form-elements-reader-container')
+                    ,$fcnt = $('#form-elements-reader-content');
 
                 $fcnr.css({
-                    'display': 'inline-block'
-                    ,'max-width': '250px'
-                    ,'padding': '2px'
-                    ,'position': 'absolute'
-                    ,'top': yCoord + $this.height() + 12 + 'px'
+                    'top': yCoord + $this.height() + 12 + 'px'
                     ,'left': xCoord + 'px'
-                    ,'overflow': 'hidden'
-                    ,'border-radius': '4px'
-                    ,'border': '1px solid #ccc'
-                    ,'background': '#fff'
-                    ,'box-shadow': '2px 2px 3px rgba(0, 0, 0, 0.15)'
-                    ,'text-align': 'left'
-                    ,'word-wrap': 'break-word'
                 });
 
-                $fcnt.html(thisVal).css({
-                    'display': 'block'
-                    ,'padding': '10px 15px'
-                    ,'border-radius': '4px'
-                    ,'border': '1px solid #ccc'
-                    ,'font-size': '0.85em'
-                });
+                $fcnt.html(thisVal);
 
                 $this.on('keyup change', function () {
                     if ($this.is('select'))
@@ -273,7 +215,7 @@ var formFx = function () {
     // text is instantly erased
     if ($('input[type="text"], input[type="password"], textarea').length > 0) {
         $('input[type="text"], input[type="password"], textarea')
-        .on('keyup', function (e) {
+            .on('keyup', function (e) {
             var $this = $(this)
                 ,code = e.keyCode || e.which;
 
@@ -305,43 +247,29 @@ var accordionFx = function () {
             var $title = $(this);
 
             if ($title.next('.accordion-content').length > 0) {
-                $title.prepend('<span class="accordion-symbol"></span> ')
-                .css({
-                    'display': 'block'
-                    ,'padding': '8px 13px'
-                    ,'border': '1px solid #143a66'
-                    ,'background': '#265080'
-                    ,'text-shadow': '2px 2px 0px rgba(0, 0, 0, 0.3)'
-                    ,'font-size': '1em'
-                    ,'color': '#fff'
-                    ,'cursor': 'pointer'
-                });
+                $title.prepend('<span class="accordion-symbol"></span> ');
 
                 var $content = $title.next('.accordion-content')
                     ,$symbol = $title.find('.accordion-symbol');
-
-                $content.css({
-                    'padding': '8px 13px'
-                    ,'overflow': 'auto'
-                    ,'border': '1px solid #143a66'
-                });
 
                 if (!$content.hasClass('accordion-content-default')) {
                     $content.stop(true, true).slideUp(0, function () {
                         $symbol.html('+');
                     });
                 } else {
-                    $title.css('background-color', '#5983b3');
+                    $title.addClass('accordion-title-open');
                     $symbol.html('-');
                 }
 
-                $title.addClass('unhighlightable').on('click', function () {
+                $title
+                    .addClass('unhighlightable')
+                    .on('click', function () {
                     $content.slideToggle(150, function () {
                         if ($content.is(':visible')) {
-                            $title.css('background-color', '#5983b3');
+                            $title.addClass('accordion-title-open');
                             $symbol.html('-');
                         } else {
-                            $title.css('background-color', '#265080');
+                            $title.removeClass('accordion-title-open');
                             $symbol.html('+');
                         }
                     });
@@ -388,55 +316,16 @@ var dataFx = function () {
 
             var closeButton = '<span class="data-more-details-btn-close">x</span>';
 
-            $this.css({
-                'display': 'block'
-                ,'max-width': $('#main-content').width() + 'px'
-                ,'min-width': '200px'
-                ,'margin': '3px 0px 0px -18px'
-                ,'padding': '13px 18px'
-                ,'position': 'absolute'
-                ,'z-index': '2'
-                ,'border': '1px solid #ccc'
-                ,'border-radius': '4px'
-                ,'background': '#fff'
-                ,'box-shadow': '2px 2px 3px rgba(0, 0, 0, 0.3)'
+            $this.addClass('unhighlightable').css({
+                'max-width': (parseInt($('#main-content').width())
+                        - parseInt($this.offset().left))
+                    + 'px'
             }).hide(0, function () {
                 if ($this.find('.data-more-details-btn-close').length < 1)
                     $this.prepend(closeButton);
 
                 var $closeBtn = $this.children('.data-more-details-btn-close');
-                $closeBtn.css({
-                    'display': 'inline-block'
-                    ,'width': '15px'
-                    ,'height': '18px'
-                    ,'padding': '5px 8px'
-                    ,'border': '1px solid #ccc'
-                    ,'background': '#fff'
-                    ,'float': 'right'
-                    ,'font-size': '12pt'
-                    ,'text-align': 'center'
-                    ,'color': '#333'
-                    ,'cursor': 'pointer'
-                }).hover(function () {
-                    $closeBtn.css({
-                        'background': '#ccc'
-                        ,'text-shadow': '0px 0px 0px transparent'
-                        ,'color': '#fff'
-                    });
-                }, function () {
-                    $closeBtn.css({
-                        'background': '#fff'
-                        ,'color': '#333'
-                    });
-                }).mousedown(function () {
-                    $closeBtn.css({
-                        'box-shadow': '2px 2px 2px rgba(0, 0, 0, 0.2) inset'
-                    });
-                }).mouseup(function () {
-                    $closeBtn.css({
-                        'box-shadow': '0px 0px 0px transparent'
-                    });
-                }).click(function () {
+                $closeBtn.click(function () {
                     $this.hide(0);
                 });
             });
@@ -447,10 +336,6 @@ var dataFx = function () {
                 // is clicked
                 return false;
             }).mousedown(function (event) {
-                $parent.css({
-                    'box-shadow': '2px 2px 2px rgba(0, 0, 0, 0.2) inset'
-                });
-
                 var clickedButton = event.which;
                 if (clickedButton == 3 || clickedButton == '3') {
                     if ($('.data-more-details:visible').length > 0) {
@@ -475,10 +360,6 @@ var dataFx = function () {
                     });
                     return false;
                 }
-            }).mouseup(function () {
-                $parent.css({
-                    'box-shadow': '0px 0px 0px transparent'
-                });
             });
         });
     }
@@ -538,16 +419,8 @@ var embedSearchFx = function ($user_options) {
                 ,query = $o_label.val();
 
             $sbcr.css({
-                'display': 'block'
-                ,'max-height': '350px'
-                ,'padding': '3px'
-                ,'overflow': 'auto'
-                ,'position': 'absolute'
-                ,'top': (yCoord + $o_label.height() + 12) + 'px'
+                'top': (yCoord + $o_label.height() + 12) + 'px'
                 ,'left': xCoord + 'px'
-                ,'border-radius': '3px'
-                ,'border': '1px solid #aaa'
-                ,'background': '#fff'
             });
             $(window).on('resize', function () {
                 var xCoord = $o_label.offset().left
@@ -556,15 +429,6 @@ var embedSearchFx = function ($user_options) {
                     'top': (yCoord + $o_label.height() + 12) + 'px'
                     ,'left': xCoord + 'px'
                 });
-            });
-
-            $sbct.css({
-                'display': 'block'
-                ,'padding': '10px 15px'
-                ,'border-radius': '3px'
-                ,'border': '1px solid #aaa'
-                ,'font-size': '0.95em'
-                ,'text-align': 'left'
             });
 
             $sbct.load(url+query+'/', function () {

@@ -2,8 +2,18 @@
 
 class view_items {
 
-    public function __construct () {
+    private $itemStates;
+    private $itemTypes;
 
+    public function __construct () {
+        $this->itemStates = array(
+            'Working' => 'Working'
+            ,'Broken' => 'Broken'
+            ,'Stored' => 'Stored'
+            ,'Disposed' => 'Disposed');
+        
+        $this->itemTypes = array(
+            'Computer Peripherals' => 'Computer Peripherals');
     }
 
 
@@ -80,7 +90,6 @@ class view_items {
             'auto_line_break'=>true
             ,'auto_label'=>true));
         $fx = new myFunctions();
-        $c_itemStates = new controller_itemStates();
 
         $itemTypes = array(
             'Processor'
@@ -192,7 +201,7 @@ class view_items {
                         ,'class'=>'item-data'
                         ,'name'=>'item-state-'.$tweakNameType.'[]'
                         ,'label'=>'State'
-                        ,'select_options'=>$c_itemStates->getSelectOptions()
+                        ,'select_options' => $this->itemStates
                         ,'default_option'=>''
                         ,'data-count'=>'1'
                         ,'data-type'=>$tweakNameType
@@ -239,8 +248,6 @@ class view_items {
         $f = new form(array('auto_line_break'=>true,'auto_label'=>true));
 
         $c_items = new controller_items();
-        $c_itemTypes = new controller_itemTypes();
-        $c_itemStates = new controller_itemStates();
         $c_itemPackages = new controller_itemPackages();
 
         $itemIdHolder = $i != null ? $f->hidden(array('id'=>'item-id','value'=>$i['item_id'])) : '';
@@ -268,23 +275,19 @@ class view_items {
                 'id'=>'item-model-no'
                 ,'label'=>'Model No'
                 ,'value'=>$i != null ? $i['item_model_no'] : ''))
-            .$c_itemTypes->displaySelectForm(
-                array(
-                    'label'=>'Type'
-                    ,'default_option'=>$i != null
-                        ? $i['item_type']
-                        : '')
-                ,false)
+            .$f->select(array(
+                'id' => 'item-type'
+                ,'label' => 'Type'
+                ,'select_options' => $this->itemTypes
+                ,'default_option' => $i != null ? $i['item_type'] : ''))
             .'</span>'
 
             .'<span class="column">'
-            .$c_itemStates->displaySelectForm(
-                array(
-                    'label'=>'State'
-                    ,'default_option'=>$i != null
-                        ? $i['item_state']
-                        : '')
-                ,false)
+            .$f->select(array(
+                'id' => 'item-state'
+                ,'label' => 'State'
+                ,'select_options' => $this->itemStates
+                ,'default_option' => $i != null ? $i['item_state'] : ''))
             .$f->textarea(array(
                 'id'=>'item-description'
                 ,'label'=>'Description'
@@ -353,7 +356,9 @@ class view_items {
 
     public function renderFormOwner ($ownerInfo) {
         $i = $ownerInfo;
-        $f = new form(array('auto_line_break'=>true,'auto_label'=>true));
+        $f = new form(array(
+            'auto_line_break'=>true
+            ,'auto_label'=>true));
         $c_owners = new controller_owners();
 
         $output = $f->openFieldset(array('legend'=>'Current Owner'))
@@ -376,14 +381,15 @@ class view_items {
     public function renderItemInformation ($infos) {
         $i = $infos;
         $it = $i['item'];
-        if ($it == null) {
-            echo 'System Error: Such item do not exists in the system.';
-            return;
+
+        if ($it === null) {
+            return 'System Error: Such item do not exists in the system.';
         }
 
         $fx = new myFunctions();
         $c_items = new controller_items();
         $c_itemPackages = new controller_itemPackages();
+        $c_itemMaintenance = new controller_itemMaintenance();
 
         $hostName = $c_items->displayItemName($it['item_component_of'], false);
         $hostLink = $it['item_component_of'] != 0
@@ -403,6 +409,10 @@ class view_items {
 
         $qrCode = $this->renderQrCode($it);
 
+        ob_start();
+        $c_itemMaintenance->itemMaintenanceHistory($it['item_id']);
+        $maintenanceHistory = ob_get_clean();
+
         $output = '<h3>'.$it['item_name'].'<br />
             <small><span style="color: #03f;">Serial</span>: '.$it['item_serial_no'].'</small><br />
             <small><span style="color: #f00;">Model</span>: '.$it['item_model_no'].'</small></h3>
@@ -411,14 +421,14 @@ class view_items {
             <table>
             <tr>
             <th>Type</th>
-            <td>'.$it['item_type_label'].'</td>
+            <td>'.$it['item_type'].'</td>
                 <th>Quantity</th>
                 <td>'.$it['item_quantity'].'</td>
                 <td rowspan="6">'.$qrCode.'</td>
             </tr>
             <tr>
                 <th>State</th>
-                <td>'.$it['item_state_label'].'</td>
+                <td>'.$it['item_state'].'</td>
                 <th>Component Of</th>
                 <td>'.$hostLink.'</td>
             </tr>
@@ -446,6 +456,9 @@ class view_items {
             </div>
 
             <div class="accordion-title">Item Component/s</div><div class="accordion-content">'.$this->renderItemComponents($i['components']).'</div>
+
+            <div class="accordion-title">Maintenance/s History</div>
+            <div class="accordion-content">'.$maintenanceHistory.'</div>
 
             <div class="accordion-title">History of Ownership/s</div><div class="accordion-content">'.$this->renderItemOwnershipHistory($i['owners']).'</div>
 
@@ -481,8 +494,8 @@ class view_items {
                 <td>
                     <b>'.$c['item_name'].'</b>
                     <div class="data-more-details">
-                        Type: '.$c['item_type_label'].'<br />
-                        Status: '.$c['item_state_label'].'<br />
+                        Type: '.$c['item_type'].'<br />
+                        Status: '.$c['item_state'].'<br />
                         Date of Purchase: '.$fx->dateToWords($c['item_date_of_purchase']).'<br />
                         Cost: '.$c['item_cost'].'<br />
                         Depreciation: '.$c['item_depreciation'].'<br />
@@ -550,14 +563,27 @@ class view_items {
                 </a>'
             : '';
 
+        $btnMaintenance = $fx->isAccessible('Content Provider')
+            ? '<a href="'.URL_BASE.'inventory_maintenance/create_maintenance/'.$itemId.'/">
+                <input type="button" value="Create Maintenance" />
+                </a>'
+            : '';
+
         $buttons = $btnUpdate
             .$btnAddComponent
             .$btnArchive
             .$btnDelete
             .$btnProfileCard
             .$btnTrace
-            .$btnNiboti;
+            .$btnNiboti
+            .$btnMaintenance;
         return $buttons;
+    }
+
+
+
+    public function buttons ($datas) {
+        return $this->renderItemButtons($datas);
     }
 
 
@@ -666,7 +692,7 @@ class view_items {
                                 S/N: '.$c['item_serial_no'].'<br />
                                 M/N: '.$c['item_model_no'].'
                                 <div class="hr-light"></div>
-                                State: '.$c['item_state_label'].'<br />
+                                State: '.$c['item_state'].'<br />
                                 Owned since: '.$fx->dateToWords($c['ownership_date_owned']).'<br />
                                 Released since: '.$fx->dateToWords($c['ownership_date_released']).'
                                 '.$componentDescription.'
@@ -703,7 +729,7 @@ class view_items {
                         M/N: '.$i['item_model_no'].'
                         </small>
                         <div class="hr-light"></div>
-                        State: '.$i['item_state_label'].'<br />
+                        State: '.$i['item_state'].'<br />
                         Owned since: '.$fx->dateToWords($i['ownership_date_owned']).'<br />
                         Released since: '.$fx->dateToWords($i['ownership_date_released']).'
                         '.$itemDescription.'
@@ -821,16 +847,14 @@ class view_items {
         $fx = new myFunctions();
         $c_items = new controller_items();
 
-        $output = '<table class="paged">
-            <tr>
-            <th>Item</th>
-            <th>Serial No.</th>
-            <th>Model No.</th>
-            </tr>';
+        $searchResults = '';
         foreach ($datas as $d) {
+            $currentOwner = $c_items->displayItemCurrentOwner($d['item_id'], false);
+
             $itemDescription = strlen($d['item_description']) > 0
                 ? '<br />'.nl2br($d['item_description'])
                 : '';
+                
             $itemButtons = $this->renderItemButtons($d);
             $itemButtons = strlen($itemButtons) > 0
                 ? '<div class="hr-light"></div>'.$itemButtons
@@ -839,20 +863,19 @@ class view_items {
             $dId = $d['item_id'];
             $dLabel = $d['item_name'].' (S/N: '.$d['item_serial_no'].' :: M/N: '.$d['item_model_no'].')';
             $dUrl = URL_BASE.'inventory/read_item/'.$d['item_id'].'/';
-            $output .= '<tr class="data" data-id="'.$dId.'" data-label="'.$dLabel.'" data-url="'.$dUrl.'">
+            $searchResults .= '<tr class="data" data-id="'.$dId.'" data-label="'.$dLabel.'" data-url="'.$dUrl.'">
                 <td>
                     '.$d['item_name'].'
                     <div class="data-more-details">
                     <b>'.$d['item_name'].'</b><br />
-                    <small>
                     S/N: '.$d['item_serial_no'].'<br />
                     M/N: '.$d['item_model_no'].'
-                    </small>
                     <div class="hr-light"></div>
-                    Type: '.$d['item_type_label'].'<br />
-                    State: '.$d['item_state_label'].'<br />
+                    Type: '.$d['item_type'].'<br />
+                    State: '.$d['item_state'].'<br />
                     Package: '.$d['package_name'].' (S/N: '.$d['package_serial_no'].')<br />
                     Component Of: '.$c_items->displayItemName($d['item_component_of'], false).'<br />
+                    Current Owner: '.$currentOwner.'<br />
                     No. of Components: '.$c_items->countComponents($d['item_id']).'
                     '.$itemDescription.'
                     '.$itemButtons.'
@@ -862,7 +885,15 @@ class view_items {
                 <td>'.$d['item_model_no'].'</td>
                 </tr>';
         }
-        $output .= '</table>';
+
+        $output = '<table class="paged">
+            <tr>
+            <th>Item</th>
+            <th>Serial No.</th>
+            <th>Model No.</th>
+            </tr>
+            '.$searchResults.'
+            </table>';
         return $output;
     }
 

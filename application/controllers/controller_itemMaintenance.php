@@ -26,14 +26,14 @@ class controller_itemMaintenance {
             $itemId = $options['itemId'];
         } else if ($type == 'update') {
             $maintenanceId = $options['maintenanceId'];
-            $options['datas'] = $this->model->readItemMaintenance($maintenanceId);
+            $options['datas'] = $this->model->readMaintenance($maintenanceId);
         } else {
-            $m = 'It seems like you are magically lost.<br /><br />Please wait while the system warp you back to the right path again.';
+            $m = 'It seems like you are magically lost.<br /><br />Please wait while the system warp you back to the right path again.<br /><br />Thank you.';
             $u = URL_BASE.'inventory_maintenance/create_maintenance/';
             $c_pages->pageRedirect($m, $u);
         }
 
-        $form = $this->view->formItemMaintenance($options);
+        $form = $this->view->mainForm($options);
         echo $form;
     }
 
@@ -48,7 +48,7 @@ class controller_itemMaintenance {
             $c_pages->pageRedirect($m, $u);
         }
 
-        $o = $this->model->createItemMaintenance($_POST);
+        $o = $this->model->createMaintenance($_POST);
 
         if ($o !== null) {
             $m = 'Successfully created the maintenance.';
@@ -72,7 +72,7 @@ class controller_itemMaintenance {
             $c_pages->pageRedirect($m, $u);
         }
 
-        $o = $this->model->updateItemMaintenance($_POST);
+        $o = $this->model->updateMaintenance($_POST);
 
         if ($o !== null) {
             $m = 'Successfully updated the maintenance.';
@@ -88,16 +88,43 @@ class controller_itemMaintenance {
 
     // Display detailed information of
     // a maintenance on an item
-    public function maintenanceInformation ($maintenanceId) {
-
+    public function itemMaintenanceInformation ($maintenanceId) {
+        $details = $this->model->readMaintenance($maintenanceId);
+        echo $this->view->information($details);
     }
 
 
 
     // Display all maintenance done on an
     // item
-    public function maintenanceHistory () {
+    public function itemMaintenanceHistory ($itemId) {
+        $details = $this->model->readMaintenances($itemId);
+        echo $this->view->history($details);
+    }
 
+
+
+    public function search ($keyword, $for='maintenance') {
+        switch ($for) {
+            case 'staffs':
+                $datas = $this->model->searchStaffs($keyword);
+                break;
+
+            case 'items':
+                $datas = $this->model->searchItems($keyword);
+                break;
+
+            case 'maintenance':
+            default:
+                $datas = $this->model->searchMaintenances($keyword);
+        }
+        echo $this->view->searchResults($datas, $for);
+    }
+
+
+
+    public function fetchProgress ($maintenanceId) {
+        return $this->model->readProgresses($maintenanceId);
     }
 
 }

@@ -2,8 +2,14 @@
 
 class view_employees {
 
-    public function __construct () {
+    private $employeeStatus;
 
+    public function __construct () {
+        $this->employeeStatus = array(
+            'Contractual' => 'Contractual'
+            ,'Probationary' => 'Probationary'
+            ,'Permanent' => 'Permanent'
+            ,'Volunteer' => 'Volunteer');
     }
 
 
@@ -16,14 +22,18 @@ class view_employees {
 
     public function renderForm ($personId, $datas) {
         $d = $datas;
-        $f = new form(array('auto_line_break'=>true, 'auto_label'=>true));
+        $f = new form(array(
+            'auto_line_break'=>true
+            ,'auto_label'=>true));
         $c_persons = new controller_persons();
         $c_departments = new controller_departments();
         $c_employees = new controller_employees();
-        $c_employeeStatus = new controller_employeeStatus();
+
+        $personName = $d['person_lastname'].', '.$d['person_firstname'].' '.$d['person_middlename'].' '.$d['person_suffix'];
 
         $employmentName = $d != null
-            ? '<h3>'.$d['person_lastname'].', '.$d['person_firstname'].' '.$d['person_middlename'].' '.$d['person_suffix'].' as <br />'.$d['employee_job_label'].'</h3>'
+            ? '<h3>'.$personName.'<br />
+                '.$d['employee_job_label'].'</h3>'
             : '<h3>New Employment for <br />'.$c_persons->displayPersonName($personId, false).'</h3>';
         $actionLink = $d != null
             ? URL_BASE.'employees/update_employment/'.$personId.'/save/'
@@ -35,30 +45,74 @@ class view_employees {
 
         $output = $employmentName
             .'<div class="hr-light"></div>'
-            .$f->openForm(array('id'=>'', 'class'=>'main-form', 'action'=>$actionLink, 'method'=>'post', 'enctype'=>'multipart/form-data'))
+            .$f->openForm(array(
+                'id'=>''
+                ,'class'=>'main-form'
+                ,'action'=>$actionLink
+                ,'method'=>'post'
+                ,'enctype'=>'multipart/form-data'))
 
-            .$f->hidden(array('id'=>'employee-id', 'value'=>$d != null ? $d['employee_id'] : '0'))
-            .$f->hidden(array('id'=>'employee-person', 'value'=>$personId))
+            .$f->hidden(array(
+                'id'=>'employee-id'
+                ,'value'=>$d != null ? $d['employee_id'] : '0'))
+            .$f->hidden(array(
+                'id'=>'employee-person'
+                ,'value'=>$personId))
 
             .$f->openFieldset(array('legend'=>'Employment Details'))
             .'<span class="column">'
-            .$f->text(array('id'=>'employee-no', 'label'=>'Employee No.', 'value'=>$d != null ? $d['employee_no'] : ''))
-            .$c_employeeStatus->displaySelectForm(array(), false)
-            .$f->hidden(array('id'=>'employee-department', 'value'=>$d != null ? $d['employee_department'] : '0', 'data-url'=>URL_BASE.'departments/in_search/'))
-            .$f->text(array('id'=>'employee-department-label', 'label'=>'Department', 'value'=>$d != null ? $c_departments->displayDepartmentName($d['employee_department'], false) : ''))
-            .'</span>'
+            .$f->text(array(
+                'id'=>'employee-no', 'label'=>'Employee No.', 'value'=>$d != null ? $d['employee_no'] : ''))
+            .$f->select(array(
+                'id' => 'employee-status'
+                ,'label' => 'Status'
+                ,'select_options' => $this->employeeStatus
+                ,'default_option' => $d != null
+                    ? $d['employee_status']
+                    : ''))
+            .$f->hidden(array(
+                'id'=>'employee-department'
+                ,'value'=>$d != null ? $d['employee_department'] : '0'
+                ,'data-url'=>URL_BASE.'departments/in_search/'))
+            .$f->text(array(
+                'id'=>'employee-department-label'
+                ,'label'=>'Department'
+                ,'value'=>$d != null 
+                    ? $c_departments->displayDepartmentName($d['employee_department'], false) 
+                    : ''))
+            .'</span>
 
-            .'<span class="column">'
-            .$f->hidden(array('id'=>'employee-job', 'value'=>$d != null ? $d['employee_job'] : '0', 'data-url'=>URL_BASE.'employees/in_search_job/'))
-            .$f->text(array('id'=>'employee-job-label', 'label'=>'Job Definition', 'value'=>$d != null ? $c_employees->displayJobName($d['employee_job'], false) : ''))
-            .$f->text(array('id'=>'employee-employment-date', 'class'=>'datepicker', 'label'=>'Employment Date', 'value'=>$d != null ? $d['employee_employment_date'] : ''))
-            .$f->text(array('id'=>'employee-resignation-date', 'class'=>'datepicker', 'label'=>'Resignation Date', 'value'=>$d != null ? $d['employee_resignation_date'] : ''))
+            <span class="column">'
+            .$f->hidden(array(
+                'id'=>'employee-job'
+                ,'value'=>$d != null ? $d['employee_job'] : '0'
+                ,'data-url'=>URL_BASE.'employees/in_search_job/'))
+            .$f->text(array(
+                'id'=>'employee-job-label'
+                ,'label'=>'Job Definition'
+                ,'value'=>$d != null ? $c_employees->displayJobName($d['employee_job'], false) : ''))
+            .$f->text(array(
+                'id'=>'employee-employment-date'
+                ,'class'=>'datepicker'
+                ,'label'=>'Employment Date'
+                ,'value'=>$d != null ? $d['employee_employment_date'] : ''))
+            .$f->text(array(
+                'id'=>'employee-resignation-date'
+                ,'class'=>'datepicker'
+                ,'label'=>'Resignation Date'
+                ,'value'=>$d != null ? $d['employee_resignation_date'] : ''))
             .'</span>'
             .$f->closeFieldset()
 
             .'<div class="hr-light"></div>'
-            .$f->submit(array('value'=>$d != null ? 'Update Employment' : 'Save Employment', 'auto_line_break'=>false))
-            .'<a href="'.URL_BASE.'persons/read_person/'.$personId.'/">'.$f->button(array('auto_line_break'=>false, 'value'=>'Cancel')).'</a>'
+            .$f->submit(array(
+                'value'=>$d != null ? 'Update Employment' : 'Save Employment'
+                ,'auto_line_break'=>false))
+            .'<a href="'.URL_BASE.'persons/read_person/'.$personId.'/">
+            '.$f->button(array(
+                'auto_line_break'=>false
+                ,'value'=>'Cancel')).'
+            </a>'
             .$endEmploymentButton
             .$f->closeForm();
         return $output;
@@ -78,14 +132,29 @@ class view_employees {
             ? '<h3>'.$d['employee_job_label'].'</h3>'
             : '<h3>New Job</h3>';
 
-        $output = $jobName.$f->openForm(array('id'=>'', 'class'=>'main-form', 'method'=>'post', 'action'=>$actionLink, 'enctype'=>'multipart/form-data'))
-            .$f->hidden(array('id'=>'employee-job-id', 'value'=>$d != null ? $d['employee_job_id'] : '0'))
+        $output = $jobName.$f->openForm(array(
+                'id'=>''
+                ,'class'=>'main-form'
+                ,'method'=>'post'
+                ,'action'=>$actionLink
+                ,'enctype'=>'multipart/form-data'))
+            .$f->hidden(array(
+                'id'=>'employee-job-id'
+                ,'value'=>$d != null ? $d['employee_job_id'] : '0'))
             .$f->openFieldset(array('legend'=>'Job Information'))
             .'<span class="column">'
-            .$f->text(array('id'=>'employee-job-label', 'label'=>'Job Label', 'value'=>$d != null ? $d['employee_job_label'] : ''))
-            .'</span>'
-            .'<span class="column">'
-            .$f->textarea(array('id'=>'employee-job-description', 'label'=>'Description', 'value'=>$d != null ? $d['employee_job_description'] : ''))
+            .$f->text(array(
+                'id'=>'employee-job-label'
+                ,'label'=>'Job Label'
+                ,'value'=>$d != null ? $d['employee_job_label'] : ''))
+            .'</span>
+            <span class="column">'
+            .$f->textarea(array(
+                'id'=>'employee-job-description'
+                ,'label'=>'Description'
+                ,'value'=>$d != null
+                    ? $d['employee_job_description']
+                    : ''))
             .'</span>'
             .$f->closeFieldset()
             .$f->submit(array('value'=>$d != null ? 'Update Job' : 'Save Job'))
@@ -103,14 +172,7 @@ class view_employees {
         $fx = new myFunctions();
         $c_departments = new controller_departments();
 
-        $currentDate = date('Y-m-d');
-
-        $output = '<table><tr>
-            <th>Job Definition</th>
-            <th>Status</th>
-            <th>Employment Date</th>
-            <th>Resignation / End of Contract Date</th>
-            </tr>';
+        $history = '';
         foreach ($datas as $d) {
             $departmentName = $c_departments->displayDepartmentName($d['employee_department'], false);
             $departmentLink = $departmentName != 'None'
@@ -124,12 +186,13 @@ class view_employees {
                     '.nl2br($d['employee_job_description'])
                 : '';
 
-            $buttons = $this->renderEmploymentButtons($d['employee_id'], $d['employee_person']);
+            $buttons = $this->buttons($d);
             $buttons = strlen($buttons) > 0
-                ? '<div class="hr-light"></div>'.$buttons
+                ? '<div class="hr-light"></div>
+                    '.$buttons
                 : '';
 
-            $output .= '<tr>
+            $history .= '<tr>
                 <td>
                     '.$d['employee_job_label'].'
                     <div class="data-more-details">
@@ -139,12 +202,20 @@ class view_employees {
                         '.$buttons.'
                     </div>
                 </td>
-                <td>'.$d['employee_status_label'].'</td>
+                <td>'.$d['employee_status'].'</td>
                 <td>'.$fx->dateToWords($d['employee_employment_date']).'</td>
                 <td>'.$fx->dateToWords($d['employee_resignation_date']).'</td>
                 </tr>';
         }
-        $output .= '</table>';
+
+        $output = '<table class="paged"><tr>
+            <th>Job Definition</th>
+            <th>Status</th>
+            <th>Employment Date</th>
+            <th>Resignation / End of Contract Date</th>
+            </tr>
+            '.$history.'
+            </table>';
         return $output;
     }
 
@@ -169,6 +240,34 @@ class view_employees {
             ? $btnUpdate.$btnEndEmployment
             : 'N/A';
         return $buttons;
+    }
+
+
+
+    public function buttons ($datas) {
+        if ($datas === null)
+            return null;
+
+        $fx = new myFunctions();
+
+        $currentDate = date('Y-m-d');
+        $employeeId = $datas['employee_id'];
+        $personId = $datas['employee_person'];
+
+        $btnUpdate = '<a href="'.URL_BASE.'employees/update_employment/'.$personId.'/'.$employeeId.'/">
+                        <input class="btn-green" type="button" value="Update Employment" />
+                        </a>';
+
+        $btnEndEmployment = '<a href="'.URL_BASE.'employees/end_employment/'.$employeeId.'/">
+                        <input class="btn-red" type="button" value="End Employment" />
+                        </a>';
+
+        $o = $datas['employee_resignation_date'] > $currentDate
+                || $datas['employee_resignation_date'] == '0000-00-00'
+            ? $btnUpdate
+                .$btnEndEmployment
+            : '';
+        return $o;
     }
 
 

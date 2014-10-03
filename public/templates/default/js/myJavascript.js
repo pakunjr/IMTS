@@ -69,6 +69,16 @@ var mySystemFx = function () {
     }
 
     // Navigation of the theme
+    if ($('.current-model').length > 0) {
+        $('.current-model').each(function () {
+            var $this = $(this);
+            $this.click(function () {
+                return false;
+            });
+        });
+    }
+
+    // Sub navigation of theme
     if ($('#main-navigation .sub-menu').length > 0) {
         $('#main-navigation').find('.sub-menu').each(function () {
             var $this = $(this)
@@ -287,9 +297,10 @@ var buttonsConfirmFx = function () {
     if ($('input[value="Deactivate Account"]').length > 0) {
         $('input[value="Deactivate Account"]').each(function () {
             var $this = $(this)
-                ,url = $this.parent('a').attr('href');
+                ,url = $this.closest('a').attr('href');
             $this.on('click', function () {
-                myConfirm('Do you want to Deactivate this account?', function () {
+                myConfirm('Do you want to Deactivate this account?'
+                    ,function () {
                     window.location = url;
                 });
                 return false;
@@ -300,9 +311,10 @@ var buttonsConfirmFx = function () {
     if ($('input[value="Activate Account"]').length > 0) {
         $('input[value="Activate Account"]').each(function () {
             var $this = $(this)
-                ,url = $this.parent('a').attr('href');
+                ,url = $this.closest('a').attr('href');
             $this.on('click', function () {
-                myConfirm('Do you want to Activate this account?', function () {
+                myConfirm('Do you want to Activate this account?'
+                    ,function () {
                     window.location = url;
                 });
                 return false;
@@ -313,9 +325,10 @@ var buttonsConfirmFx = function () {
     if ($('input[value="End Employment"]').length > 0) {
         $('input[value="End Employment"]').each(function () {
             var $this = $(this)
-                ,url = $this.parent('a').attr('href');
+                ,url = $this.closest('a').attr('href');
             $this.on('click', function () {
-                myConfirm('Do you want to end this person\'s employment?<div class="hr"></div><span style="color: #f00;">Warning: This action is undoable. You will need an admin access to reverse its effects.</span>', function () {
+                myConfirm('Do you want to end this person\'s employment?<div class="hr"></div><span style="color: #f00;">Warning: This action is undoable. You will need an admin access to reverse its effects.</span>'
+                    ,function () {
                     window.location = url;
                 });
                 return false;
@@ -326,8 +339,9 @@ var buttonsConfirmFx = function () {
     if ($('input[value="Archive Error"]').length > 0) {
         $('input[value="Archive Error"]').click(function () {
             var $this = $(this)
-                ,url = $this.parent('a').attr('href');
-            myConfirm('Do you want to archive this error?<div class="hr"></div><span style="color: #f00;">This action is unodable.</span>', function () {
+                ,url = $this.closest('a').attr('href');
+            myConfirm('Do you want to archive this error?<div class="hr"></div><span style="color: #f00;">This action is unodable.</span>'
+                ,function () {
                 window.location = url;
             });
             return false;
@@ -337,8 +351,9 @@ var buttonsConfirmFx = function () {
     if ($('input[value="Archive All Errors"]').length > 0) {
         $('input[value="Archive All Errors"]').click(function () {
             var $this = $(this)
-                ,url = $this.parent('a').attr('href');
-            myConfirm('Do you want to archive all errors?<div class="hr"></div><span style="color: #f00;">This action is unodable.</span>', function () {
+                ,url = $this.closest('a').attr('href');
+            myConfirm('Do you want to archive all errors?<div class="hr"></div><span style="color: #f00;">This action is unodable.</span>'
+                ,function () {
                 window.location = url;
             });
             return false;
@@ -348,8 +363,9 @@ var buttonsConfirmFx = function () {
     if ($('input[value="Clean Database Errors Log"]').length > 0) {
         $('input[value="Clean Database Errors Log"]').click(function () {
             var $this = $(this)
-                ,url = $this.parent('a').attr('href');
-            myConfirm('Do you want to Clean the Database Errors log?<div class="hr"></div><span style="color: #f00;">Warning: This action is undoable and the deleted information/s can never be retrieved / recovered.</span>', function () {
+                ,url = $this.closest('a').attr('href');
+            myConfirm('Do you want to Clean the Database Errors log?<div class="hr"></div><span style="color: #f00;">Warning: This action is undoable and the deleted information/s can never be retrieved / recovered.</span>'
+                ,function () {
                 window.location = url;
             });
             return false;
@@ -360,9 +376,10 @@ var buttonsConfirmFx = function () {
         $('input[value="Archive Item"]').each(function () {
             var $this = $(this)
                 ,itemName = $this.attr('data-item-name')
-                ,url = $this.parent('a').attr('href');
+                ,url = $this.closest('a').attr('href');
             $this.on('click', function () {
-                myConfirm('Do you want to archive this item?<div class="hr"></div><small>Item Name: '+itemName+'</small><br /><br /><span style="color: #f00;">Warning: This action is undoable, you will need an admin access to reverse this action.</span>', function () {
+                myConfirm('Do you want to archive this item?<div class="hr"></div><small>Item Name: '+itemName+'</small><br /><br /><span style="color: #f00;">Warning: This action is undoable, you will need an admin access to reverse this action.</span>'
+                    ,function () {
                     window.location = url;
                 });
                 return false;
@@ -396,12 +413,13 @@ var buttonsConfirmFx = function () {
     if ($('input[value="Delete Department"]').length > 0) {
         $('input[value="Delete Department"]').each(function () {
             var $this = $(this)
-                ,url = $this.parent('a').attr('href');
+                ,url = $this.closest('a').attr('href');
 
             $this.on('click', function () {
                 myConfirm('Are you sure you want to delete this Department?'
                     +'<div class="hr-light"></div>'
-                    +'<span style="color: #f00;">WARNING: This action is undoable and the effects were irreversible.</span>', function () {
+                    +'<span style="color: #f00;">WARNING: This action is undoable and the effects were irreversible.</span>'
+                    ,function () {
                     window.location = url;
                 });
                 return false;
@@ -412,12 +430,30 @@ var buttonsConfirmFx = function () {
     if ($('input[value="Delete Person"]').length > 0) {
         $('input[value="Delete Person"]').each(function () {
             var $this = $(this)
-                ,url = $this.parent('a').attr('href');
+                ,url = $this.closest('a').attr('href');
 
             $this.on('click', function () {
                 myConfirm('Are you sure you want to delete this Person?'
                     +'<div class="hr-light"></div>'
-                    +'<span style="color: #f00;">WARNING: This action is undoable and the effects were irreversible.</span>', function () {
+                    +'<span style="color: #f00;">WARNING: This action is undoable and the effects were irreversible.</span>'
+                    ,function () {
+                    window.location = url;
+                });
+                return false;
+            });
+        });
+    }
+
+    if ($('input[value="Clear Maintenance"]').length > 0) {
+        $('input[value="Clear Maintenance"]').each(function () {
+            var $this = $(this)
+                ,url = $this.closest('a').attr('href');
+
+            $this.click(function () {
+                myConfirm('Do you want to clear this maintenance?'
+                    +'<div class="hr-light"></div>'
+                    +'<span style="color: #f00;">You cannot undo this action.</span>'
+                    ,function () {
                     window.location = url;
                 });
                 return false;
@@ -432,7 +468,8 @@ var buttonsConfirmFx = function () {
 
             if ($this.hasClass('main-form')) {
                 $btnSubmit.on('click', function () {
-                    myConfirm('Submit this form?<div class="hr"></div><span style="color: #03f;">Note: Please make sure that all information you have entered is correct.</span>', function () {
+                    myConfirm('Submit this form?<div class="hr"></div><span style="color: #03f;">Note: Please make sure that all information you have entered is correct.</span>'
+                        ,function () {
                         $this.submit();
                     });
                     return false;

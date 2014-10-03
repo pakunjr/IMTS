@@ -23,16 +23,14 @@ class model_documents {
          */
         $result = $this->db->statement(array(
             'q'=>"SELECT * FROM imts_items AS item
-                LEFT JOIN imts_items_state AS iState ON item.item_state = iState.item_state_id
-                LEFT JOIN imts_items_type AS iType ON item.item_type = iType.item_type_id
                 LEFT JOIN imts_items_package AS iPackage ON item.item_package = iPackage.package_id
-                WHERE (item.item_id = ?
+                WHERE
+                    (item.item_id = ?
                         OR item.item_component_of = ?)
-                    AND iState.item_state_label = 'Working'
+                    AND item.item_state = 'Working'
                 ORDER BY
                     item.item_component_of ASC
-                    ,FIELD(item.item_state, '1', '2', '3', '4')
-                    ,item.item_state ASC
+                    ,item.item_type ASC
                     ,item.item_name ASC
                     ,item.item_serial_no ASC
                     ,item.item_model_no ASC"
@@ -59,13 +57,11 @@ class model_documents {
         $result = $this->db->statement(array(
             'q'=>"SELECT * FROM imts_ownership AS own
                 LEFT JOIN imts_items AS item ON own.ownership_item = item.item_id
-                LEFT JOIN imts_items_type AS iType ON item.item_type = iType.item_type_id
-                LEFT JOIN imts_items_state AS iState ON item.item_state = iState.item_state_id
                 WHERE ownership_owner_type = ?
                     AND ownership_owner = ?
                 ORDER BY
                     item.item_component_of ASC
-                    ,FIELD(item.item_state, '1', '2', '3', '4')
+                    ,FIELD(item.item_state, 'Working', 'Broken', 'Stored', 'Disposed')
                     ,item.item_name ASC
                     ,item.item_serial_no
                     ,item.item_model_no"

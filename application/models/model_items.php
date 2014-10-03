@@ -40,8 +40,8 @@ class model_items {
                 $d['item-name']
                 ,$d['item-serial-no']
                 ,$d['item-model-no']
-                ,intval($d['item-type'])
-                ,intval($d['item-state'])
+                ,$d['item-type']
+                ,$d['item-state']
                 ,$d['item-description']
                 ,$d['item-quantity']
                 ,$d['item-date-of-purchase']
@@ -213,9 +213,7 @@ class model_items {
 
     public function readItem ($itemId) {
         $r = $this->db->statement(array(
-            'q'=>"SELECT * FROM imts_items AS item
-                LEFT JOIN imts_items_type AS iType ON item.item_type = iType.item_type_id
-                LEFT JOIN imts_items_state AS iState ON item.item_state = iState.item_state_id
+            'q'=>"SELECT * FROM imts_items
                 WHERE item_id = ?
                 LIMIT 1"
             ,'v'=>array(
@@ -227,18 +225,16 @@ class model_items {
 
     public function readItemComponents ($itemId) {
         $r = $this->db->statement(array(
-            'q'=>"SELECT * FROM imts_items AS item
-                LEFT JOIN imts_items_type AS iType ON item.item_type = iType.item_type_id
-                LEFT JOIN imts_items_state AS iState ON item.item_state = iState.item_state_id
-                WHERE item.item_component_of = ? 
+            'q'=>"SELECT * FROM imts_items
+                WHERE item_component_of = ? 
                 ORDER BY
-                    item.item_archive_state ASC
-                    ,item.item_type ASC
-                    ,item.item_state ASC
-                    ,item.item_component_of ASC
-                    ,item.item_name ASC
-                    ,item.item_serial_no ASC
-                    ,item.item_model_no ASC"
+                    item_archive_state ASC
+                    ,item_type ASC
+                    ,item_state ASC
+                    ,item_component_of ASC
+                    ,item_name ASC
+                    ,item_serial_no ASC
+                    ,item_model_no ASC"
             ,'v'=>array(intval($itemId))));
         return count($r) > 0 ? $r : null;
     }
@@ -248,7 +244,13 @@ class model_items {
     public function readItemOwner ($itemId) {
         $currentDate = date('Y-m-d');
         $r = $this->db->statement(array(
-            'q'=>"SELECT * FROM imts_ownership WHERE ownership_item = ? AND (ownership_date_released = '0000-00-00' OR ownership_date_released > '$currentDate') LIMIT 1"
+            'q'=>"SELECT * FROM imts_ownership
+                WHERE
+                    ownership_item = ?
+                    AND (
+                        ownership_date_released = '0000-00-00'
+                        OR ownership_date_released > '$currentDate')
+                LIMIT 1"
             ,'v'=>array(
                 intval($itemId))));
         return count($r) > 0 ? $r[0] : null;
@@ -258,7 +260,9 @@ class model_items {
 
     public function readItemOwners ($itemId) {
         $r = $this->db->statement(array(
-            'q'=>"SELECT * FROM imts_ownership WHERE ownership_item = ? ORDER BY
+            'q'=>"SELECT * FROM imts_ownership
+                WHERE ownership_item = ?
+                ORDER BY
                     FIELD(ownership_date_released, '0000-00-00') DESC
                     ,ownership_date_released DESC"
             ,'v'=>array(
@@ -270,7 +274,9 @@ class model_items {
 
     public function updateItem ($datas) {
         $d = array_map('trim', $datas);
-        $d['item-has-components'] = isset($d['item-has-components']) ? '1' : '0';
+        $d['item-has-components'] = isset($d['item-has-components'])
+            ? '1'
+            : '0';
         $r = $this->db->statement(array(
             'q'=>"UPDATE imts_items
                 SET
@@ -292,8 +298,8 @@ class model_items {
                 $d['item-name']
                 ,$d['item-serial-no']
                 ,$d['item-model-no']
-                ,intval($d['item-type'])
-                ,intval($d['item-state'])
+                ,$d['item-type']
+                ,$d['item-state']
                 ,$d['item-description']
                 ,$d['item-quantity']
                 ,$d['item-date-of-purchase']
@@ -368,7 +374,9 @@ class model_items {
     public function deleteItemOwnership ($ownershipId) {
         $currentDate = date('Y-m-d');
         $result = $this->db->statement(array(
-            'q'=>"UPDATE imts_ownership SET ownership_date_released = '$currentDate' WHERE ownership_id = ?"
+            'q'=>"UPDATE imts_ownership
+                SET ownership_date_released = '$currentDate'
+                WHERE ownership_id = ?"
             ,'v'=>array(intval($ownershipId))));
         return $result;
     }
@@ -377,7 +385,9 @@ class model_items {
 
     public function archiveItem ($itemId) {
         $result = $this->db->statement(array(
-            'q'=>"UPDATE imts_items SET item_archive_state = 1 WHERE item_id = ?"
+            'q'=>"UPDATE imts_items
+                SET item_archive_state = 1
+                WHERE item_id = ?"
             ,'v'=>array(
                 intval($itemId))));
         return $result;
@@ -416,8 +426,6 @@ class model_items {
         if ($whereClause != null) {
             $rows = $this->db->statement(array(
                 'q'=>"SELECT * FROM imts_items AS item
-                    LEFT JOIN imts_items_type AS iType ON item.item_type = iType.item_type_id
-                    LEFT JOIN imts_items_state AS iState ON item.item_state = iState.item_state_id
                     LEFT JOIN imts_items_package AS package ON item.item_package = package.package_id
                     $whereClause
                     ORDER BY
@@ -440,14 +448,12 @@ class model_items {
         $datas = $this->db->statement(array(
             'q'=>"SELECT * FROM imts_ownership AS own
                 LEFT JOIN imts_items AS item ON own.ownership_item = item.item_id
-                LEFT JOIN imts_items_type AS iType ON item.item_type = iType.item_type_id
-                LEFT JOIN imts_items_state AS iState ON item.item_state = iState.item_state_id
                 WHERE
                     own.ownership_owner_type = ?
                     AND own.ownership_owner = ?
                 ORDER BY
                     item.item_component_of ASC
-                    ,FIELD(iState.item_state_label, 'Working', 'Stored', 'Broken', 'Disposed')
+                    ,FIELD(item.item_state, 'Working', 'Stored', 'Broken', 'Disposed')
                     ,item.item_name ASC
                     ,item.item_serial_no ASC
                     ,item.item_model_no ASC"

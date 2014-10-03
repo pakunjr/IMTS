@@ -24,6 +24,13 @@ class controller_pages {
 
 
     public function renderPages () {
+        if (ENVIRONMENT == 'MAINTENANCE'
+                && $_SERVER['HTTP_HOST'] != 'localhost') {
+            $this->displayPage('<h1>
+                The system is under maintenance.<br />
+                You cannot use the system at the moment.</h1>');
+        }
+
         $model = $this->model->get('model');
         $view = $this->model->get('view');
         $controller = $this->model->get('controller');
@@ -333,7 +340,7 @@ class controller_pages {
 
                     case 'in_search_item':
                         $this->restrictPage('Content Provider');
-                        $c_items->displaySearchResults('item', $controller);
+                        $c_items->displaySearchResults('items', $controller);
                         $this->displayPage(ob_get_clean(), false);
                         break;
 
@@ -413,7 +420,8 @@ class controller_pages {
                         break;
 
                     case 'read_maintenance':
-                        $this->displayPageError('underconstruction');
+                        $c_itemMaintenance->itemMaintenanceInformation($controller);
+                        $this->displayPage(ob_get_clean());
                         break;
 
                     case 'update_maintenance':
@@ -431,7 +439,18 @@ class controller_pages {
                         break;
 
                     case 'search_maintenance':
-                        $this->displayPageError('underconstruction');
+                        $c_itemMaintenance->search($controller);
+                        $this->displayPage(ob_get_clean());
+                        break;
+
+                    case 'in_search_items':
+                        $c_itemMaintenance->search($controller, 'items');
+                        $this->displayPage(ob_get_clean(), false);
+                        break;
+
+                    case 'in_search_staffs':
+                        $c_itemMaintenance->search($controller, 'staffs');
+                        $this->displayPage(ob_get_clean(), false);
                         break;
 
                     default:

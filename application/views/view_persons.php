@@ -92,7 +92,18 @@ class view_persons {
 
     public function renderSearchForm ($keyword) {
         $f = new form(array('auto_line_break'=>false, 'auto_label'=>true));
-        $output = $f->openForm(array('id'=>'', 'method'=>'post', 'action'=>URL_BASE.'persons/search_person/', 'enctype'=>'multipart/form-data')).$f->text(array('id'=>'search-keyword', 'label'=>'Search', 'value'=>$keyword)).$f->submit(array('value'=>'Search')).$f->closeForm().'<div class="hr-light"></div>';
+        $output = $f->openForm(array(
+                'id'=>''
+                ,'method'=>'post'
+                ,'action'=>URL_BASE.'persons/search_person/'
+                ,'enctype'=>'multipart/form-data'))
+            .$f->text(array(
+                'id'=>'search-keyword'
+                ,'label'=>'Search'
+                ,'value'=>$keyword))
+            .$f->submit(array('value'=>'Search'))
+            .$f->closeForm().'
+            <div class="hr-light"></div>';
         return $output;
     }
 
@@ -109,13 +120,7 @@ class view_persons {
             return $output;
         }
 
-        $output = '<table class="paged"><tr>
-            <th>Lastname</th>
-            <th>Firstname</th>
-            <th>Middlename</th>
-            <th>Suffix</th>
-            </tr>';
-
+        $searchResults = '';
         foreach ($datas as $d) {
             $personGender = $d['person_gender'] == 'm'
                 ? 'Male'
@@ -125,10 +130,10 @@ class view_persons {
                 ? '<div class="hr-light"></div>'.$personButtons
                 : $personButtons;
 
-            $dId = $d['person_id'];
-            $dLabel = $d['person_lastname'].', '.$d['person_firstname'].' '.$d['person_middlename'].' '.$d['person_suffix'];
-            $dUrl = URL_BASE.'persons/read_person/'.$d['person_id'];
-            $output .= '<tr class="data"  data-id="'.$dId.'"  data-label="'.$dLabel.'"  data-url="'.$dUrl.'/">
+            $dataId = $d['person_id'];
+            $dataLabel = $d['person_lastname'].', '.$d['person_firstname'].' '.$d['person_middlename'].' '.$d['person_suffix'];
+            $dataUrl = URL_BASE.'persons/read_person/'.$d['person_id'];
+            $searchResults .= '<tr class="data"  data-id="'.$dataId.'"  data-label="'.$dataLabel.'"  data-url="'.$dataUrl.'/">
                 <td>
                     '.$d['person_lastname'].'
                     <div class="data-more-details">
@@ -149,7 +154,15 @@ class view_persons {
                 <td>'.$d['person_suffix'].'</td>
                 </tr>';
         }
-        $output .= '</table>
+
+        $output = '<table class="paged"><tr>
+            <th>Lastname</th>
+            <th>Firstname</th>
+            <th>Middlename</th>
+            <th>Suffix</th>
+            </tr>
+            '.$searchResults.'
+            </table>
             <div class="hr-light"></div>';
         $output .= $fx->isAccessible('Content Provider')
             ? '<a href="'.URL_BASE.'persons/create_person/" target="_blank"><input class="btn-green" type="button" value="Add a Person" /></a>'
@@ -170,7 +183,6 @@ class view_persons {
         $c_owners = new controller_owners();
         $c_employees = new controller_employees();
         $c_accounts = new controller_accounts();
-        $accessLevel = isset($_SESSION['user']) ? $_SESSION['user']['accessLevel'] : null;
 
         $personName = '<h3>'.$p['person_lastname'].', '.$p['person_firstname'].' '.$p['person_middlename'].' '.$p['person_suffix'].'</h3>';
         $ownedItems = $c_owners->displayOwnedItemsSummary('Person', $p['person_id'], false);
@@ -259,7 +271,13 @@ class view_persons {
 
 
     public function renderPersonButtons ($datas) {
-        if ($datas == null)
+        return $this->buttons($datas);
+    }
+
+
+
+    public function buttons ($datas) {
+        if ($datas === null)
             return '';
 
         $p = $datas;

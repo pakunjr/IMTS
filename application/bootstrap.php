@@ -1,11 +1,18 @@
 <?php session_start(); date_default_timezone_set('Asia/Manila');
 
-// Values for ENVIRONMENT should be either
-// DEVELOPMENT for development purposes or
-// PRODUCTION otherwise if for deployment
-//
-// This should be useful for declaring whether
-// the system is under maintenance or update
+/**
+ * Applicable values to ENVIRONMENT
+ *
+ * - DEVELOPMENT : The system can be used but
+ * is being used at the same time.
+ *
+ * - PRODUCTION : The system is no longer
+ * under development and is deployed.
+ *
+ * - MAINTENANCE : The system is under strict
+ * update / development that it couldn't be
+ * used.
+ */
 define('ENVIRONMENT', 'DEVELOPMENT');
 
 define('DS', DIRECTORY_SEPARATOR);

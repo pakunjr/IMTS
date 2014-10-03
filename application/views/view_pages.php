@@ -25,7 +25,7 @@ class view_pages {
         $classTrack = $cModel == 'track'
             ? $class
             : '';
-        $classInventory = in_array($cModel, array('inventory', 'inventory_packages'))
+        $classInventory = in_array($cModel, array('inventory', 'inventory_packages', 'inventory_maintenance'))
             ? $class
             : '';
         $classOwners = in_array($cModel, array('persons', 'employees', 'owners', 'departments'))

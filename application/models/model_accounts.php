@@ -241,13 +241,14 @@ class model_accounts {
     public function validateLogin ($datas) {
         $admin = $this->db->statement(array(
             'q'=>"SELECT * FROM imts_accounts WHERE account_username = 'admin' LIMIT 1"));
+
         if (count($admin) < 1) {
             $this->createMasterUser();
         }
 
         $d = $datas;
-        $username = $d['username'];
-        $password = $d['password'];
+        $username = isset($d['username']) ? $d['username'] : '';
+        $password = isset($d['password']) ? $d['password'] : '';
 
         $fx = new myFunctions();
 
