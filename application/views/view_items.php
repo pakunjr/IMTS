@@ -6,14 +6,9 @@ class view_items {
     private $itemTypes;
 
     public function __construct () {
-        $this->itemStates = array(
-            'Working' => 'Working'
-            ,'Broken' => 'Broken'
-            ,'Stored' => 'Stored'
-            ,'Disposed' => 'Disposed');
-        
-        $this->itemTypes = array(
-            'Computer Peripherals' => 'Computer Peripherals');
+        $fx = new myFunctions();
+        $this->itemStates = $fx->enumSelectOptions('imts_items', 'item_state');
+        $this->itemTypes = $fx->enumSelectOptions('imts_items', 'item_type');
     }
 
 

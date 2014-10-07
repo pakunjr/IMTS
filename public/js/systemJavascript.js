@@ -517,6 +517,8 @@ var tablePagination = function (userOptions) {
                 pages[0] = $tmpTableHeaders.parent('p').html();
                 $tmpTableHeaders.parent('p').remove();
 
+                // Manipulate the data for display
+                // later on
                 for (var i = 1; i <= totalPages; i++) {
                     // Create the buttons
                     // for navigation
@@ -544,8 +546,8 @@ var tablePagination = function (userOptions) {
                     +'</div>'
 
                 var paginationStatistics = '<div class="pagination-statistics">'
-                    +'Total no. of data: '+ totalItems +'<br />'
-                    +'Total no. of pages: '+ totalPages +'<br />'
+                    +'Total no. of data: '+ totalItems +', '
+                    +'Total no. of pages: '+ totalPages +', '
                     +'Items per page: '+ itemsPerPage
                     +'</div>';
 
@@ -570,7 +572,7 @@ var tablePagination = function (userOptions) {
                         .addClass('currentPage').removeClass('hidden');
                     $navigation
                         .children('span[data-page="prev"]')
-                        .addClass('disabled');
+                        .addClass('disabled hidden');
                     $navigation
                         .children('.ellipsis-button[data-page="ellipsis-prev"]:visible')
                         .addClass('hidden');
@@ -657,20 +659,20 @@ var tablePagination = function (userOptions) {
                             if (currentPage == 1)
                                 $navigation
                                     .children('span[data-page="prev"]')
-                                    .addClass('disabled');
+                                    .addClass('disabled hidden');
                             else
                                 $navigation
                                     .children('span[data-page="prev"]')
-                                    .removeClass('disabled');
+                                    .removeClass('disabled hidden');
 
                             if (currentPage == totalPages)
                                 $navigation
                                     .children('span[data-page="next"]')
-                                    .addClass('disabled');
+                                    .addClass('disabled hidden');
                             else
                                 $navigation
                                     .children('span[data-page="next"]')
-                                    .removeClass('disabled');
+                                    .removeClass('disabled hidden');
 
                             // Hide and show the other
                             // buttons that are near
@@ -782,9 +784,12 @@ var debug = function (debugContents) {
 
         $debugContents.html(debugContents);
     } else {
-        var $debugContents = $('#system-debug-js-contents');
+        var $debugContainer = $('#system-debug-js')
+            ,$debugContents = $('#system-debug-js-contents');
         $debugContents.html(debugContents);
     }
+
+    draggable($debugContainer);
 };
 
 
@@ -793,18 +798,24 @@ var draggable = function ($this) {
     $this.mousedown(function (event) {
         var clickedButton = event.which;
         if (parseInt(clickedButton) == 1) {
-            var differenceX =
+            var boxY = parseInt($this.offset().top)
+                ,boxX = parseInt($this.offset().left)
+                ,differenceX =
                     parseInt(event.pageX)
-                    - parseInt($this.offset().left)
+                    - parseInt(boxX)
                 ,differenceY =
                     parseInt(event.pageY)
-                    - parseInt($this.offset().top);
+                    - parseInt(boxY);
 
             $(document).mousemove(function (eventt) {
                 var cursorX = parseInt(eventt.pageX)
                     ,cursorY = parseInt(eventt.pageY)
-                    ,valueTop = cursorY - differenceY
-                    ,valueLeft = cursorX - differenceX;
+                    ,valueTop =
+                        parseInt(cursorY)
+                        - parseInt(differenceY)
+                    ,valueLeft =
+                        parseInt(cursorX)
+                        - parseInt(differenceX);
 
                 $this.css({
                     'position': 'absolute'
@@ -813,7 +824,7 @@ var draggable = function ($this) {
                 });
             });
 
-            $this.mouseup(function () {
+            $(document).mouseup(function () {
                 $(document).unbind('mousemove');
             });
         }

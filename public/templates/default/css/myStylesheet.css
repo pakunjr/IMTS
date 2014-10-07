@@ -1,4 +1,4 @@
-/* Layout */
+/* Page Layout */
 
 html,
 body {
@@ -7,6 +7,7 @@ body {
     padding: 0px;
     background: #596f80;
     text-align: center;
+    font-family: Helvetica, Sans-Serif;
 }
 
 #main-content {
@@ -124,7 +125,7 @@ div.hr-heavy {
     border-bottom-right-radius: 4px;
 }
 #main-navigation > li a:hover {
-    background-color: rgba(11, 106, 172, 0.95);
+    background-color: rgba(11, 106, 172, 0.97);
 }
 #main-navigation li a:active {
     background-color: rgba(11, 106, 172, 1);
@@ -177,19 +178,6 @@ div.hr-heavy {
 
 
 
-/* Datepicker */
-
-.ui-datepicker {
-    padding: 5px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    background: #fff;
-    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25);
-    font-size: 0.9em;
-}
-
-
-
 /* Forms */
 
 fieldset {
@@ -235,19 +223,15 @@ select {
     border: 1px solid #ccc;
     background: #fff;
     font-size: 1em;
-    font-family: sans-serif;
+    font-family: Helvetica, Sans-Serif;
 }
 textarea {
     resize: vertical;
-}
-textarea.block {
-    display: block;
 }
 select {
     text-align: center;
 }
 select option {
-    padding: 3px;
     text-align: left;
 }
 input[type="text"]:hover,
@@ -404,8 +388,8 @@ td {
     font-size: 0.85em;
 }
 th {
-    background: #17870e;
-    background: rgba(23, 135, 14, 0.75);
+    background-color: #17870e;
+    background-color: rgba(23, 135, 14, 0.75);
     font-weight: bold;
     text-align: center;
     color: #fff;
@@ -415,8 +399,8 @@ td {
 }
 
 tr.special-hover:hover {
-    background: #11d0f2;
-    background: rgba(17, 208, 242, 0.1);
+    background-color: #11d0f2;
+    background-color: rgba(17, 208, 242, 0.1);
     cursor: pointer;
 }
 tr.special-hover:active {
@@ -459,6 +443,65 @@ a {
 }
 a:hover {
     /*text-decoration: underline;*/
+}
+
+
+
+/* Datepicker */
+
+.ui-datepicker {
+    padding: 5px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    background: #fff;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25);
+    font-size: 0.9em;
+}
+.ui-datepicker-header {
+    margin: 0px 0px 2px 0px;
+    border-radius: 3px;
+    border: 1px solid transparent;
+    background: #17870e;
+    background: rgba(23, 135, 14, 0.75);
+}
+.ui-datepicker-prev,
+.ui-datepicker-next {
+    background-color: #0b6aac;
+    background-color: rgba(11, 106, 172, 0.85);
+    cursor: pointer;
+}
+.ui-datepicker-prev-hover,
+.ui-datepicker-next-hover,
+.ui-state-hover {
+    background-color: rgba(11, 106, 172, 0.95);
+}
+.ui-datepicker-month,
+.ui-datepicker-year,
+.ui-datepicker-month:hover,
+.ui-datepicker-year:hover {
+    border: 1px solid transparent;
+}
+.ui-datepicker .ui-state-default {
+    display: block;
+    padding: 3px 5px;
+    border-radius: 3px;
+    border: 1px solid transparent;
+    background: #3157a4;
+    background: rgba(49, 87, 164, 0.7);
+    text-align: center;
+    color: #fff;
+}
+.ui-datepicker .ui-state-default:hover {
+    background: rgba(49, 87, 164, 0.9);
+}
+.ui-datepicker .ui-state-default:active {
+    background: rgba(49, 87, 164, 1);
+}
+.ui-datepicker .ui-state-active,
+.ui-datepicker .ui-state-active:hover,
+.ui-datepicker .ui-state-active:active {
+    background: #68cf60;
+    color: #333;
 }
 
 

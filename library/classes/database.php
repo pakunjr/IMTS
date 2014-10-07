@@ -105,7 +105,8 @@ class database {
          * necessary variables
          */
         try {
-            if ( strpos($q, 'SELECT') !== false ) {
+            if (strpos($q, 'SELECT') !== false
+                    || strpos($q, 'SHOW') !== false) {
                 $array = array();
                 $stmt->execute();
                 $stmt->setFetchMode(PDO::FETCH_ASSOC);
@@ -113,9 +114,9 @@ class database {
                     array_push($array, $row);
                 }
                 return $array;
-            } else if ( strpos($q, 'INSERT') !== false
+            } else if (strpos($q, 'INSERT') !== false
                     || strpos($q, 'UPDATE') !== false
-                    || strpos($q, 'DELETE') !== false ) {
+                    || strpos($q, 'DELETE') !== false) {
                 return $stmt->execute();
             } else
                 $this->logDatabaseError('Unknown type of SQL statement.');

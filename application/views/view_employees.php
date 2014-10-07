@@ -5,11 +5,8 @@ class view_employees {
     private $employeeStatus;
 
     public function __construct () {
-        $this->employeeStatus = array(
-            'Contractual' => 'Contractual'
-            ,'Probationary' => 'Probationary'
-            ,'Permanent' => 'Permanent'
-            ,'Volunteer' => 'Volunteer');
+        $fx = new myFunctions();
+        $this->employeeStatus = $fx->enumSelectOptions('imts_persons_employment', 'employee_status');
     }
 
 

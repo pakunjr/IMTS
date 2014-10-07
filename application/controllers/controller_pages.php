@@ -404,6 +404,7 @@ class controller_pages {
                 break;
 
             case 'inventory_maintenance':
+                $this->restrictPage('Content Provider');
                 switch ($view) {
                     case 'create_maintenance':
                         switch ($controller) {
@@ -714,12 +715,6 @@ class controller_pages {
             echo $content;
 
         $contents = ob_get_clean();
-        // Check the environment of the application then
-        // minify the html source code if the environment
-        // is set to production
-        if (ENVIRONMENT == 'PRODUCTION')
-            $contents = str_replace(PHP_EOL, '', $contents);
-
         $contents = $fx->minifyString($contents);
         echo $contents;
 

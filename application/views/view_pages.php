@@ -37,6 +37,9 @@ class view_pages {
         $classMyAccount = in_array($cModel, array('my_account', 'accounts'))
             ? $class
             : '';
+        $classTickets = in_array($cModel, array('tickets'))
+            ? $class
+            : '';
 
         $user_personId = isset($_SESSION['user'])
             ? $_SESSION['user']['personId']
@@ -110,6 +113,13 @@ class view_pages {
                     </ul>';
                 break;
 
+            case 'tickets':
+                $output = '<ul class="sub-menu">
+                    <li><a href="#">Ticket > New</a></li>
+                    <li><a href="#">Ticket > Search</a></li>
+                    </ul>';
+                break;
+
             case 'tracking':
                 $output = '<ul class="sub-menu">
                     <li><a href="'.URL_BASE.'track/owner/">Owner</a></li>
@@ -131,6 +141,9 @@ class view_pages {
                 $blockOwners = isset($_SESSION['user'])
                     ? '<li>'.$this->renderNavigation('owners').'<a'.$classOwners.' href="#">Owners</a></li>'
                     : '';
+                $blockTickets = isset($_SESSION['user'])
+                    ? '<li>'.$this->renderNavigation('tickets').'<a'.$classTickets.' href="#Tickets">Tickets</a></li>'
+                    : '';
                 $blockMyAccount = isset($_SESSION['user'])
                     ? '<li>'.$this->renderNavigation('myAccount').'<a'.$classMyAccount.' href="'.URL_BASE.'accounts/read_account/'.$user_accountId.'/">My Account</a></li>'
                     : '';
@@ -141,6 +154,7 @@ class view_pages {
                     '.$blockTrack.'
                     '.$blockInventory.'
                     '.$blockOwners.'
+                    '.$blockTickets.'
                     '.$blockMyAccount.'
                     </ul>';
         }

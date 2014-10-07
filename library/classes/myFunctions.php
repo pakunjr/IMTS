@@ -8,6 +8,49 @@ class myFunctions {
 
 
 
+    public function getEnum ($tableName, $fieldName) {
+        $db = new database();
+        $sqlQuery = "SHOW COLUMNS FROM $tableName";
+        $results = $db->statement(array(
+            'q' => $sqlQuery));
+        if (count($results) > 0) {
+            $enum = '';
+
+            foreach ($results as $result) {
+                if ($result['Field'] == $fieldName) {
+                    $enum = $result['Type'];
+                }
+            }
+
+            $enum = trim($enum, 'enum(');
+            $enum = trim($enum, ')');
+            $enum = trim($enum, '\'');
+            $enum = explode('\',\'', $enum);
+
+            return $enum;
+        } else
+            return null;
+    }
+
+
+
+    public function enumSelectOptions ($tableName, $fieldName) {
+        $enum = $this->getEnum($tableName, $fieldName);
+
+        if (is_array($enum)) {
+            $array = array();
+
+            foreach ($enum as $en) {
+                $array[$en] = $en;
+            }
+
+            return $array;
+        } else
+            return null;
+    }
+
+
+
     public function readArray ($array) {
         return '<pre>'.print_r($array, true).'</pre>';
     }
@@ -47,7 +90,10 @@ class myFunctions {
             '/\s\s+/'
             ,'/\r\n/'
             ,'/\n/');
-        $replacements = array('','', '');
+        $replacements = array();
+        foreach ($patterns as $p) {
+            array_push($replacements, '');
+        }
         $string = preg_replace($patterns, $replacements, $string);
         return $string;
     }

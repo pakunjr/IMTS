@@ -5,11 +5,8 @@ class view_itemMaintenance {
     private $priorityLevel;
 
     public function __construct () {
-        $this->priorityLevel = array(
-            'Low' => 'Low'
-            ,'Normal' => 'Normal'
-            ,'High' => 'High'
-            ,'Emergency' => 'Emergency');
+        $fx = new myFunctions();
+        $this->priorityLevel = $fx->enumSelectOptions('imts_items_maintenance', 'maintenance_priority_level');
     }
 
 
@@ -228,9 +225,17 @@ class view_itemMaintenance {
             '.$f->openForm(array(
                 'id' => 'maintenance-progress-form'
                 ,'method' => 'post'
-                ,'action' => ''
+                ,'action' => URL_BASE.'inventory_maintenance/progress_response/'
                 ,'enctype' => 'multipart/form-data')).'
             <span class="column">
+            '.$f->hidden(array(
+                'id' => 'maintenance-id'
+                ,'value' => $maintenanceId)).'
+            '.$f->hidden(array(
+                'id' => 'submitted-by'
+                ,'value' => isset($_SESSION['user'])
+                    ? $_SESSION['user']['personId']
+                    : 'Unknown Peron')).'
             '.$f->textarea(array(
                 'id' => 'progress-details'
                 ,'class' => 'block'
@@ -239,7 +244,34 @@ class view_itemMaintenance {
             </span>
             <div class="hr-light"></div>
             '.$f->submit(array('value' => 'Post Reply')).'
-            '.$f->closeForm();
+            '.$f->closeForm().'
+
+            <script type="text/javascript">
+            var maintenanceProgress = function () {
+                if ($("#progress-details").length > 0) {
+                    var $box = $("#progress-details")
+                        ,$parent = $box.closest(".accordion-content")
+                        ,sidePaddings = parseInt($parent.css("padding-left")) * 2
+                        ,desirableWidth = parseInt($parent.width()) - sidePaddings;
+
+                    $box.css({
+                        "width": desirableWidth + "px"
+                    });
+
+                    $(window).resize(function () {
+                        desirableWidth = parseInt($parent.width()) - sidePaddings;
+
+                        $box.css({
+                            "width": desirableWidth + "px"
+                        });
+                    });
+                }
+            };
+
+            $(document).ready(function () {
+                maintenanceProgress();
+            });
+            </script>';
         return $o;
     }
 
