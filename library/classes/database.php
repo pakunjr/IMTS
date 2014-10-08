@@ -14,13 +14,32 @@ class database {
     private $errorFile;
 
     public function __construct ($config=null) {
-        if ($config == null) {
+        if ($config === null) {
             $this->host = DATABASE_HOST;
             $this->username = DATABASE_USERNAME;
             $this->password = DATABASE_PASSWORD;
             $this->database = DATABASE_NAME;
             $this->port = DATABASE_PORT;
             $this->socket = DATABASE_SOCKET;
+        } else {
+            $this->host = isset($config['host'])
+                ? $config['host']
+                : '';
+            $this->username = isset($config['username'])
+                ? $config['username']
+                : '';
+            $this->password = isset($config['password'])
+                ? $config['password']
+                : '';
+            $this->database = isset($config['database'])
+                ? $config['database']
+                : '';
+            $this->port = isset($config['port'])
+                ? $config['port']
+                : '';
+            $this->socket = isset($config['socket'])
+                ? $config['socket']
+                : '';
         }
 
         $this->errorFile = DIR_LIBRARY.DS.'logs'.DS.'db_errors.php';
@@ -61,7 +80,9 @@ class database {
         $this->connect();
         $connection = $this->connection;
 
-        $q = isset($options['q']) ? $options['q'] : '';
+        $q = isset($options['q'])
+            ? trim($options['q'])
+            : '';
         $v = isset($options['v']) && is_array($options['v'])
             ? $options['v']
             : array();
@@ -105,8 +126,12 @@ class database {
          * necessary variables
          */
         try {
-            if (strpos($q, 'SELECT') !== false
-                    || strpos($q, 'SHOW') !== false) {
+            $queryType = explode(' ', $q);
+            $queryType = $queryType[0];
+
+            if (in_array($queryType, array(
+                    'SELECT'
+                    ,'SHOW'))) {
                 $array = array();
                 $stmt->execute();
                 $stmt->setFetchMode(PDO::FETCH_ASSOC);
@@ -114,9 +139,10 @@ class database {
                     array_push($array, $row);
                 }
                 return $array;
-            } else if (strpos($q, 'INSERT') !== false
-                    || strpos($q, 'UPDATE') !== false
-                    || strpos($q, 'DELETE') !== false) {
+            } else if (in_array($queryType, array(
+                    'INSERT'
+                    ,'UPDATE'
+                    ,'DELETE'))) {
                 return $stmt->execute();
             } else
                 $this->logDatabaseError('Unknown type of SQL statement.');

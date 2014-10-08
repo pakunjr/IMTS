@@ -1,22 +1,33 @@
 <?php
 
-$s['SYSTEM_NAME'] = 'Inventory Monitoring and Tracking System';
-$s['SYSTEM_NAME_SHORT'] = 'IMTS';
-$s['SYSTEM_VERSION'] = '1.0';
-$s['SYSTEM_AUTHOR'] = 'PakunJr';
-$s['SYSTEM_TEMPLATE'] = 'default';
-$s['SYSTEM_YEAR_START'] = '2014';
+$configs['SYSTEM_NAME'] = 'Inventory Monitoring and Tracking System';
+$configs['SYSTEM_NAME_SHORT'] = 'IMTS';
+$configs['SYSTEM_VERSION'] = '1.0';
+$configs['SYSTEM_AUTHOR'] = 'PakunJr';
+$configs['SYSTEM_TEMPLATE'] = 'default';
+$configs['SYSTEM_YEAR_START'] = '2014';
 
-$s['URL_BASE'] = 'http://'.$_SERVER['HTTP_HOST'].'/IMTS/';
-$s['URL_TEMPLATE'] = $s['URL_BASE'].'public/templates/'.$s['SYSTEM_TEMPLATE'].'/';
+$configs['URL_BASE'] = 'http://'.$_SERVER['HTTP_HOST'].'/IMTS/';
+$configs['URL_TEMPLATE'] = $configs['URL_BASE'].'public/templates/'.$configs['SYSTEM_TEMPLATE'].'/';
 
-$s['DATABASE_HOST'] = '127.0.0.1';
-$s['DATABASE_USERNAME'] = 'root';
-$s['DATABASE_PASSWORD'] = 'sysdev09';
-$s['DATABASE_NAME'] = 'db_imts';
-$s['DATABASE_PORT'] = '3306';
-$s['DATABASE_SOCKET'] = '';
+// Default configuration of the database
+// which is the IMTS database server
+$configs['DATABASE_HOST'] = '127.0.0.1';
+$configs['DATABASE_USERNAME'] = 'root';
+$configs['DATABASE_PASSWORD'] = 'sysdev09';
+$configs['DATABASE_NAME'] = 'db_imts';
+$configs['DATABASE_PORT'] = '3306';
+$configs['DATABASE_SOCKET'] = '';
 
-foreach ($s as $n => $v) {
-    defined($n) or define($n, $v);
+// Other database server configurations
+$databaseConfigs = array(
+    'ticket' => array(
+        'host' => 'localhost'
+        ,'username' => 'root'
+        ,'password' => 'sysdev09'
+        ,'database' => 'db_imts_ticket'));
+defined('DATABASE_SERVERS') or define('DATABASE_SERVERS', serialize($databaseConfigs));
+
+foreach ($configs as $name => $value) {
+    defined($name) or define($name, $value);
 }

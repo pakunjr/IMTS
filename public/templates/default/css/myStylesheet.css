@@ -255,6 +255,10 @@ textarea[readonly="readonly"],
 select[readonly="readonly"] {
     background-color: #d9d9d9;
 }
+textarea.long {
+    width: 350px;
+    height: 60px;
+}
 
 input[type="button"],
 input[type="submit"],
@@ -362,12 +366,19 @@ input.searchbox-readonly:focus {
     color: #664c14;
 }
 
+.form-header {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #4d4d4d;
+}
+
 
 
 /* Tables */
 
 table {
     width: 100%;
+    margin: 0px 2px 2px 0px;
     border-collapse: collapse;
 }
 table table * {
@@ -420,6 +431,14 @@ tr.disabled:hover {
     text-decoration: line-through;
     cursor: not-allowed;
     color: #b3b3b3;
+}
+
+table.borderless tr,
+table.borderless th,
+table.borderless td {
+    border: 1px solid transparent;
+    background: #fff;
+    background: rgba(255, 255, 255, 0.95);
 }
 
 
@@ -501,7 +520,6 @@ a:hover {
 .ui-datepicker .ui-state-active:hover,
 .ui-datepicker .ui-state-active:active {
     background: #68cf60;
-    color: #333;
 }
 
 

@@ -211,7 +211,9 @@ class form {
 
         // Process automated placeholder attribute
         if ( !isset($o['placeholder']) && !in_array('placeholder', $e) ) {
-            if ( isset($o['name']) )
+            if (isset($o['label']))
+                $o['placeholder'] = $o['label'];
+            else if ( isset($o['name']) )
                 $o['placeholder'] = $o['name'];
             else if ( isset($o['id']) )
                 $o['placeholder'] = $o['id'];

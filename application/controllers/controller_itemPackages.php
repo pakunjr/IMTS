@@ -19,25 +19,49 @@ class controller_itemPackages {
 
 
     public function createPackage () {
+        $c_pages = new controller_pages();
+
         if (!isset($_POST)) {
-            header('location: '.URL_BASE.'inventory_packages/create_package/');
-            return;
+            $msg = 'Something went wrong and the server is now redirecting you to another page.<br />Sorry for the inconvenience.';
+            $url = URL_BASE.'inventory_packages/create_package/';
+            $c_pages->pageRedirect($msg, $url);
         }
+
         $package = $this->model->createPackage($_POST);
+        
         if ($package != null) {
-            header('location: '.URL_BASE.'inventory_packages/read_package/'.$package['package-id'].'/');
-        } else header('location: '.URL_BASE.'inventory_packages/create_package/');
+            $msg = 'The package has been created successfully.';
+            $url = URL_BASE.'inventory_packages/read_package/'.$package['package-id'].'/';
+        } else {
+            $msg = '';
+            $url = URL_BASE.'inventory_packages/create_package/';
+        }
+
+        $c_pages->pageRedirect($msg, $url);
     }
 
 
 
     public function updatePackage () {
+        $c_pages = new controller_pages();
+
         if (!isset($_POST)) {
-            header('location: '.URL_BASE.'inventory_packages/');
-            return;
+            $msg = 'Something went wrong and the server is now redirecting you to another page.<br />Sorry for the inconvenience.';
+            $url = URL_BASE.'inventory_packages/';
+            $c_pages->pageRedirect($msg, $url);
         }
+
         $package = $this->model->updatePackage($_POST);
-        header('location: '.URL_BASE.'inventory_packages/read_package/'.$package['package-id'].'/');
+
+        if ($package !== null) {
+            $msg = 'You have successfully updated the package.';
+            $url = URL_BASE.'inventory_packages/read_package/'.$package['package-id'].'/';
+        } else {
+            $msg = 'Something went wrong and the package has failed to be updated.';
+            $url = URL_BASE.'inventory_packages/';
+        }
+
+        $c_pages->pageRedirect($msg, $url);
     }
 
 

@@ -187,7 +187,10 @@ var formFx = function () {
                     ,$fcnt = $('#form-elements-reader-content');
 
                 $fcnr.css({
-                    'top': yCoord + $this.height() + 12 + 'px'
+                    'top': (yCoord
+                            + parseInt($this.height())
+                            + 12)
+                        +'px'
                     ,'left': xCoord + 'px'
                 });
 

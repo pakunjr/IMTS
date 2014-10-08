@@ -104,7 +104,12 @@ var mySystemFx = function () {
 
 
 var formsFx = function () {
-
+    if ($('legend').length > 0) {
+        $('legend').each(function () {
+            var $this = $(this);
+            $this.addClass('unhighlightable');
+        });
+    }
 };
 
 

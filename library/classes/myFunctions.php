@@ -8,8 +8,12 @@ class myFunctions {
 
 
 
-    public function getEnum ($tableName, $fieldName) {
-        $db = new database();
+    public function getEnum ($tableName, $fieldName, $dbConfig=null) {
+        if ($dbConfig === null)
+            $db = new database();
+        else
+            $db = new database($dbConfig);
+
         $sqlQuery = "SHOW COLUMNS FROM $tableName";
         $results = $db->statement(array(
             'q' => $sqlQuery));
@@ -34,14 +38,39 @@ class myFunctions {
 
 
 
-    public function enumSelectOptions ($tableName, $fieldName) {
-        $enum = $this->getEnum($tableName, $fieldName);
+    public function enumSelectOptions ($tableName, $fieldName, $dbConfig=null) {
+        $enum = $this->getEnum($tableName, $fieldName, $dbConfig);
 
         if (is_array($enum)) {
             $array = array();
 
             foreach ($enum as $en) {
                 $array[$en] = $en;
+            }
+
+            return $array;
+        } else
+            return null;
+    }
+
+
+
+    public function tableSelectOptions ($tableName, $value, $label, $dbConfig=null) {
+        if ($dbConfig === null)
+            $db = new database();
+        else
+            $db = new database($dbConfig);
+
+        $query = "SELECT $label, $value FROM $tableName
+            ORDER BY $label ASC";
+        $values = array();
+        $results = $db->statement(array(
+            'q' => $query, 'v' => $values));
+
+        if (count($results) > 0) {
+            $array = array();
+            foreach ($results as $result) {
+                $array[$result[$label]] = $result[$value];
             }
 
             return $array;
@@ -101,8 +130,10 @@ class myFunctions {
 
 
     public function isEmail ($emailAddress) {
-        if (filter_var($emailAddress, FILTER_VALIDATE_EMAIL)) return true;
-        else return false;
+        if (filter_var($emailAddress, FILTER_VALIDATE_EMAIL))
+            return true;
+        else
+            return false;
     }
 
 

@@ -115,7 +115,7 @@ class view_pages {
 
             case 'tickets':
                 $output = '<ul class="sub-menu">
-                    <li><a href="#">Ticket > New</a></li>
+                    <li><a href="'.URL_BASE.'tickets/new_ticket/">Ticket > New</a></li>
                     <li><a href="#">Ticket > Search</a></li>
                     </ul>';
                 break;

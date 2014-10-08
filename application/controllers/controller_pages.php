@@ -48,6 +48,7 @@ class controller_pages {
         $c_employees = new controller_employees();
         $c_departments = new controller_departments();
         $c_errors = new controller_errors();
+        $c_tickets = new controller_tickets();
 
         $models_authenticated = array('accounts', 'admin', 'inventory', 'inventory_packages', 'persons', 'employees', 'departments', 'owners');
         $models_public = array('home', 'track');
@@ -663,6 +664,23 @@ class controller_pages {
                     case 'new_ticket':
 
                         break;
+                }
+                break;
+
+            case 'tickets':
+                $this->restrictPage('Content Provider');
+                switch ($view) {
+                    case 'new_ticket':
+                        $c_tickets->ticketForm();
+                        $this->displayPage(ob_get_clean());
+                        break;
+
+                    case 'update_ticket':
+                        $c_tickets->ticketForm($controller);
+                        $this->displayPage(ob_get_clean());
+                        break;
+
+                    default:
                 }
                 break;
 
