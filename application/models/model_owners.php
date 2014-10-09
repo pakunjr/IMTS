@@ -26,17 +26,31 @@ class model_owners {
             $ownerId = $ownership[0]['ownership_owner'];
             switch ($ownerType) {
                 case 'Person':
+                    $query = "SELECT * FROM imts_persons
+                        WHERE person_id = ?
+                        LIMIT 1";
+
+                    $values = array(
+                        intval($ownerId));
+
                     $owner = $this->db->statement(array(
-                        'q'=>"SELECT * FROM imts_persons WHERE person_id = ? LIMIT 1"
-                        ,'v'=>array(intval($ownerId))));
+                        'q' => $query, 'v' => $values));
+
                     if (count($owner) > 0)
                         $owner[0]['owner_type'] = 'Person';
                     break;
 
                 case 'Department':
+                    $query = "SELECT * FROM imts_departments
+                        WHERE department_id = ?
+                        LIMIT 1";
+
+                    $values = array(
+                        intval($ownerId));
+
                     $owner = $this->db->statement(array(
-                        'q'=>"SELECT * FROM imts_departments WHERE department_id = ? LIMIT 1"
-                        ,'v'=>array(intval($ownerId))));
+                        'q' => $query, 'v' => $values));
+                    
                     if (count($owner) > 0)
                         $owner[0]['owner_type'] = 'Department';
                     break;
@@ -52,8 +66,9 @@ class model_owners {
 
 
     public function readOwners () {
+        $query = "SELECT * FROM imts_ownership";
         $owners = $this->db->statement(array(
-            'q'=>"SELECT * FROM imts_ownership"));
+            'q' => $query));
         return count($owners) > 0 ? $owners : null;
     }
 
@@ -67,16 +82,18 @@ class model_owners {
             $ownerType = $ownerships[0]['ownership_owner_type'];
             $ownerId = $ownerships[0]['ownership_owner'];
 
+            $query = "SELECT * FROM imts_ownership
+                WHERE
+                    ownership_owner = ?
+                    AND ownership_owner_type = ?
+                ORDER BY ownership_date_released DESC";
+
+            $values = array(
+                intval($ownerId)
+                ,$ownerType);
+
             $owner = $this->db->statement(array(
-                'q'=>"SELECT * FROM imts_ownership
-                    WHERE
-                        ownership_owner = ?
-                        AND ownership_owner_type = ?
-                    ORDER BY
-                        ownership_date_released DESC"
-                ,'v'=>array(
-                    intval($ownerId)
-                    ,$ownerType)));
+                'q' => $query, 'v' => $values));
             return count($owner) > 0 ? $owner : null;
         } else
             return null;
@@ -91,26 +108,30 @@ class model_owners {
 
         $fx = new myFunctions();
 
-        $query = "SELECT * FROM imts_items AS items
-            LEFT JOIN imts_ownership AS ownshp ON items.item_id = ownshp.ownership_item
-            LEFT JOIN imts_items_type AS iType ON items.item_type = iType.item_type_id
-            LEFT JOIN imts_items_state AS iState ON items.item_state = iState.item_state_id
-            WHERE ownshp.ownership_owner = ?
-                AND ownshp.ownership_owner_type = ?";
-        $query .= !$fx->isAccessible('Supervisor')
-            ? " AND items.item_archive_state = 0"
+        $includeArchiveItems = !$fx->isAccessible('Supervisor')
+            ? "AND items.item_archive_state = 0"
             : '';
-        $query .= " ORDER BY
-                        items.item_component_of ASC
-                        ,items.item_name ASC
-                        ,items.item_serial_no ASC
-                        ,items.item_model_no ASC";
+
+        $query = "SELECT * FROM imts_items AS items
+            LEFT JOIN imts_ownership AS ownshp
+                ON items.item_id = ownshp.ownership_item
+            WHERE
+                ownshp.ownership_owner = ?
+                AND ownshp.ownership_owner_type = ?
+                $includeArchiveItems
+            ORDER BY
+                items.item_component_of ASC
+                ,items.item_name ASC
+                ,items.item_serial_no ASC
+                ,items.item_model_no ASC";
+
+        $values = array(
+            intval($ownerId)
+            ,$ownerType);
 
         $ownerships = $this->db->statement(array(
-            'q'=>$query
-            ,'v'=>array(
-                intval($ownerId)
-                ,$ownerType)));
+            'q' => $query, 'v' => $values));
+
         return count($ownerships) > 0 ? $ownerships : null;
     }
 
@@ -119,29 +140,35 @@ class model_owners {
     public function searchOwners ($ownerType='Person', $keyword) {
         switch ($ownerType) {
             case 'Person':
+                $query = "SELECT * FROM imts_persons
+                    WHERE
+                        person_firstname LIKE ?
+                        OR person_middlename LIKE ?
+                        OR person_lastname LIKE ?
+                        OR person_birthdate LIKE ?";
+
+                $values = array(
+                    "%$keyword%"
+                    ,"%$keyword%"
+                    ,"%$keyword%"
+                    ,"%$keyword%");
+
                 $results = $this->db->statement(array(
-                    'q'=>"SELECT * FROM imts_persons
-                        WHERE
-                            person_firstname LIKE ?
-                            OR person_middlename LIKE ?
-                            OR person_lastname LIKE ?
-                            OR person_birthdate LIKE ?"
-                    ,'v'=>array(
-                        "%$keyword%"
-                        ,"%$keyword%"
-                        ,"%$keyword%"
-                        ,"%$keyword%")));
+                    'q' => $query, 'v' => $values));
                 break;
 
             case 'Department':
+                $query = "SELECT * FROM imts_departments
+                    WHERE
+                        department_name LIKE ?
+                        OR department_name_short LIKE ?";
+
+                $values = array(
+                    "%$keyword%"
+                    ,"%$keyword%");
+
                 $results = $this->db->statement(array(
-                    'q'=>"SELECT * FROM imts_departments
-                        WHERE
-                            department_name LIKE ?
-                            OR department_name_short LIKE ?"
-                    ,'v'=>array(
-                        "%$keyword%"
-                        ,"%$keyword%")));
+                    'q' => $query, 'v' => $values));
                 break;
 
             default:

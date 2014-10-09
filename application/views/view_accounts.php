@@ -2,7 +2,11 @@
 
 class view_accounts {
 
+    private $accountAccessLevelSelectOptions;
+
     public function __construct () {
+        $fx = new myFunctions();
+        $this->accountAccessLevelSelectOptions = $fx->enumSelectOptions('imts_accounts', 'account_access_level');
 
     }
 
@@ -21,19 +25,19 @@ class view_accounts {
         $c_accounts = new controller_accounts();
         $c_persons = new controller_persons();
 
-        $formTitle = $d != null
+        $formTitle = $d !== null
             ? '<h3>Update Account `'.$c_accounts->displayAccountName($d['account_id'], false).'`</h3>'
             : '<h3>New Account for<br />'.$c_persons->displayPersonName($personId, false).'</h3>';
 
-        $actionLink = $d != null
+        $actionLink = $d !== null
             ? URL_BASE.'accounts/update_account/save/'.$personId
             : URL_BASE.'accounts/create_account/save/'.$personId;
 
-        $cancelButton = $d != null
+        $cancelButton = $d !== null
             ? '<a href="'.URL_BASE.'accounts/read_account/'.$d['account_id'].'/"><input class="btn-red" type="button" value="Cancel" /></a>'
             : '<a href="'.URL_BASE.'persons/read_person/'.$personId.'/"><input type="button" value="Cancel" /></a>';
 
-        if ($d != null
+        if ($d !== null
                 && isset($_SESSION['user'])
                 && ($_SESSION['user']['accessLevel'] == 'Administrator'
                     || $_SESSION['user']['accessLevel'] == 'Admin')) {
@@ -43,7 +47,7 @@ class view_accounts {
         } else
             $deactivateButton = '';
 
-        $passwordBlock = $d != null
+        $passwordBlock = $d !== null
             ? ''
             : '<br />'.$f->password(array('id'=>'account-password', 'label'=>'Password'))
                 .$f->password(array('id'=>'account-password-confirm', 'label'=>'Confirm Password'));
@@ -52,18 +56,39 @@ class view_accounts {
             .'<div class="hr-light"></div>'
             .$f->openForm(array('id'=>'', 'class'=>'main-form', 'method'=>'post', 'action'=>$actionLink, 'enctype'=>'multipart/form-data'))
 
-            .$f->hidden(array('id'=>'account-owner', 'value'=>$personId))
-            .$f->hidden(array('id'=>'account-id', 'value'=>$d != null ? $d['account_id'] : '0'))
+            .$f->hidden(array(
+                'id' => 'account-owner'
+                ,'value' => $personId))
+            .$f->hidden(array(
+                'id' => 'account-id'
+                ,'value' => $d !== null
+                    ? $d['account_id']
+                    : '0'))
 
             .$f->openFieldset(array('legend'=>'Account Information'))
             .'<span class="column">'
-            .$f->text(array('id'=>'account-username', 'label'=>'Username', 'value'=>$d != null ? $d['account_username'] : ''))
-            .$c_accounts->displayAccessLevelSelect(array('id'=>'account-access-level', 'label'=>'Access Level', 'default_option'=>$d != null ? $d['account_access_level'] : ''), false)
+            .$f->text(array(
+                'id' => 'account-username'
+                ,'label' => 'Username'
+                ,'value' => $d !== null
+                    ? $d['account_username']
+                    : ''))
+            .$f->select(array(
+                'id' => 'account-access-level'
+                ,'label' => 'Access Level'
+                ,'select_options' => $this->accountAccessLevelSelectOptions
+                ,'default_option' => $d !== null
+                    ? $d['account_access_level']
+                    : 'Viewer'))
             .$passwordBlock
             .'</span>'
             .$f->closeFieldset()
             .'<div class="hr-light"></div>'
-            .$f->submit(array('value'=>$d != null ? 'Update Account' : 'Save Account', 'auto_line_break'=>false))
+            .$f->submit(array(
+                'value' => $d !== null
+                    ? 'Update Account'
+                    : 'Save Account'
+                ,'auto_line_break' => false))
             .$cancelButton
             .$deactivateButton
             .$f->closeForm();
@@ -73,7 +98,10 @@ class view_accounts {
 
 
     public function renderLoginForm () {
-        $f = new form(array('auto_line_break'=>false, 'auto_label'=>true));
+        $f = new form(array(
+            'auto_line_break' => false
+            ,'auto_label' => true));
+
         $output = $f->openForm(array(
                 'id'=>'form-login'
                 ,'method'=>'post'
@@ -143,19 +171,6 @@ class view_accounts {
 
 
 
-    public function renderAccessLevelSelect ($options, $datas) {
-        $f = new form(array('auto_line_break'=>true, 'auto_label'=>true));
-        $selectOptions = $f->generate(array(
-            'type'=>'select_options'
-            ,'datas'=>$datas
-            ,'label'=>'access_level_label'
-            ,'value'=>'access_level_id'));
-        $options['select_options'] = $selectOptions;
-        return $f->select($options);
-    }
-
-
-
     public function renderAccountInformations ($datas) {
         if ($datas == null)
             return 'Error: This account is not available or do not exists on our system.';
@@ -180,7 +195,7 @@ class view_accounts {
                 <th>Owner</th>
                 <td>'.$accountOwnerNameLink.'</td>
                 <th>Access Level</th>
-                <td>'.$d['access_level_label'].'</td>
+                <td>'.$d['account_access_level'].'</td>
             </tr>
             <tr>
                 <th>Status</th>
@@ -204,18 +219,17 @@ class view_accounts {
         $fx = new myFunctions();
         $c_employees = new controller_employees();
 
-        $output = '<table><tr>
-            <th>Username</th>
-            <th>Access Level</th>
-            <th>Account Status</th>
-            </tr>';
+        $accounts = '';
         foreach ($datas as $d) {
-            $accountStatus = $d['account_deactivated'] == '0' ? 'Activated' : 'Deactivated';
+            $accountStatus = $d['account_deactivated'] == '0'
+                ? 'Activated'
+                : 'Deactivated';
+
             $buttons = $this->renderAccountButtons($d);
             $buttons = strlen($buttons) > 0
                 ? '<div class="hr-light"></div>'.$buttons
                 : '';
-            $output .= '<tr class="data" data-url="'.URL_BASE.'accounts/read_account/'.$d['account_id'].'/">
+            $accounts .= '<tr class="data" data-url="'.URL_BASE.'accounts/read_account/'.$d['account_id'].'/">
                 <td>
                     '.$d['account_username'].'
                     <div class="data-more-details">
@@ -224,18 +238,26 @@ class view_accounts {
                     '.$buttons.'
                     </div>
                 </td>
-                <td>'.$d['access_level_label'].'</td>
+                <td>'.$d['account_access_level'].'</td>
                 <td>'.$accountStatus.'</td>
                 </tr>';
         }
-        $output .= '</table>';
+
+        $output = '<table><tr>
+            <th>Username</th>
+            <th>Access Level</th>
+            <th>Account Status</th>
+            </tr>
+            '.$accounts.'
+            </table>';
+
         return $output;
     }
 
 
 
     public function renderAccountButtons ($datas) {
-        if ($datas == null)
+        if ($datas === null)
             return null;
 
         $d = $datas;
@@ -258,13 +280,19 @@ class view_accounts {
             : '<a href="'.URL_BASE.'accounts/activate_account/'.$d['account_id'].'/">
                 <input class="btn-green" type="button" value="Activate Account" />
                 </a>';
+
         $btnActivation = $fx->isAccessible('Administrator')
             ? $btnActivation
             : '';
 
+        $btnDelete = $fx->isAccessible('Administrator')
+            ? '<a href="'.URL_BASE.'accounts/delete_account/'.$d['account_id'].'/"><input class="btn-red" type="button" value="Delete Account" /></a>'
+            : '';
+
         $buttons = $btnUpdate
             .$btnChangePassword
-            .$btnActivation;
+            .$btnActivation
+            .$btnDelete;
         return $buttons;
     }
 

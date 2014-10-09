@@ -18,10 +18,10 @@ class model_tickets {
 
     public function createTicket ($datas) {
         if (isset($datas['ticket-date-closed'])) {
-            $datas['ticket-date-closed'] = date('Y-m-d');
+            $datas['ticket-date-closed'] = date('Y-m-d H:i:s');
             $datas['ticket-status'] = 'Closed';
         } else {
-            $datas['ticket-date-closed'] = '0000-00-00';
+            $datas['ticket-date-closed'] = '0000-00-00 00:00:00';
             $datas['ticket-status'] = 'Open';
         }
 
@@ -52,7 +52,7 @@ class model_tickets {
             ,$datas['ticket-subject']
             ,$datas['ticket-summary']
             ,$datas['ticket-internal-note']
-            ,date('Y-m-d')
+            ,date('Y-m-d H:i:s')
             ,$datas['ticket-date-due']
             ,$datas['ticket-date-closed']);
 
@@ -82,10 +82,10 @@ class model_tickets {
 
     public function updateTicket ($datas) {
         if (isset($datas['ticket-date-closed'])) {
-            $datas['ticket-date-closed'] = date('Y-m-d');
+            $datas['ticket-date-closed'] = date('Y-m-d H:i:s');
             $datas['ticket-status'] = 'Closed';
         } else {
-            $datas['ticket-date-closed'] = '0000-00-00';
+            $datas['ticket-date-closed'] = '0000-00-00 00:00:00';
             $datas['ticket-status'] = 'Open';
         }
 
@@ -101,7 +101,6 @@ class model_tickets {
                 ,ticket_subject = ?
                 ,ticket_summary = ?
                 ,ticket_internal_note = ?
-                ,ticket_date_submitted = ?
                 ,ticket_date_due = ?
                 ,ticket_date_closed = ?
             WHERE ticket_id = ?";
@@ -117,7 +116,6 @@ class model_tickets {
             ,$datas['ticket-subject']
             ,$datas['ticket-summary']
             ,$datas['ticket-internal-note']
-            ,date('Y-m-d')
             ,$datas['ticket-date-due']
             ,$datas['ticket-date-closed']
             ,intval($datas['ticket-id']));

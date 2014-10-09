@@ -18,7 +18,7 @@ class controller_accounts {
 
 
 
-    public function createAccount () {
+    public function createAccount ($personId=null) {
         $c_pages = new controller_pages();
 
         if (!isset($_POST)) {
@@ -32,8 +32,13 @@ class controller_accounts {
             $msg = 'Account has been created successfully.';
             $redirectUrl = URL_BASE.'accounts/read_account/'.$res['account-id'].'/';
         } else {
-            $msg = '<span style="color: #f00;">Error</span>: Account was not created.';
-            $redirectUrl = URL_BASE.'accounts/create_account/';
+            $msg = '<span style="color: #f00;">Error</span>: Account was not created.<br />
+                This might be due to the following reasons:
+                <ul>
+                <li>Password is less than 5 characters.</li>
+                <li>Password and Confirm Password did not match.</li>
+                </ul>';
+            $redirectUrl = URL_BASE.'accounts/create_account/'.$personId.'/';
         }
         
         $c_pages->pageRedirect($msg, $redirectUrl);
@@ -56,7 +61,7 @@ class controller_accounts {
             $msg = 'The account has been updated successfully.';
             $redirectUrl = URL_BASE.'accounts/read_account/'.$res['account-id'].'/';
         } else {
-            $msg = 'The account failed to be udpated.';
+            $msg = 'The system failed to update the account.';
             $redirectUrl = URL_BASE.'accounts/read_account/'.$res['account-id'].'/';
         }
 
@@ -102,6 +107,23 @@ class controller_accounts {
             $redirectUrl = URL_BASE.'accounts/update_password/'.$_POST['account-id'].'/';
             $c_pages->pageRedirect($msg, $redirectUrl);
         }
+    }
+
+
+
+    public function deleteAccount ($accountId) {
+        $c_pages = new controller_pages();
+        $status = $this->model->deleteAccount($accountId);
+
+        if ($status) {
+            $msg = 'The account has been successfully deleted from the system.';
+            $url = URL_BASE.'accounts';
+        } else {
+            $msg = 'The system failed to delete the account.';
+            $url = URL_BASE.'accounts/read_account/'.$accountId.'/';
+        }
+
+        $c_pages->pageRedirect($msg, $url);
     }
 
 
@@ -166,15 +188,6 @@ class controller_accounts {
 
 
 
-    public function displayAccessLevelSelect ($options, $echo=false) {
-        $accessLevels = $this->model->readAccessLevels();
-        $output = $this->view->renderAccessLevelSelect($options, $accessLevels);
-        if (!$echo) return $output;
-        echo $output;
-    }
-
-
-
     public function displayAccountInformations ($accountId) {
         $datas = $this->model->readAccount($accountId);
         echo $this->view->renderAccountInformations($datas);
@@ -224,14 +237,6 @@ class controller_accounts {
     public function logoutUser () {
         session_destroy();
         header('location: '.URL_BASE);
-    }
-
-
-
-    public function getAccessLevel ($accountId) {
-        $account = $this->model->readAccount($accountId);
-        $accessLevel = $account != null ? $account['access_level_label'] : '';
-        return $accessLevel;
     }
 
 

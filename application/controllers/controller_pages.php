@@ -142,7 +142,7 @@ class controller_pages {
                         $this->restrictPage('Administrator');
                         switch ($controller) {
                             case 'save':
-                                $c_accounts->createAccount();
+                                $c_accounts->createAccount($action);
                                 break;
 
                             default:
@@ -193,6 +193,11 @@ class controller_pages {
                                 $c_accounts->displayChangePasswordForm($controller);
                                 $this->displayPage(ob_get_clean());
                         }
+                        break;
+
+                    case 'delete_account':
+                        $this->restrictPage('Administrator');
+                        $c_accounts->deleteAccount($controller);
                         break;
 
                     case 'activate_account':
@@ -800,27 +805,46 @@ class controller_pages {
         $fx = new myFunctions();
 
         $msg .= '<div class="hr-light"></div>
-            This page will automatically redirect in <span id="redirect-countdown" style="color: #f00; font-weight: bold;">10</span> seconds.';
+            This page will automatically redirect in <span id="redirect-countdown" style="color: #f00; font-weight: bold;">10</span> seconds.
+            <div class="hr-light"></div>
+            <input id="redirect-countdown-stopper" class="btn-red" type="button" value="Stop Countdown" />';
         $msg = $fx->minifyString($msg);
 
         $o = '<script type="text/javascript">
-            $(document).ready(function () {
+            var pageRedirectScript = function () {
                 myAlert(\''.$msg.'\', function () {
                     window.location = \''.$redirectUrl.'\';
                 });
 
                 if ($("#redirect-countdown").length > 0) {
-                    setInterval(function () {
+                    var redirectCountdownTimer = setInterval(function () {
                         var $timer = $("#redirect-countdown")
                             ,currentCount = parseInt($timer.html())
                             ,newCount = currentCount - 1;
-                        $timer.html(newCount);
-                    }, 1000);
-                }
 
-                setTimeout(function () {
-                    window.location = \''.$redirectUrl.'\';
-                }, 10000);
+                        if (currentCount == 0) {
+                            window.location = \''.$redirectUrl.'\';
+                        } else {
+                            $timer.html(newCount);
+                        }
+                    }, 1000);
+
+                    $("#redirect-countdown-stopper").click(function () {
+                        clearInterval(redirectCountdownTimer);
+                        $(this).after(\'<a href="'.$redirectUrl.'">Click here</a> to be redirected.\');
+                        $(this).remove();
+
+                        if ($("#mypopup-buttons").length > 0) {
+                            $("#mypopup-buttons").each(function () {
+                                $(this).remove();
+                            });
+                        }
+                    });
+                }
+            };
+
+            $(document).ready(function () {
+                pageRedirectScript();
             });
             </script>';
         $this->displayPage($o);

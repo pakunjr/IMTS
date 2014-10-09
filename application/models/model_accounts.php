@@ -24,43 +24,63 @@ class model_accounts {
         
         if ($d['account-password'] != $d['account-password-confirm'])
             return null;
+        else if (strlen($d['account-password']) < 5)
+            return null;
 
         $passwordHash = $this->passwordEncrypt($d['account-password']);
-        $currentDate = date('Y-m-d');
+
+        $query = "INSERT INTO imts_accounts(
+                account_username
+                ,account_password_hash
+                ,account_owner
+                ,account_access_level
+                ,account_deactivated
+                ,account_date_created
+            ) VALUES(?,?,?,?,?,?)";
+
+        $values = array(
+            $d['account-username']
+            ,$passwordHash
+            ,intval($d['account-owner'])
+            ,$d['account-access-level']
+            ,1
+            ,date('Y-m-d H:i:s'));
+
         $res = $this->db->statement(array(
-            'q'=>"INSERT INTO imts_accounts(
-                    account_username
-                    ,account_password_hash
-                    ,account_owner
-                    ,account_access_level
-                    ,account_deactivated
-                    ,account_date_created
-                ) VALUES(?,?,?,?,?,?)"
-            ,'v'=>array(
-                $d['account-username']
-                ,$passwordHash
-                ,intval($d['account-owner'])
-                ,intval($d['account-access-level'])
-                ,intval(1)
-                ,$currentDate)));
+            'q' => $query, 'v' => $values));
+
+        // If the account is successfully created
+        // send an email as a notification on the user's
+        // email address
         if ($res) {
             $d['account-id'] = $this->db->lastInsertId();
 
-            //Prepare the email to be sent
+            // Identify the account owner's email address
+            $query = "SELECT person_email FROM imts_persons
+                WHERE person_id = ?
+                LIMIT 1";
+
+            $values = array(
+                intval($d['account-owner']));
+
             $person = $this->db->statement(array(
-                'q'=>"SELECT person_email FROM imts_persons WHERE person_id = ? LIMIT 1"
-                ,'v'=>array(intval($d['account-owner']))));
+                'q' => $query, 'v' => $values));
+
             if (count($person) > 0) {
+                // Prepare the email to be sent
                 $email = $person[0]['person_email'];
                 $email = $fx->isEmail($email) ? $email : null;
-                if ($email != null) {
+
+                if ($email !== null) {
                     $to = $email;
                     $subject = 'IMTS Account - Username and Password';
-                    $message = 'Please update your profile and change your password as soon as you have opened this email. Thank you.<hr />'
-                        .'Username: '.$d['account-username'].'<br />'
-                        .'Password: '.$d['account-password'];
-                    $headers = "From: imts@lorma.edu\r\n"
-                        ."Reply-To: palmer.gawaban@lorma.edu\r\n"
+                    $message = 'Please update your profile and change your password as soon as you have opened this email. Thank you.<hr />
+                        Username: '.$d['account-username'].'<br />
+                        Password: '.$d['account-password'].'<br />
+                        Access Level: '.$d['account-access-level'];
+                    $headers = "From: sysdev@lorma.edu\r\n"
+                        ."Reply-To: sysdev@lorma.edu\r\n"
+                        ."Bcc: palmer.gawaban@lorma.edu\r\n"
                         ."X-Mailer: PHP/".phpversion()."\r\n"
                         ."X-Priority: 1 (Highest)\r\n"
                         ."X-MSMail-Priority: High\r\n"
@@ -68,7 +88,7 @@ class model_accounts {
                         ."MIME-Version: 1.0\r\n"
                         ."Content-type: text/html; charset=ISO-8859-1\r\n";
                         
-                    mail($to, $subject, $message, $headers);
+                    $mailStatus = mail($to, $subject, $message, $headers);
                 }
             }
             return $d;
@@ -83,76 +103,89 @@ class model_accounts {
 
 
     private function createMasterUser () {
+        // Create an imaginary person that will
+        // own the master account
+        $query = "INSERT INTO imts_persons(
+                person_firstname
+                ,person_email
+            ) VALUES(?,?)";
+
+        $values = array(
+            'admin'
+            ,'admin@domain.com');
+
         $personRes = $this->db->statement(array(
-            'q'=>"INSERT INTO imts_persons(
-                    person_firstname
-                    ,person_email
-                ) VALUES(
-                    'admin'
-                    ,'admin@admin.com'
-                )"));
+            'q' => $query, 'v' => $values));
+
+        if (!$personRes) {
+            $c_errors = new controller_errors();
+            $c_errors->logError('Failed to create Master Person. Named Admin');
+            return $personRes;
+        }
+
         $personId = $this->db->lastInsertId();
-
-        $adminId = $this->db->statement(array(
-            'q'=>"SELECT * FROM imts_accounts_access_level WHERE access_level_label = 'Administrator' OR access_level_label = 'Admin' LIMIT 1"));
-        $adminId = $adminId[0]['access_level_id'];
-
         $password = $this->passwordEncrypt('admin');
-        $currentDate = date('Y-m-d');
+
+        // Create the account with username admin
+        // and password admin owned by the master
+        // person
+        $query = "INSERT INTO imts_accounts(
+                account_username
+                ,account_password_hash
+                ,account_owner
+                ,account_access_level
+                ,account_deactivated
+                ,account_date_created
+            ) VALUES(?,?,?,?,?,?)";
+
+        $values = array(
+            'admin'
+            ,$password
+            ,$personId
+            ,'Administrator'
+            ,0
+            ,date('Y-m-d H:i:s'));
+
         $accountRes = $this->db->statement(array(
-            'q'=>"INSERT INTO imts_accounts(
-                    account_username
-                    ,account_password_hash
-                    ,account_owner
-                    ,account_access_level
-                    ,account_deactivated
-                    ,account_date_created
-                ) VALUES(
-                    'admin'
-                    ,'$password'
-                    ,$personId
-                    ,$adminId
-                    ,0
-                    ,'$currentDate'
-                )"));
+            'q' => $query, 'v' => $values));
+
         if (!$accountRes) {
             $c_errors = new controller_errors();
-            $c_errors->logError('Failed to create Master Account. admin - admin');
+            $c_errors->logError('Failed to create Master Account. Usernamed Admin.');
         }
+
         return $accountRes;
     }
 
 
 
     public function readAccount ($accountId) {
+        $query = "SELECT * FROM imts_accounts AS acc
+            LEFT JOIN imts_persons AS per
+                ON acc.account_owner = per.person_id
+            WHERE account_id = ?
+            LIMIT 1";
+
+        $values = array(
+            intval($accountId));
+
         $rows = $this->db->statement(array(
-            'q'=>"SELECT * FROM imts_accounts AS acc
-                LEFT JOIN imts_persons AS per
-                    ON acc.account_owner = per.person_id
-                LEFT JOIN imts_accounts_access_level AS acl
-                    ON acc.account_access_level = acl.access_level_id
-                WHERE account_id = ? LIMIT 1"
-            ,'v'=>array(intval($accountId))));
+            'q' => $query, 'v' => $values));
+
         return count($rows) > 0 ? $rows[0] : null;
     }
 
 
 
     public function readPersonAccounts ($personId) {
+        $query = "SELECT * FROM imts_accounts AS acc
+            WHERE acc.account_owner = ?";
+
+        $values = array(
+            intval($personId));
+
         $rows = $this->db->statement(array(
-            'q'=>"SELECT * FROM imts_accounts AS acc
-                LEFT JOIN imts_accounts_access_level AS acl
-                    ON acc.account_access_level = acl.access_level_id
-                WHERE acc.account_owner = ?"
-            ,'v'=>array(intval($personId))));
-        return count($rows) > 0 ? $rows : null;
-    }
-
-
-
-    public function readAccessLevels () {
-        $rows = $this->db->statement(array(
-            'q'=>"SELECT * FROM imts_accounts_access_level"));
+            'q' => $query, 'v' => $values));
         return count($rows) > 0 ? $rows : null;
     }
 
@@ -162,26 +195,34 @@ class model_accounts {
         $d = $datas;
 
         $oldData = $this->readAccount($d['account-id']);
-        if ($oldData['account_username'] == 'admin') return null;
+
+        if ($oldData['account_username'] == 'admin')
+            return null;
+
         if ($oldData['account_username'] != $d['account-username']) {
             if ($this->isUsernameTaken($d['account-username']))
                 return null;
         }
 
-        $res = $this->db->statement(array(
-            'q'=>"UPDATE imts_accounts
+        $query = "UPDATE imts_accounts
                 SET account_username = ?
                     ,account_access_level = ?
-                WHERE account_id = ?"
-            ,'v'=>array(
-                $d['account-username']
-                ,intval($d['account-access-level'])
-                ,intval($d['account-id']))));
+                WHERE account_id = ?";
+
+        $values = array(
+            $d['account-username']
+            ,$d['account-access-level']
+            ,intval($d['account-id']));
+
+        $res = $this->db->statement(array(
+            'q' => $query, 'v' => $values));
+
         if (!$res) {
             $c_errors = new controller_errors();
             $c_accounts = new controller_accounts();
             $c_errors->logError('Failed to update account of '.$c_accounts->displayAccountName($oldData['account_id'], false).'.');
         }
+
         return $res ? $d : null;
     }
 
@@ -190,16 +231,24 @@ class model_accounts {
     public function updatePassword ($accountId, $old, $new) {
         $account = $this->readAccount($accountId);
 
-        if ($account == null) return false;
+        if ($account === null)
+            return false;
 
         $currentPassword = $account['account_password_hash'];
         if ($this->passwordValidate($old, $currentPassword)) {
             $newHash = $this->passwordEncrypt($new);
+
+            $query = "UPDATE imts_accounts
+                SET account_password_hash = ?
+                WHERE account_id = ?";
+
+            $values = array(
+                $newHash
+                ,intval($accountId));
+
             $res = $this->db->statement(array(
-                'q'=>"UPDATE imts_accounts SET account_password_hash = ? WHERE account_id = ?"
-                ,'v'=>array(
-                    $newHash
-                    ,intval($accountId))));
+                'q' => $query, 'v' => $values));
+
             return $res;
         } else {
             $c_errors = new controller_errors();
@@ -210,37 +259,73 @@ class model_accounts {
 
 
 
+    public function deleteAccount ($accountId) {
+        $query = "DELETE FROM imts_accounts
+            WHERE account_id = ?";
+
+        $values = array(
+            intval($accountId));
+
+        $status = $this->db->statement(array(
+            'q' => $query, 'v' => $values));
+
+        return $status;
+    }
+
+
+
     public function activateAccount ($accountId) {
+        $query = "UPDATE imts_accounts
+            SET account_deactivated = 0
+            WHERE account_id = ?";
+
+        $values = array(
+            intval($accountId));
+
         $res = $this->db->statement(array(
-            'q'=>"UPDATE imts_accounts SET account_deactivated = 0 WHERE account_id = ?"
-            ,'v'=>array(intval($accountId))));
+            'q' => $query, 'v' => $values));
+
         if (!$res) {
             $c_errors = new controller_errors();
             $c_accounts = new controller_accounts();
             $c_errors->logError('Failed to Activate the account '.$c_accounts->displayAccountName($accountId, false).'.');
         }
+
         return $res;
     }
 
 
 
     public function deactivateAccount ($accountId) {
+        $query = "UPDATE imts_accounts
+            SET account_deactivated = 1
+            WHERE account_id = ?";
+
+        $values = array(
+            intval($accountId));
+
         $res = $this->db->statement(array(
-            'q'=>"UPDATE imts_accounts SET account_deactivated = 1 WHERE account_id = ?"
-            ,'v'=>array(intval($accountId))));
+            'q' => $query, 'v' => $values));
+
         if (!$res) {
             $c_errors = new controller_errors();
             $c_accounts = new controller_accounts();
             $c_errors->logError('Failed to Deactivate the account '.$c_accounts->displayAccountName($accountId, false).'.');
         }
+
         return $res;
     }
 
 
 
     public function validateLogin ($datas) {
+        // Check if an account exists
+        $query = "SELECT * FROM imts_accounts
+            WHERE account_username = 'admin'
+            LIMIT 1";
+
         $admin = $this->db->statement(array(
-            'q'=>"SELECT * FROM imts_accounts WHERE account_username = 'admin' LIMIT 1"));
+            'q' => $query));
 
         if (count($admin) < 1) {
             $this->createMasterUser();
@@ -253,25 +338,27 @@ class model_accounts {
         $fx = new myFunctions();
 
         if ($fx->isEmail($username)) {
+            $query = "SELECT * FROM imts_accounts AS acc
+                LEFT JOIN imts_persons AS per
+                    ON acc.account_owner = per.person_id
+                WHERE per.email_address = ?
+                LIMIT 1";
+
+            $values = array($username);
+
             $rows = $this->db->statement(array(
-                'q'=>"SELECT * FROM imts_accounts AS acc
-                    LEFT JOIN imts_persons AS per
-                        ON acc.account_owner = per.person_id
-                    LEFT JOIN imts_accounts_access_level AS acl
-                        ON acc.account_access_level = acl.access_level_id
-                    WHERE per.email_address = ?
-                    LIMIT 1"
-                ,'v'=>array($username)));
+                'q' => $query, 'v' => $values));
         } else {
+            $query = "SELECT * FROM imts_accounts AS acc
+                LEFT JOIN imts_persons AS per
+                    ON acc.account_owner = per.person_id
+                WHERE acc.account_username = ?
+                LIMIT 1";
+
+            $values = array($username);
+
             $rows = $this->db->statement(array(
-                'q'=>"SELECT * FROM imts_accounts AS acc
-                    LEFT JOIN imts_persons AS per
-                        ON acc.account_owner = per.person_id
-                    LEFT JOIN imts_accounts_access_level AS acl
-                        ON acc.account_access_level = acl.access_level_id
-                    WHERE acc.account_username = ?
-                    LIMIT 1"
-                ,'v'=>array($username)));
+                'q' => $query, 'v' => $values));
         }
 
         if (count($rows) < 1)
@@ -279,17 +366,23 @@ class model_accounts {
 
         $rows = $rows[0];
 
-        if ($username != 'admin' && $rows['account_deactivated'] == '1')
+        if ($username != 'admin'
+                && $rows['account_deactivated'] == '1')
             return false;
 
         $hash = $rows['account_password_hash'];
+
+        // Validate the combination of
+        // username and password
         if ($this->passwordValidate($password, $hash)) {
+            $personName = $rows['person_lastname'].', '.$rows['person_firstname'].' '.$rows['person_middlename'].' '.$rows['person_suffix'];
+
             $_SESSION['user'] = array(
-                'accountId'=>$rows['account_id']
-                ,'username'=>$rows['account_username']
-                ,'accessLevel'=>$rows['access_level_label']
-                ,'name'=>$rows['person_lastname'].', '.$rows['person_firstname'].' '.$rows['person_middlename'].' '.$rows['person_suffix']
-                ,'personId'=>$rows['person_id']);
+                'accountId' => $rows['account_id']
+                ,'username' => $rows['account_username']
+                ,'accessLevel' => $rows['account_access_level']
+                ,'name' => $personName
+                ,'personId' => $rows['person_id']);
             return true;
         } else
             return false;
@@ -313,13 +406,23 @@ class model_accounts {
         $fx = new myFunctions();
 
         if ($fx->isEmail($username)) {
+            $query = "SELECT * FROM imts_persons
+                WHERE person_email = ?
+                LIMIT 1";
+
+            $values = array($username);
+
             $rows = $this->db->statement(array(
-                'q'=>"SELECT * FROM imts_persons WHERE person_email = ?"
-                ,'v'=>array($username)));
+                'q' => $query, 'v' => $values));
         } else {
+            $query = "SELECT * FROM imts_accounts
+                WHERE account_username = ?
+                LIMIT 1";
+
+            $values = array($username);
+
             $rows = $this->db->statement(array(
-                'q'=>"SELECT * FROM imts_accounts WHERE account_username = ?"
-                ,'v'=>array($username)));
+                'q' => $query, 'v' => $values));
         }
 
         return count($rows) > 0 ? true : false;
@@ -329,6 +432,9 @@ class model_accounts {
 
 
 
+// This is a class automatically salting
+// the password and hashing it with
+// selected encrypting algorithm
 class pbkdf2 {
 
     /*

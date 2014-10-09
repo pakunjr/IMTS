@@ -23,16 +23,14 @@ class model_logs {
 
         $query = "INSERT INTO imts_logs(
                 log_type
-                ,log_level
                 ,log_datetime
                 ,log_account
                 ,log_status
                 ,log_details
-            ) VALUES(?,?,?,?,?,?)";
+            ) VALUES(?,?,?,?,?)";
 
         $values = array(
             $datas['log-type']
-            ,$datas['log-level']
             ,date('Y-m-d H:i:s')
             ,$accountId
             ,'Displayed'
@@ -64,12 +62,10 @@ class model_logs {
     public function readLogs () {
         $query = "SELECT * FROM imts_logs
             WHERE log_status = 'Displayed'
-            ORDER BY log_level ASC";
-
-        $values = array();
+            ORDER BY log_type ASC";
 
         $logs = $this->db->statement(array(
-            'q' => $query, 'v' => $values));
+            'q' => $query));
 
         return count($logs) > 0 ? $logs : null;
     }
@@ -80,10 +76,8 @@ class model_logs {
         $query = "SELECT * FROM imts_logs
             WHERE log_status = 'Archived'";
 
-        $values = array();
-
         $logs = $this->db->statement(array(
-            'q' => $query, 'v' => $values));
+            'q' => $query));
 
         return count($logs) > 0 ? $logs : null;
     }
