@@ -1,16 +1,23 @@
 <?php
 
-$bootstrap_file = dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'application'.DIRECTORY_SEPARATOR.'bootstrap.php';
-if (file_exists($bootstrap_file)) require_once($bootstrap_file);
-else {
-    echo 'Fatal Error: Your bootstrap file is missing.';
-    exit();
+$bootstrap_file = dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'application'.DIRECTORY_SEPARATOR.'system_core'.DIRECTORY_SEPARATOR.'bootstrap.php';
+
+if (file_exists($bootstrap_file)) {
+    require_once($bootstrap_file);
+} else {
+    exit('Fatal Error: Your bootstrap file is missing.<br />Exiting...');
 }
 
-//Render the page
-$url = isset($_GET['url']) ? $_GET['url'] : 'home';
-$_SESSION['url'] = $url;
+// Render the URL
+if (!empty($_GET['url'])) {
+    $url = $_GET['url'].'/';
+    $url = preg_replace('/(\/\/+)/', '/', $url);
+} else {
+    $url = 'home/';
+}
 
-$m_pages = new model_pages();
-$c_pages = new controller_pages($m_pages);
-$c_pages->renderPages();
+define('URL_REQUEST', $url);
+
+// Render the page routing
+$cPages = new ControllerPages();
+$cPages->routePage();
