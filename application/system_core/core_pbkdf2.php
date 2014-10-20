@@ -34,7 +34,8 @@ class pbkdf2 {
      */
 
     public function __construct () {
-        $cond = !defined('PBKDF2_HASH_ALGORITHM')
+        if (
+            !defined('PBKDF2_HASH_ALGORITHM')
             || !defined('PBKDF2_ITERATIONS')
             || !defined('PBKDF2_SALT_BYTE_SIZE')
             || !defined('PBKDF2_HASH_BYTE_SIZE')
@@ -42,8 +43,8 @@ class pbkdf2 {
             || !defined('HASH_ALGORITHM_INDEX')
             || !defined('HASH_ITERATION_INDEX')
             || !defined('HASH_SALT_INDEX')
-            || !defined('HASH_PBKDF2_INDEX');
-        if ($cond) {
+            || !defined('HASH_PBKDF2_INDEX')
+        ) {
             define("PBKDF2_HASH_ALGORITHM", "sha256");
             define("PBKDF2_ITERATIONS", 1000);
             define("PBKDF2_SALT_BYTE_SIZE", 24);

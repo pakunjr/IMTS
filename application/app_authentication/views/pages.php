@@ -54,12 +54,8 @@ class ViewPages extends ModelPages
     {
         $html = '<!DOCTYPE html><html><head>
         <title>Authentication</title>
-        <link rel="stylesheet"
-            type="text/css"
-            href="'.URL_BASE_CSS.'normalize.min.css" />
-        <link rel="icon"
-            type="image/png"
-            href="'.URL_BASE_IMG.'system_favicon.png" />
+        <link rel="stylesheet" type="text/css" href="'.URL_BASE_CSS.'normalize.min.css" />
+        <link rel="icon" type="image/png" href="'.URL_BASE_IMG.'system_favicon.png" />
         <style type="text/css">
             html,
             body {
@@ -79,6 +75,34 @@ class ViewPages extends ModelPages
                 border-radius: 3px;
                 background: rgba(255, 255, 255, 0.75);
                 text-align: center;
+            }
+
+            .system-banner {
+                display: inline-block;
+                margin: 0px 0px 30px 0px;
+                padding: 10px 20px;
+                border: 2px solid transparent;
+                border-radius: 3px;
+                background: rgba(255, 255, 255, 0.75);
+            }
+            .system-logo,
+            .system-name-short {
+                display: inline-block;
+            }
+            .system-logo {
+                width: 50px;
+                height: 50px;
+                margin: 0px 7px 15px 0px;
+                vertical-align: middle;
+            }
+            .system-name-short {
+                font-size: 2.7em;
+                vertical-align: middle;
+            }
+            .system-name {
+                display: block;
+                margin: 0px 2px 2px 0px;
+                font-size: 1.3em;
             }
 
             form {
@@ -132,8 +156,7 @@ class ViewPages extends ModelPages
             }
         </style>
 
-        <script type="text/javascript"
-            src="'.URL_BASE_JS.'jquery/jquery-1.11.0.min.js"></script>
+        <script type="text/javascript" src="'.URL_BASE_JS.'jquery/jquery-1.11.0.min.js"></script>
         <script type="text/javascript">
             $(document).ready(function () {
                 var $mainContainer = $("#main-container");
@@ -160,7 +183,12 @@ class ViewPages extends ModelPages
             });
         </script>
         </head><body>
-        <div id="main-container">';
+        <div id="main-container">
+        <span class="system-banner">
+        <div class="system-logo"><img src="'.URL_BASE_IMG.'system_logo_50x50.png" /></div>
+        <div class="system-name-short">'.SYSTEM_NAME_SHORT.'</div><br />
+        <div class="system-name">'.SYSTEM_NAME.'</div>
+        </span><br />';
         return $html;
     }
 

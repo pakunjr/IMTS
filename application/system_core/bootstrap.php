@@ -22,22 +22,12 @@ define('DIR_SYSTEM_VIEWS', DIR_SYSTEM_CORE.DS.'views');
 
 // Application directories
 if (empty($_SESSION['user'])) {
-    define('DIR_APPLICATION', DIR_APPLICATIONS.DS.'app_authentication');
+    $appType = 'app_authentication';
 } else {
     $userDepartment = $_SESSION['user']['department'];
-    switch ($userDepartment) {
-        case 'Human Resource Office':
-            break;
-
-        case 'Properties and Supplies':
-            break;
-
-        case 'IT Services':
-            break;
-
-        default:
-    }
+    $url = explode('/', URL_REQUEST);
 }
+define('DIR_APPLICATION', DIR_APPLICATIONS.DS.$appType);
 define('DIR_CONTROLLERS', DIR_APPLICATION.DS.'controllers');
 define('DIR_MODELS', DIR_APPLICATION.DS.'models');
 define('DIR_VIEWS', DIR_APPLICATION.DS.'views');

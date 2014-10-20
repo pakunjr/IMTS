@@ -75,12 +75,27 @@ class SystemCore
 
     public function renderPage ($contents)
     {
-        $cPages = new ControllerPages();
-        $header = $cPages->renderHeader();
-        $footer = $cPages->renderFooter();
-        $pageHtml = $header.$contents.$footer;
-        $pageHtml = $this->minifyString($pageHtml);
+        if (
+            class_exists('ControllerPages')
+            && method_exists('ControllerPages', 'renderHeader')
+            && method_exists('ControllerPages', 'renderFooter')
+        ) {
+            $cPages = new ControllerPages();
+            $header = $cPages->renderHeader();
+            $footer = $cPages->renderFooter();
+            $pageHtml = $header.$contents.$footer;
+            $pageHtml = $this->minifyString($pageHtml);
+        } else {
+            $pageHtml = $this->minifyString($contents);
+        }
         return $pageHtml;
+    }
+
+
+
+    public function redirectPage ($message, $url)
+    {
+
     }
 
 
