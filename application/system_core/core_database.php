@@ -12,7 +12,7 @@ class Database
     private $port;
     private $socket;
 
-    private $errorFilepath;
+    protected $errorFilepath;
 
     public function __construct ($config=null)
     {
@@ -35,8 +35,12 @@ class Database
 
         $this->connection = null;
 
-        $filepath = DIR_LIBRARY.DS.'logs'.DS.'db_errors.php';
-        $this->errorFilepath = file_exists($filepath) ? $filepath : null;
+        $filepath = DIR_LOGS.DS.'database.php';
+        if (file_exists($filepath)) {
+            $this->errorFilepath = $filepath;
+        } else {
+            exit('Fatal Error: Your database log file, '.$filepath.', is missing.<br />Please contact your System Administrators to fix this problem.<br />Exiting...');
+        }
     }
 
 
@@ -44,16 +48,6 @@ class Database
     public function __destruct ()
     {
         
-    }
-
-
-
-    private function displayError ($errorType)
-    {
-        switch ($errorType) {
-            case 'missing':
-                break;
-        }
     }
 
 
@@ -73,8 +67,8 @@ class Database
                     $opt
                 );
         } catch (PDOException $e) {
-            $this->logDbError('Cannot connect to the database with PDO.'.PHP_EOL.'PDO Connection failed.');
-            exit('Fatal Error: The system failed to connect to the database.<br />Please contact your System Administrator to fix this problem.<br />Exiting...');
+            $this->addLog('Fatal Error: PDO cannot connect to the database'.PHP_EOL.'Please check your database configurations.');
+            exit('Fatal Error: The system failed to connect to the database.<br />Please contact your System Administrators to fix this problem.<br />Exiting...');
         }
     }
 
@@ -87,9 +81,12 @@ class Database
 
 
 
-    public function statement ($sqlQuery, $sqlValues=array())
+    protected function statement ($sqlQuery, $sqlValues=array())
     {
-        if (!($this->connection instanceof PDO)) {
+        if (
+            !($this->connection instanceof PDO) ||
+            $this->connection === null
+        ) {
             $this->connect();
         }
 
@@ -98,45 +95,47 @@ class Database
         if (isset($sqlQuery) && !empty($sqlQuery)) {
             $query = trim($sqlQuery);
         } else {
-            $this->logDbError('SQL Query is empty.');
-            return false;
+            $this->addLog('Program Error: SQL Query is empty.');
+            return null;
         }
 
-        $isSqlValuesValid = isset($sqlValues) && is_array($sqlValues);
-        $values = $isSqlValuesValid ? $sqlValues : array();
+        $cond = isset($sqlValues) && is_array($sqlValues);
+        $values = $cond ? $sqlValues : array();
 
-        // Prepare Statement
+        // Prepare PDO statement
         try {
             $statement = $connection->prepare($query);
-
             if (!$statement) {
-                throw new PDOException('PDOException: Failed to prepare the query.');
+                throw new PDOException('Fatal Error: The system failed to prepare the Query.');
             }
         } catch (PDOException $e) {
-            $this->logDbError($e->getMessage().PHP_EOL.PHP_EOL.'
-                SQL Query: '.$query);
+            $this->addLog($e->getMessage().PHP_EOL.PHP_EOL.
+                'SQL Query: '.$query);
+            exit('Fatal Error: The query, '.$query.', failed to be prepared by the system.<br />
+                Please contact your System Administrators to fix this problem.<br />
+                <a href="'.URL_BASE.'">Click here</a> to go back to the Homepage.<br />
+                Exiting...');
         }
 
-        // Binding Parameters
-        if (is_array($values)) {
-            $ph = 0; // Placeholder
-
+        // Bind values
+        if (is_array($values) && !empty($values)) {
+            $placeholder = 0;
             foreach ($values as $value) {
-                if (gettype($value) == 'integer') {
-                    $type = PDO::PARAM_INT;
-                } else {
-                    $type = PDO::PARAM_STR;
-                }
-                $ph++;
+                $cond = gettype($value) === 'integer';
+                $type = $cond ? PDO::PARAM_INT : PDO::PARAM_STR;
+                $placeholder++;
 
-                // PDO method `bindValue` is expected to return
-                // true on success and false on failure
-                $status = $statement->bindValue($ph, $value, $type);
+                // Expected return value is true or false
+                $status = $statement->bindValue(
+                        $placeholder,
+                        $value,
+                        $type
+                    );
 
                 if (!$status) {
-                    $this->logDbError('Failed to bind parameter.'.PHP_EOL.'
-                        Placeholder: '.$ph.PHP_EOL.'
-                        Value: '.$value);
+                    $this->addLog('Fatal Error: The system failed to bind the value of the parameter.'.PHP_EOL.PHP_EOL.
+                        'Placeholder: '.$placeholder.PHP_EOL.
+                        'Value: '.$value);
                 }
             }
         }
@@ -145,16 +144,8 @@ class Database
         try {
             $queryType = explode(' ', $query);
             $queryType = $queryType[0];
-            $array1 = array(
-                    'SELECT',
-                    'SHOW'
-                );
-            $array2 = array(
-                    'INSERT',
-                    'UPDATE',
-                    'DELETE'
-                );
-
+            $array1 = array('SELECT', 'SHOW');
+            $array2 = array('INSERT', 'UPDATE', 'DELETE');
             if (in_array($queryType, $array1)) {
                 $array = array();
                 $statement->execute();
@@ -162,194 +153,119 @@ class Database
                 while ($row = $statement->fetch()) {
                     array_push($array, $row);
                 }
-                return $array;
+                return !empty($array) ? $array : null;
             } else if (in_array($queryType, $array2)) {
-                // The expected return value is either
-                // true or false
                 return $statement->execute();
             } else {
-                $this->logDbError('Unknown type of SQL statement.');
+                $this->addLog('Program Error: The system do not recognize the type of the query.'.PHP_EOL.PHP_EOL.
+                    'Query Type: '.$queryType.PHP_EOL.
+                    'SQL Query: '.$query);
             }
         } catch (PDOException $e) {
-            $this->logDbError('Failed in executing the statement.'.PHP_EOL.PHP_EOL.'SQL Query: '.$query.PHP_EOL.PHP_EOL.'Reason: '.$e->getMessage());
+            $this->addLog('System Error: The system failed to execute the PDO statement.'.PHP_EOL.PHP_EOL.
+                'SQL Query: '.PHP_EOL.$query.PHP_EOL.PHP_EOL.
+                'Values: '.PHP_EOL.print_r($values, true).PHP_EOL.PHP_EOL.
+                'Reason: '.PHP_EOL.$e->getMessage());
         }
     }
 
 
 
-    public function lastInsertId ()
+    protected function lastInsertId ()
     {
-        if ($this->connection instanceof PDO) {
-            return $this->connection->lastInsertId();
-        } else {
-            return null;
-        }
+        $cond = $this->connection instanceof PDO;
+        return $cond ? $this->connection->lastInsertId() : null;
     }
 
 
 
-    public function displayDbErrors ()
+    private function writeLogContents ($contents)
     {
-        $file = $this->errorFilepath;
-
-        if ($file === null) {
-            exit('Fatal Error: Your log file for database errors is missing.<br />
-                Please create your log file `db_errors.php` on this directory `root/library/logs/db_errors.php`<br />
-                Thank you.<br /><br />
-                <a href="'.URL_BASE.'">Click here</a> to go back to the Homepage.');
-        }
-
-        $core = new SystemCore();
-
-        $content = file_get_contents($file);
-        if (!unserialize($content)) {
-            $content = array();
-        } else {
-            $content = unserialize($content);
-        }
-
-        if (!is_array($content)
-                || count($content) < 1) {
-            echo 'No error/s have been logged as of the moment.
-                <div class="hr-light"></div>
-                <a href="'.URL_BASE.'admin/logs/database_errors/display/"><input type="button" value="Refresh" /></a>';
-            return;
-        }
-
-        if (count($content) > 0) {
-            krsort($content);
-        }
-
-        $logContent = '';
-        foreach ($content as $i => $c) {
-            $logContent .= '<tr>
-                <td>'.$i.'</td>
-                <td>'.$core->transformDate($c['date']).' @ '.$c['time'].'</td>
-                <td>'.$c['user'].'</td>
-                <td>'.nl2br($c['details']).'</td>
-                </tr>';
-        }
-
-        $htmlOutput = '<table><tr>
-            <th>No.</th>
-            <th>Date and Time</th>
-            <th>Logged User</th>
-            <th>Details</th>
-            </tr>
-            '.$logContent.'
-            </table>
-            <div class="hr-light"></div>
-            <a href="'.URL_BASE.'admin/logs/database_errors/display/"><input type="button" value="Refresh" /></a>
-            <a href="'.URL_BASE.'admin/logs/database_errors/clean/"><input class="btn-red" type="button" value="Clean Database Errors Log" /></a>';
-
-        echo $htmlOutput;
-    }
-
-
-
-    private function logDbError ($details)
-    {
-        $file = $this->errorFilepath;
-
-        if ($file === null) {
-            echo 'FATAL ERROR: Database encountered an error and your log file for these type of errors is missing.<br />
-                Please create your log file `db_errors.php` on this directory `root/library/logs/db_errors.php`<br />
-                The database error you have encountered was not logged.<br /><br />
-                Thank you.<br />
-                Exiting...<br /><br />
-                <a href="',URL_BASE,'">Click here</a> to go back to the Homepage.';
-            exit();
-        }
-
-        $content = file_get_contents($file);
-
-        if (unserialize($content) !== false) {
-            $content = unserialize($content);
-            if (!is_array($content)) {
-                $content = array();
-            }
-        } else {
-            $content = array();
-        }
-
-        if (isset($_SESSION['user'])) {
-            $username = $_SESSION['user']['username'];
-            $name = $_SESSION['user']['name'];
-            $loggedUser = $username.' <> '.$name;
-        } else {
-            $loggedUser = 'There are no user that are logged-in into the system.';
-        }
-
-        $error = array(
-            'date' => date('Y-m-d'),
-            'time' => date('H:i:s'),
-            'user' => $loggedUser,
-            'details' => $details);
-
-        array_push($content, $error);
-        $content = serialize($content);
-        $logSuccess = file_put_contents($file, $content);
-
-        if (!$logSuccess) {
-            echo 'FATAL ERROR: The system failed to write the database error into its log file.<br /><br />
-                Exiting...<br /><br />
-                <a href="',URL_BASE,'">Click here</a> to go back to the Homepage.';
-            exit();
-        }
-    }
-
-
-
-    public function cleanDbErrors ()
-    {
-        $file = $this->errorFilepath;
-        if ($file === null) {
-            exit($this->errorFileMessages['missing']);
-        }
-        file_put_contents($file, '');
-        $contents = file_get_contents($file);
-        if (strlen(trim($contents)) > 0) {
-            exit('System Error: The system failed to clean the database log file.<br />Exiting...<br /><br /><a href="'.URL_BASE.'admin/logs/database_errors/">Click here</a> to go back.');
-        }
-        header('location: '.URL_BASE.'admin/logs/database_errors/display/');
-    }
-
-
-
-    public function displayLog ()
-    {
-
-    }
-
-
-
-    public function cleanLog ()
-    {
-
+        $filepath = $this->errorFilepath;
+        $contents = serialize($contents);
+        $status = file_put_contents($filepath, $contents);
+        return $status === false ? false : true;
     }
 
 
 
     private function addLog ($details)
     {
-        $filepath = $this->errorFilepath;
-        if ($filepath === null) {
-            exit();
-        }
-
         if (!empty($_SESSION['user'])) {
             $userUsername = $_SESSION['user']['username'];
-            $userName = $_SESSION['user']['name'];
-            $user = $userUsername.' <account of> '.$userName;
+            $userName = $_SESSION['user']['user'];
+            $user = $userName.' ('.$userUsername.')';
         } else {
-            $user = 'No logged-in user in the system.';
+            $user = 'No user is logged during the occurence of the query.';
         }
-        $datetime = date('Y-m-d H:i:s');
-        $logContent = array(
-                'datetime' => $datetime,
+        $additionalContent = array(
+                'datetime' => date('Y-m-d H:i:s'),
                 'user' => $user,
                 'details' => $details
             );
+
+        $contents = $this->getDatabaseLogContents();
+        array_push($contents, $additionalContent);
+        $status = $this->writeLogContents($contents);
+        return $status;
+    }
+
+
+
+    protected function getDatabaseLogContents ()
+    {
+        $core = new SystemCore();
+        $filepath = $this->errorFilepath;
+        $contents = file_get_contents($filepath);
+        if ($core->unserializeable($contents)) {
+            $contents = unserialize($contents);
+        } else {
+            $contents = array();
+        }
+        return $contents;
+    }
+
+
+
+    protected function displayDatabaseLogContents ()
+    {
+        $core = new SystemCore();
+        $contents = $this->getDatabaseLogContents();
+        arsort($contents);
+        if (!empty($contents) && is_array($contents)) {
+            $totalCount = count($contents);
+            $html = '<span class="typo-type-5">Query count: '.$totalCount.'</span>
+            <table class="table"><thead><tr>
+            <th>#</th>
+            <th>Date and Time</th>
+            <th>User</th>
+            <th>Details</th>
+            </tr></thead><tbody>';
+            foreach ($contents as $content) {
+                $datetime = $core->transformDate($content['datetime']);
+                $html .= '<tr>
+                <td>'.$totalCount.'</td>
+                <td>'.$datetime.'</td>
+                <td>'.$content['user'].'</td>
+                <td>'.nl2br($content['details']).'</td>
+                </tr>';
+                
+                $totalCount--;
+            }
+            $html .= '</tbody></table>';
+        } else {
+            $html = 'The log has no contents yet.';
+        }
+        echo $html;
+    }
+
+
+
+    protected function cleanDatabaseLog ()
+    {
+        $contents = array();
+        $status = $this->writeLogContents($contents);
+        return $status;
     }
 
 
@@ -388,14 +304,22 @@ class Database
             );
         switch ($type) {
             case 'enum':
-                $array = $this->getEnum($tableName, $fieldName);
-                return is_array($array) ? $array : $defaultArray;
+                $arrays = $this->getEnum($tableName, $fieldName);
+                $selectOptions = array();
+                if (!empty($arrays) && is_array($arrays)) {
+                    foreach ($arrays as $array) {
+                        $selectOptions[$array] = $array;
+                    }
+                    return $selectOptions;
+                } else {
+                    return $defaultArray;
+                }
                 break;
 
             case 'table':
                 $fieldName = explode(', ', $fieldName);
                 if (count($fieldName) !== 2) {
-                    echo 'Program Error: invalid use of method dbSelectOptions.<br />Please notify your System Administrators regarding this error.';
+                    $this->addLog('Program Error: Invalid use of Method dbSelectOptions under the Class Database.'.PHP_EOL.'Please notify your System Administrators regarding this error.');
                 }
                 $label = $fieldName[0];
                 $value = $fieldName[1];
@@ -415,7 +339,7 @@ class Database
                 break;
 
             default:
-                echo 'Program Error: Class Database, Method dbSelectOptions, is not used properly.<br />Unknown type of Select Options to generate.';
+                $this->addLog('Program Error: Class Database, Method dbSelectOptions, is not used properly.'.PHP_EOL.'Unknown type of Select Options to generate.');
         }
     }
 

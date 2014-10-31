@@ -1,15 +1,11 @@
-</div><!-- #page -->
-<br /><div id="footer">
-    <div class="hr-heavy"></div>
+</div><!-- #system-contents -->
+</div><!-- #system-body -->
+<div id="system-footer">
     <?php
-        $output = '<div id="copyright">
-            '.SYSTEM_NAME.' '.SYSTEM_VERSION.'<br />
-            Lorma Colleges &copy; '.SYSTEM_YEAR_START.' - '.date('Y').'
-            </div>';
-        echo $output;
+        echo '<div class="typo-type-6">',
+            SYSTEM_NAME,' &copy; ',SYSTEM_YEAR_START,'<br />',
+            SYSTEM_NAME_SHORT,' by ',SYSTEM_AUTHOR,
+            '</div>';
     ?>
-</div>
-
-</div><!-- #main-content -->
-
+</div><!-- #system-footer -->
 </body></html>

@@ -24,7 +24,8 @@ class ControllerPages extends ViewPages
         ob_start();
         switch ($url[0]) {
             case 'validate_login':
-                $this->validateLogin();
+                $cAccounts = new ControllerAccounts();
+                $cAccounts->processLogin();
                 break;
 
             case 'home':
@@ -33,7 +34,7 @@ class ControllerPages extends ViewPages
                 echo $this->renderLoginForm();
         }
         $pageContents = ob_get_clean();
-        echo $core->renderPage($pageContents);
+        $core->displayPage($pageContents);
     }
 
 }

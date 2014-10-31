@@ -10,22 +10,79 @@ error_reporting(E_ALL);
 // STAGING: Testing
 define('ENVIRONMENT', 'DEVELOPMENT');
 
-// System Directories
+// System directories
 define('DS', DIRECTORY_SEPARATOR);
 define('DIR_ROOT', dirname(dirname(dirname(__FILE__))));
 define('DIR_APPLICATIONS', DIR_ROOT.DS.'application');
 define('DIR_SYSTEM_CONFIGS', DIR_APPLICATIONS.DS.'system_configs');
 define('DIR_SYSTEM_CORE', DIR_APPLICATIONS.DS.'system_core');
-define('DIR_SYSTEM_CONTROLLERS', DIR_SYSTEM_CORE.DS.'controllers');
-define('DIR_SYSTEM_MODELS', DIR_SYSTEM_CORE.DS.'models');
-define('DIR_SYSTEM_VIEWS', DIR_SYSTEM_CORE.DS.'views');
+
+// System configuration files
+$configFiles = array(
+        'database',
+        'system',
+        'url'
+    );
+foreach ($configFiles as $filename) {
+    $filepath = DIR_SYSTEM_CONFIGS.DS.$filename.'.php';
+    if (file_exists($filepath)) {
+        require_once($filepath);
+    } else {
+        exit('Fatal Error: One of your configuration files, <b>'.$filepath.'</b>, is missing.');
+    }
+}
 
 // Application directories
 if (empty($_SESSION['user'])) {
     $appType = 'app_authentication';
 } else {
-    $userDepartment = $_SESSION['user']['department'];
+    $userDepartments = $_SESSION['user']['departments'];
+    $userJobs = $_SESSION['user']['jobs'];
+    $userAccessLevel = $_SESSION['user']['accessLevel'];
     $url = explode('/', URL_REQUEST);
+
+    // Conditions
+    $cond = array(
+            'HRMO' => in_array(
+                    'Human Resource Management Office',
+                    $userDepartments
+                ),
+            'ITS' => in_array('IT Services', $userDepartments),
+            'PS' => in_array(
+                    'Properties and Supplies',
+                    $userDepartments
+                ),
+            'System' => in_array('System Administrator', $userJobs) ||
+                in_array('System Developer', $userJobs)
+        );
+
+    if ($url[0] === 'logout') {
+        if (!empty($_SESSION['user'])) {
+            session_destroy();
+        }
+        header('location: '.URL_BASE);
+        exit();
+    } else if ($url[0] === 'user_settings') {
+        $appType = 'app_users';
+    } else {
+        if ($cond['HRMO']) {
+            $appType = 'app_employees';
+        } else if ($cond['ITS']) {
+            if ($cond['System']) {
+                $appType = 'app_administrators';
+            } else {
+                if ($url[0] === 'ticket') {
+                    $appType = 'app_ticketing';
+                } else {
+                    $appType = 'app_ownership';
+                }
+            }
+        } else if ($cond['PS']) {
+            $appType = 'app_inventory';
+        } else {
+            $appType = 'app_unknown';
+        }
+    }
 }
 define('DIR_APPLICATION', DIR_APPLICATIONS.DS.$appType);
 define('DIR_CONTROLLERS', DIR_APPLICATION.DS.'controllers');
@@ -44,21 +101,6 @@ define('DIR_CSS', DIR_PUBLIC.DS.'css');
 define('DIR_IMG', DIR_PUBLIC.DS.'img');
 define('DIR_JS', DIR_PUBLIC.DS.'js');
 define('DIR_TEMPLATES', DIR_PUBLIC.DS.'templates');
-
-$configFiles = array(
-        'database',
-        'system',
-        'url'
-    );
-foreach ($configFiles as $filename) {
-    $filepath = DIR_SYSTEM_CONFIGS.DS.$filename.'.php';
-    if (file_exists($filepath)) {
-        require_once($filepath);
-    } else {
-        exit('Fatal Error: One of your configuration files, <b>'.$filepath.'</b>, is missing.');
-    }
-}
-
 define('DIR_TEMPLATE', DIR_TEMPLATES.DS.SYSTEM_TEMPLATE);
 
 $coreFile = DIR_SYSTEM_CORE.DS.'core.php';
@@ -72,16 +114,20 @@ if (file_exists($coreFile)) {
 spl_autoload_register(function ($classname) {
     if (!class_exists($classname)) {
         $pattern = '/(Controller|Model|View)/';
-        $filename = preg_replace($pattern, '', $classname);
-        $filename = lcfirst($filename);
-        $paths = array(
-                DIR_SYSTEM_CONTROLLERS.DS.$filename.'.php',
-                DIR_SYSTEM_MODELS.DS.$filename.'.php',
-                DIR_SYSTEM_VIEWS.DS.$filename.'.php',
-                DIR_CONTROLLERS.DS.$filename.'.php',
-                DIR_MODELS.DS.$filename.'.php',
-                DIR_VIEWS.DS.$filename.'.php'
-            );
+        if (preg_match($pattern, $classname) === 1) {
+            $filename = preg_replace($pattern, '', $classname);
+            $filename = lcfirst($filename);
+            $paths = array(
+                    DIR_CONTROLLERS.DS.$filename.'.php',
+                    DIR_MODELS.DS.$filename.'.php',
+                    DIR_VIEWS.DS.$filename.'.php'
+                );
+        } else {
+            $filename = lcfirst($classname);
+            $paths = array(
+                    DIR_SYSTEM_CORE.DS.'core_'.$filename.'.php'
+                );
+        }
 
         foreach ($paths as $path) {
             if (file_exists($path)) {
@@ -90,6 +136,12 @@ spl_autoload_register(function ($classname) {
         }
 
         if (!class_exists($classname)) {
+            $core = new SystemCore();
+            $log = new Log();
+            $log->createLog('The Class, '.$classname.', failed to be autoloaded by the system.<br />
+                The system execution has been terminated.<br /><br />'.
+                $core->checkPaths($paths),
+                'Critical');
             exit('Fatal Error: Class , '.$classname.', is missing.<br /><a href="'.URL_BASE.'">Click here</a> to go back to the Homepage.<br />Exiting...');
         }
     }

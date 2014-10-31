@@ -1,284 +1,108 @@
-/* Popups */
+.hr,
+.hr-light,
+.hr-heavy {
+    display: block;
+    margin: 5px 0px 9px 0px;
+    height: 2px;
+    background: #b7b7b7;
+}
+.hr-light {
+    height: 1px;
+}
+.hr-heavy {
+    height: 3px;
+}
 
-#mypopup-container {
-    display: block;
-    position: fixed;
-    top: 0px;
-    left: 0px;
-    z-index: 1000;
-    background: #123b54;
-    background: rgba(18, 59, 84, 0.75);
-    text-align: center;
-}
-#mypopup-body {
+
+
+.action-block {
     display: inline-block;
-    max-width: 350px;
-    padding: 10px 15px;
-    border-radius: 3px;
-    border: 1px solid transparent;
-    background: #f7f7f7;
-    box-shadow: 3px 3px 2px rgba(0, 0, 0, 0.5);
-    text-align: center;
-}
-#mypopup-title {
-    display: block;
-    padding: 5px 0px;
-    font-family: 'Georgia';
-    font-size: 1.1em;
-    text-align: left;
-    text-transform: capitalize;
-}
-#mypopup-content {
-    display: block;
-    margin: 0px 0px 5px 0px;
+    margin: 0px 2px 2px 0px;
     padding: 10px 13px;
+    border: 2px solid transparent;
     border-radius: 3px;
-    border: 1px solid #ccc;
-    background: #fff;
-    font-size: 0.9em;
-    text-align: left;
+    background: url('../img/system_background_logo_70x70.png') center center no-repeat scroll #fff;
+    vertical-align: top;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
-#mypopup-buttons {
+.action-block:hover {
+
+}
+.action-block:active {
+
+}
+
+
+
+/* Embedded search styles */
+
+#embedded-search-results-container {
     display: block;
-    text-align: center;
-}
-
-
-
-/* Forms */
-
-#form-elements-reader-container {
-    display: inline-block;
-    max-width: 250px;
-    padding: 2px;
+    margin: 0px;
+    padding: 3px;
     position: absolute;
-    overflow: hidden;
+    border: 2px solid #898989;
     border-radius: 3px;
-    border: 1px solid #ccc;
-    background: #fff;
-    box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.15);
+    background: #f2f2f2;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
     text-align: left;
-    word-wrap: break-word;
 }
-#form-elements-reader-content {
-    display: block;
-    padding: 10px 15px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
+#embedded-search-results-container-close-btn {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin: -15px 0px 0px -15px;
+    position: absolute;
+    border-radius: 20px;
+    background: url('../img/etc_icon_close_button_20x20.png') center center no-repeat scroll transparent;
+    cursor: pointer;
+    opacity: 0.2;
+}
+#embedded-search-results-container-close-btn:hover {
+    opacity: 1;
+}
+#embedded-search-results-container table {
     font-size: 0.85em;
 }
-
-#search-box-container {
-    display: block;
-    max-height: 350px;
-    padding: 3px;
-    overflow: auto;
-    position: absolute;
-    border-radius: 3px;
-    border: 1px solid transparent;
-    background: #fff;
-}
-#search-box-content {
-    display: block;
-    padding: 10px 15px;
-    border-radius: 3px;
-    border: 1px solid #aaa;
-    font-size: 0.95em;
-    text-align: left;
-}
-
-
-
-/* Table Paginations */
-
-table.paged {
-    display: none;
-}
-.pagination-statistics {
-    display: block;
-    padding: 8px 12px;
-    margin: 2px 2px 0px 0px;
-    border-radius: 3px;
-    border: 1px solid transparent;
-    background: #11d0f2;
-    background: rgba(17, 208, 242, 0.1);
-}
-.pagination-navigation {
-    display: block;
-    margin: 2px 2px 0px 0px;
-}
-.pagination-navigation-buttons {
-    display: inline-block;
-    margin: 0px 1px 1px 0px;
-    padding: 10px 14px;
-    border-radius: 3px;
-    border: 1px solid transparent;
-    background: #404040;
-    background: rgba(0, 0, 0, 0.1);
+#embedded-search-results-container > table > tbody > tr {
     cursor: pointer;
 }
-.pagination-navigation-buttons:hover {
-    background: rgba(0, 0, 0, 0.2);
-}
-.pagination-navigation-buttons:active {
-    background: rgba(0, 0, 0, 0.3);
-}
-.pagination-navigation-buttons.currentPage {
-    background: #1083b9;
-    background: rgba(16, 131, 185, 0.8);
+#embedded-search-results-container > table > tbody > tr:hover th,
+#embedded-search-results-container > table > tbody > tr:hover td {
+    background: #6dcff6;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
     color: #fff;
 }
-.pagination-navigation-buttons.currentPage:hover {
-    background: rgba(16, 131, 185, 0.8);
-}
-.pagination-navigation-buttons.hidden {
-    display: none;
-}
-.pagination-navigation-buttons.disabled {
-    background: rgba(0, 0, 0, 0.45);
-    text-decoration: line-through;
-    color: #4d4d4d;
+
+.embedded-search-pick {
+    display: inline-block;
+    width: 200px;
+    margin: 0px 2px 2px 0px;
+    padding: 4px 8px;
+    border: 2px solid transparent;
+    border-radius: 3px;
+    background: #00aeef;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.35);
+    text-align: left;
+    color: #fff;
     cursor: not-allowed;
 }
-
-
-
-/* Datas */
-
-.data-more-details {
-    display: none;
-    min-width: 200px;
-    margin: 3px 0px 0px -18px;
-    padding: 13px 18px;
+.embedded-search-pick-btn-cancel {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin: -15px 0px 0px -15px;
     position: absolute;
-    z-index: 2;
-    border: 1px solid #ccc;
-    border-radius: 3px;
-    background: #fff;
-    box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
-}
-.data-more-details-btn-close {
-    display: inline-block;
-    width: 15px;
-    height: 18px;
-    padding: 5px 8px;
-    border-radius: 30px;
-    border: 1px solid transparent;
-    background: #ccc;
-    background: rgba(204, 204, 204, 0.3);
-    float: right;
-    font-size: 12pt;
-    text-align: center;
-    text-shadow: 0px 0px 0px transparent;
-    color: #333;
+    border-radius: 20px;
+    background: url('../img/etc_icon_close_button_20x20.png') center center no-repeat scroll transparent;
+    opacity: 0.35;
     cursor: pointer;
 }
-.data-more-details-btn-close:hover {
-    background: #ccc;
-    background: rgba(204, 204, 204, 0.6);
-    text-shadow: 0px 0px 0px transparent;
-}
-.data-more-details-btn-close:active {
-    background: rgba(204, 204, 204, 0.95);
-}
-
-
-
-/* Accordions */
-
-.accordion-symbol {
-    display: inline-block;
-    width: 15px;
-    text-align: center;
-}
-.accordion-title {
-    display: block;
-    margin: 1px 0px 0px 0px;
-    padding: 8px 13px;
-    border-radius: 3px;
-    border: 1px solid transparent;
-    background: #265080;
-    background: rgba(38, 80, 128, 0.85);
-    font-size: 1em;
-    color: #fff;
-    cursor: pointer;
-}
-.accordion-title:first-child () {
-    margin: 0px;
-}
-.accordion-title:hover {
-    background: rgba(38, 80, 128, 0.95);
-}
-.accordion-title-open {
-    border-bottom-left-radius: 0px;
-    border-bottom-right-radius: 0px;
-    background: #268028;
-    background: rgba(38, 128, 40, 0.85);
-}
-.accordion-title-open:hover {
-    background: rgba(38, 128, 40, 0.95);
-}
-.accordion-content {
-    margin: 0px 0px 1px 0px;
-    padding: 8px 13px;
-    overflow: auto;
-    border-radius: 3px;
-    border-top-left-radius: 0px;
-    border-top-right-radius: 0px;
-    border: 1px solid #268028;
-    border-color: rgba(38, 128, 40, 0.85);
-    background: #fff;
-    background: rgba(255, 255, 255, 0.95);
-}
-
-
-
-/* Page Errors */
-
-.error-403 {
-    display: block;
-    min-width: 780px;
-    min-height: 350px;
-    background: url('../img/errorScreen_403.jpg') center center no-repeat scroll #fff;
-}
-.error-404 {
-    display: block;
-    min-width: 780px;
-    min-height: 350px;
-    background: url('../img/errorScreen_404.jpg') center center no-repeat scroll #fff;
-}
-.error-maintenance {
-    display: block;
-    min-width: 780px;
-    min-height: 350px;
-    background: url('../img/errorScreen_maintenance.jpg') center center no-repeat scroll #fff;
-}
-
-
-
-#scroller-to-top {
-    display: inline-block;
-    width: 50px;
-    height: 30px;
-    padding-top: 15px;
-    position: fixed;
-    left: 15px;
-    bottom: 5px;
-    border-radius: 30px;
-    border: 1px solid transparent;
-    background: #0076a3;
-    background: rgba(0, 118, 163, 0.85);
-    text-align: center;
-    font-size: 1.5em;
-    font-weight: bold;
-    color: #fff;
-    color: rgba(255, 255, 255, 0.75);
-    cursor: pointer;
-}
-#scroller-to-top:hover {
-    background: rgba(0, 118, 163, 0.7);
-    color: rgba(255, 255, 255, 0.95);
-}
-#scroller-to-top:active {
-    background: rgba(0, 118, 163, 0.95);
+.embedded-search-pick-btn-cancel:hover {
+    opacity: 1;
 }
